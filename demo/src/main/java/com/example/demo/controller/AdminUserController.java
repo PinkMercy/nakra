@@ -21,7 +21,7 @@ public class AdminUserController {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
-    
+
     // Create a new user (if separate from registration)
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")

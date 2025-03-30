@@ -1,0 +1,31 @@
+<button nz-button (click)="fetchUsers()" nzType="primary">Refresh Users</button>
+<br /><br />
+<nz-table #editRowTable nzBordered [nzData]="listOfData">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (data of editRowTable.data; track data) {
+      <tr class="editable-row">
+        <td>{{ data.id }}</td>
+        <td>
+          <div class="editable-cell" [hidden]="editId === data.id" (click)="startEdit(data.id)">
+            {{ data.username }}
+          </div>
+          <input [hidden]="editId !== data.id" type="text" nz-input [(ngModel)]="data.username" (blur)="stopEdit()" />
+        </td>
+        <td>{{ data.email }}</td>
+        <td>{{ data.role }}</td>
+        <td>
+          <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(data.id)">Delete</a>
+        </td>
+      </tr>
+    }
+  </tbody>
+</nz-table>
