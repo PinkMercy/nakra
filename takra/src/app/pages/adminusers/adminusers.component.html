@@ -11,21 +11,50 @@
     </tr>
   </thead>
   <tbody>
-    @for (data of editRowTable.data; track data) {
-      <tr class="editable-row">
-        <td>{{ data.id }}</td>
-        <td>
-          <div class="editable-cell" [hidden]="editId === data.id" (click)="startEdit(data.id)">
-            {{ data.username }}
-          </div>
-          <input [hidden]="editId !== data.id" type="text" nz-input [(ngModel)]="data.username" (blur)="stopEdit()" />
-        </td>
-        <td>{{ data.email }}</td>
-        <td>{{ data.role }}</td>
-        <td>
-          <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(data.id)">Delete</a>
-        </td>
-      </tr>
-    }
+    <tr *ngFor="let data of editRowTable.data">
+      <td>{{ data.id }}</td>
+      <td>
+        <div class="editable-cell" *ngIf="editId !== data.id" (click)="startEdit(data.id)">
+          {{ data.username }}
+        </div>
+        <input *ngIf="editId === data.id" type="text" nz-input [(ngModel)]="data.username" (blur)="stopEdit()" />
+      </td>
+      <td>{{ data.email }}</td>
+      <td>{{ data.role }}</td>
+      <td>
+        <!-- Delete Button -->
+        <button nz-button nzDanger nzType="primary" nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(data.id)">
+          Supprimer
+        </button>
+        <!-- faire un espace entre les boutton  -->
+        <span style="margin: 0 8px;"></span>
+        <!-- Modifier Button -->
+        <button nz-button nzType="primary" (click)="openEditModal(data)">
+          Modifier
+        </button>
+      </td>
+    </tr>
   </tbody>
 </nz-table>
+
+<!-- Edit Modal -->
+<nz-modal
+  [(nzVisible)]="isEditModalVisible"
+  nzTitle="Modifier l'utilisateur"
+  (nzOnCancel)="closeEditModal()"
+  (nzOnOk)="updateUser()"
+>
+  <div *nzModalContent>
+    <label>Nom d'utilisateur:</label>
+    <input nz-input [(ngModel)]="editedUser.username" />
+    
+    <label>Email:</label>
+    <input nz-input [(ngModel)]="editedUser.email" />
+    
+    <label>Mot de passe:</label>
+    <input nz-input type="password" [(ngModel)]="editedUser.password" />
+    
+    <label>Role:</label>
+    <input nz-input [(ngModel)]="editedUser.role" />
+  </div>
+</nz-modal>

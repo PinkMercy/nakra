@@ -30,4 +30,29 @@ export class UserService {
     const credentials = btoa(`${username}:${password}`);
     return `Basic ${credentials}`;
   }
+
+  deleteUser(id: number): Observable<any> {
+    const url = `${this.apiUrl}/${id}`;
+    const username = 'admin'; // Use actual credentials
+    const password = 'admin';
+    const basicAuth = this.getBasicAuthHeader(username, password);
+  
+    return this.http.delete(url, {
+      headers: {
+        Authorization: basicAuth
+      }
+    });
+  }
+  updateUser(id: number, userData: Partial<User>): Observable<any> {
+    const url = `${this.apiUrl}/${id}`;
+    const username = 'admin'; // Replace with actual credentials if needed
+    const password = 'admin';
+    const basicAuth = this.getBasicAuthHeader(username, password);
+    
+    return this.http.put(url, userData, {
+      headers: {
+        Authorization: basicAuth
+      }
+    });
+  }
 }
