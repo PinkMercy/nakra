@@ -55,4 +55,17 @@ export class UserService {
       }
     });
   }
+  addUser(userData: User): Observable<any> {
+    const url = this.apiUrl; // Assuming the API endpoint for adding users is the same as fetching users
+    const username = 'admin'; // Replace with actual credentials if needed
+    const password = 'admin';
+    const basicAuth = this.getBasicAuthHeader(username, password);
+    
+    return this.http.post(url, userData, {
+      headers: {
+        Authorization: basicAuth
+      }
+    });
+  }
+  
 }

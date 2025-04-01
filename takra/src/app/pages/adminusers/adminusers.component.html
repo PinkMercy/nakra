@@ -1,4 +1,6 @@
 <button nz-button (click)="fetchUsers()" nzType="primary">Refresh Users</button>
+<span style="margin: 0 8px;"></span>
+<button nz-button (click)="openAddModal()" nzType="primary">Add User</button>
 <br /><br />
 <nz-table #editRowTable nzBordered [nzData]="listOfData">
   <thead>
@@ -22,13 +24,10 @@
       <td>{{ data.email }}</td>
       <td>{{ data.role }}</td>
       <td>
-        <!-- Delete Button -->
         <button nz-button nzDanger nzType="primary" nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(data.id)">
           Supprimer
         </button>
-        <!-- faire un espace entre les boutton  -->
         <span style="margin: 0 8px;"></span>
-        <!-- Modifier Button -->
         <button nz-button nzType="primary" (click)="openEditModal(data)">
           Modifier
         </button>
@@ -37,24 +36,39 @@
   </tbody>
 </nz-table>
 
-<!-- Edit Modal -->
+<!-- Reuse the same modal for both adding and editing -->
 <nz-modal
   [(nzVisible)]="isEditModalVisible"
-  nzTitle="Modifier l'utilisateur"
+  [nzTitle]="isAddMode ? 'Ajouter un utilisateur' : 'Modifier l\'utilisateur'"
   (nzOnCancel)="closeEditModal()"
-  (nzOnOk)="updateUser()"
+  (nzOnOk)="confirmModal()"
 >
   <div *nzModalContent>
-    <label>Nom d'utilisateur:</label>
-    <input nz-input [(ngModel)]="editedUser.username" />
-    
-    <label>Email:</label>
-    <input nz-input [(ngModel)]="editedUser.email" />
-    
-    <label>Mot de passe:</label>
-    <input nz-input type="password" [(ngModel)]="editedUser.password" />
-    
-    <label>Role:</label>
-    <input nz-input [(ngModel)]="editedUser.role" />
+    <form [formGroup]="userForm">
+      <label>Nom d'utilisateur:</label>
+      <input nz-input formControlName="username" />
+      <div *ngIf="userForm.get('username')?.touched && userForm.get('username')?.invalid" class="error">
+        Username is required.
+      </div>
+
+      <label>Email:</label>
+      <input nz-input formControlName="email" />
+      <div *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid" class="error">
+        <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
+        <div *ngIf="userForm.get('email')?.errors?.['email']">Invalid email format.</div>
+      </div>
+
+      <label>Mot de passe:</label>
+      <input nz-input type="password" formControlName="password" />
+      <div *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="error">
+        Password is required.
+      </div>
+
+      <label>Role:</label>
+      <input nz-input formControlName="role" />
+      <div *ngIf="userForm.get('role')?.touched && userForm.get('role')?.invalid" class="error">
+        Role is required.
+      </div>
+    </form>
   </div>
 </nz-modal>
