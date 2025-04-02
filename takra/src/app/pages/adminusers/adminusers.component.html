@@ -62,12 +62,17 @@
       <input nz-input type="password" formControlName="password" />
       <div *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="error">
         Password is required.
-      </div>
+      </div>    
 
       <label>Role:</label>
-      <input nz-input formControlName="role" />
-      <div *ngIf="userForm.get('role')?.touched && userForm.get('role')?.invalid" class="error">
-        Role is required.
+      <nz-select formControlName="role" style="width: 100%;">
+        <nz-option *ngFor="let option of ['ADMIN', 'USER']" [nzValue]="option" [nzLabel]="option"></nz-option>
+      </nz-select>
+
+      <label>Statut:</label>
+      <nz-switch formControlName="isActive"></nz-switch>
+      <div *ngIf="userForm.get('isActive')?.touched && userForm.get('isActive')?.invalid" class="error">
+        Status is required.
       </div>
     </form>
   </div>
