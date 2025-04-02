@@ -6,9 +6,15 @@ import com.example.demo.model.TrainingType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
+@Setter
+@Getter
 public class TrainingCreateDTO {
     @NotBlank(message = "Title is required")
     private String title;
@@ -27,5 +33,6 @@ public class TrainingCreateDTO {
     @Min(value = 1, message = "Duration must be at least 1 hour")
     private int durationInHours;
 
-    // Getters and Setters
+    // List of sessions for the training
+    private List<TrainingSessionDTO> sessions;
 }

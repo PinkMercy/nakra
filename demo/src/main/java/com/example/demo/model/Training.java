@@ -2,10 +2,18 @@ package com.example.demo.model;
 
 
 
+import com.example.demo.dto.TrainingSessionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,6 +21,8 @@ import java.util.List;
 
 @Data
 @Entity
+@Getter
+@Setter
 public class Training {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,10 +48,13 @@ public class Training {
     @Column(nullable = false)
     private int durationInHours;
 
-//    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
-    // Getters and Setters
+    // Helper method to manage bidirectional relationship
+    public void addSession(TrainingSession session) {
+        sessions.add(session);
+        session.setTraining(this);
+    }
 }
