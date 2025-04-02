@@ -49,8 +49,8 @@ public class SecurityConfig {
                                 "/admin/users/*",
                                 "/admin/trainings/create",
                                 "/admin/trainings/update/**",
-                                "/admin/trainings/delete/*"
-                               // "/admin/trainings/*/sessions/update/**",
+                                "/admin/trainings/delete/*",
+                                "/admin/trainings/*/sessions/update/**"
                                // "/admin/trainings/*/sessions/delete/**"
                         ).permitAll() // Permit these endpoints without authentication
                         .anyRequest().authenticated() // All other endpoints require authentication

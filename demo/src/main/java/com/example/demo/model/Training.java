@@ -48,6 +48,7 @@ public class Training {
     @Column(nullable = false)
     private int durationInHours;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;

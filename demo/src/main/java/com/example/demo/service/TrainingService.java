@@ -53,17 +53,42 @@ public class TrainingService {
         return trainingRepository.save(training);
     }
 
-    // Update training by ID
     public Training updateTraining(Long id, TrainingCreateDTO dto) {
+        // 1. Retrieve the existing training
         Training training = trainingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Training not found with id: " + id));
 
+        // 2. Update the basic properties
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
         training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
 
+        // 3. Update the sessions:
+        // Clear existing sessions. With cascade and orphanRemoval true,
+        // removing them from the collection will delete them from the DB.
+        training.getSessions().clear();
+
+        // Process each session DTO and add it to the training.
+        if (dto.getSessions() != null) {
+            for (TrainingSessionDTO sessionDTO : dto.getSessions()) {
+                TrainingSession session = new TrainingSession();
+
+                // Convert room and type from String to Enum.
+                session.setRoom(Room.valueOf(sessionDTO.getRoom().toUpperCase()));
+                session.setDate(sessionDTO.getDate());
+                session.setTimeStart(sessionDTO.getTimeStart());
+                session.setTimeEnd(sessionDTO.getTimeEnd());
+                session.setLinkMeet(sessionDTO.getLinkMeet());
+                session.setType(SessionType.valueOf(sessionDTO.getType().toUpperCase()));
+
+                // Add session to training (this also sets the back reference)
+                training.addSession(session);
+            }
+        }
+
+        // 4. Save the updated training entity
         return trainingRepository.save(training);
     }
 
