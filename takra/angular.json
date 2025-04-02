@@ -38,13 +38,16 @@
               }
             ],
             "styles": [
-              "src/assets/bootstrap/css/bootstrap.min.css",
-              "src/theme.less",
-              "src/styles.scss"
-
+              "src/styles.scss",
+              "src/theme.less"
             ],
-            "scripts": ["src/assets/bootstrap/js/bootstrap.min.js",
-            "src/assets/js/startup-modern.js"]
+            "scripts": [
+            "src/assets/js/startup-modern.js"
+          ],
+          "stylePreprocessorOptions": {
+            "includePaths": [
+              "node_modules"
+            ] }
           },
           "configurations": {
             "production": {
