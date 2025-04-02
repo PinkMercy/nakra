@@ -1,4 +1,5 @@
 package com.example.demo.service;
+import com.example.demo.model.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.model.User;
@@ -71,6 +72,9 @@ public class UserService {
     public User createUser(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);  // Ensure a role is always set
+        }
         return userRepository.save(user);
     }
 
@@ -79,13 +83,21 @@ public class UserService {
         return userRepository.findById(id).map(existingUser -> {
             existingUser.setUsername(updatedData.getUsername());
             existingUser.setEmail(updatedData.getEmail());
-            // Update password only if provided (and non-empty)
+
+            // Update the password only if provided (and non-empty)
             if (updatedData.getPassword() != null && !updatedData.getPassword().isBlank()) {
                 existingUser.setPassword(passwordEncoder.encode(updatedData.getPassword()));
             }
+
+            // Update the role if provided
+            if (updatedData.getRole() != null) {
+                existingUser.setRole(updatedData.getRole());
+            }
+
             return userRepository.save(existingUser);
         }).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
     }
+
 
     // 5) Delete a user by ID
     public void deleteUser(Long id) {

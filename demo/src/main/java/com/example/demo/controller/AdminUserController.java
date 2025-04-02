@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,14 +45,15 @@ public class AdminUserController {
         }
     }
 
-    // Conversion helper method (could be refactored into a separate utility or mapper)
     private User convertToEntity(UserDto userDto) {
         User user = new User();
         user.setUsername(userDto.getUsername());
         user.setPassword(userDto.getPassword());
         user.setEmail(userDto.getEmail());
-        if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
-            user.setRole(userDto.getRoles().get(0));
+        if (userDto.getRole() != null) {
+            user.setRole(userDto.getRole());  // Set role from frontend input
+        } else {
+            user.setRole(Role.USER);  // Default to USER
         }
         return user;
     }
