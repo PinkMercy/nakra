@@ -39,10 +39,12 @@
             ],
             "styles": [
               "src/styles.scss",
-              "src/theme.less"
+              "src/theme.less",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
             "scripts": [
-            "src/assets/js/startup-modern.js"
+            "src/assets/js/startup-modern.js",
+            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
           ],
           "stylePreprocessorOptions": {
             "includePaths": [
