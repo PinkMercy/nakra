@@ -9,7 +9,7 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
-  FormArray
+  FormArray,
 } from '@angular/forms';
 
 @Component({
@@ -17,7 +17,7 @@ import {
   standalone: true,
   imports: [CommonModule, FullCalendarModule, ReactiveFormsModule],
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.scss']
+  styleUrls: ['./calendar.component.scss'],
 })
 export class CalendarComponent implements OnInit {
   calendarOptions!: CalendarOptions;
@@ -31,28 +31,39 @@ export class CalendarComponent implements OnInit {
     this.eventForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
-      type: ['WORKSHOP'], // default type
+      type: ['WORKSHOP'], // event type (if needed)
       date: ['', Validators.required],
       duration: [0],
-      sessions: this.fb.array([]) // FormArray for sessions
+      // Main session fields (always visible)
+      room: ['', Validators.required],
+      timeStart: ['', Validators.required],
+      timeEnd: ['', Validators.required],
+      linkMeet: [''],
+      sessionType: ['ONLINE'], // default session type for main session
+      // Additional sessions will be stored in this FormArray
+      sessions: this.fb.array([])
     });
-
+  
     this.calendarOptions = {
       plugins: [dayGridPlugin, interactionPlugin],
       initialView: 'dayGridMonth',
       dateClick: (info) => {
         this.showModal = true;
-        // Patch the date field for the event
+        // Patch the main event date field with the clicked date
         this.eventForm.patchValue({ date: info.dateStr });
+        // Clear previous additional sessions (if any)
+        while (this.sessions.length) {
+          this.sessions.removeAt(0);
+        }
       },
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
-      events: this.calendarEvents
+      events: this.calendarEvents,
     };
-  }
+  }  
 
   // Getter to easily access sessions as a FormArray
   get sessions(): FormArray {
@@ -67,7 +78,7 @@ export class CalendarComponent implements OnInit {
       timeStart: ['', Validators.required],
       timeEnd: ['', Validators.required],
       linkMeet: [''],
-      type: ['ONLINE'] // default session type
+      type: ['ONLINE'], // default session type
     });
     this.sessions.push(sessionGroup);
   }
@@ -79,41 +90,89 @@ export class CalendarComponent implements OnInit {
 
   onSubmit(): void {
     if (this.eventForm.valid) {
-      // Here, you can transform the form value to your desired event structure.
       const formValue = this.eventForm.value;
-      const newEvent = {
+      
+      // Build payload for the main session from top-level fields
+      const mainSession = {
+        room: formValue.room,
+        date: formValue.date,
+        timeStart: formValue.timeStart,
+        timeEnd: formValue.timeEnd,
+        linkMeet: formValue.linkMeet,
+        type: formValue.sessionType,
+      };
+  
+      // Start with the main session in the sessions array
+      const sessionsPayload = [mainSession];
+      
+      // Append additional sessions from the FormArray (if any)
+      if (formValue.sessions && formValue.sessions.length > 0) {
+        formValue.sessions.forEach((session: any) => {
+          sessionsPayload.push({
+            room: session.room,
+            date: session.date,
+            timeStart: session.timeStart,
+            timeEnd: session.timeEnd,
+            linkMeet: session.linkMeet,
+            type: session.type,
+          });
+        });
+      }
+      
+      // Build the final payload object
+      const payload = {
         title: formValue.title,
         description: formValue.description,
         type: formValue.type,
         date: formValue.date,
         duration: formValue.duration,
-        sessions: formValue.sessions
+        sessions: sessionsPayload,
       };
-
-      console.log('Event to add:', newEvent);
-
-      // Optionally add the event to the calendar events (this example uses only title and start/end)
-      // You might want to handle calendar event properties differently if they need to reflect sessions, etc.
-      this.calendarEvents = [...this.calendarEvents, {
-        title: newEvent.title,
-        start: newEvent.date,
-        extendedProps: { description: newEvent.description }
-      }];
-
+      
+      console.log('Payload to send to backend:', payload);
+      // Here you could send the payload to your backend via an HTTP request.
+      
+      // Next, update the calendar so the events show up.
+      let newCalendarEvents: { title: any; start: string; end: string; extendedProps: { description: any; room: any; linkMeet: any; type: any; duration: any; }; }[] = [];
+      // For each session in our payload, create a calendar event
+      sessionsPayload.forEach((session, index) => {
+        const eventTitle = index === 0 ? payload.title : `${payload.title} (${session.type})`;
+        const start = session.date + 'T' + session.timeStart;
+        const end = session.date + 'T' + session.timeEnd;
+        newCalendarEvents.push({
+          title: eventTitle,
+          start: start,
+          end: end,
+          extendedProps: {
+            description: payload.description,
+            room: session.room,
+            linkMeet: session.linkMeet,
+            type: session.type,
+            duration: payload.duration,
+          }
+        });
+      });
+      
+      // Update calendarEvents and the calendarOptions to display the new events
+      this.calendarEvents = [...this.calendarEvents, ...newCalendarEvents];
       this.calendarOptions = {
         ...this.calendarOptions,
-        events: this.calendarEvents
+        events: this.calendarEvents,
       };
-
-      // Close the modal and reset the form
+      
+      // Reset the form and close the modal
       this.showModal = false;
-      this.eventForm.reset({ type: 'WORKSHOP', duration: 0 });
-      // Clear all sessions
+      this.eventForm.reset({
+        type: 'WORKSHOP',
+        duration: 0,
+        sessionType: 'ONLINE'
+      });
+      // Clear any additional sessions from the FormArray
       while (this.sessions.length) {
         this.sessions.removeAt(0);
       }
     }
-  }
+  }  
 
   closeModal(): void {
     this.showModal = false;
