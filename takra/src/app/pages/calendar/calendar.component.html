@@ -1,4 +1,4 @@
-<!-- Calendar Display -->
+<!-- Calendar Display --> 
 <div>
   <full-calendar [options]="calendarOptions"></full-calendar>
 </div>
@@ -21,11 +21,7 @@
         <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
           <div class="mb-3">
             <label>Event Name</label>
-            <input
-              class="form-control"
-              formControlName="title"
-              placeholder="Enter event name"
-            />
+            <input class="form-control" formControlName="title" placeholder="Enter event name" />
           </div>
 
           <div class="mb-3">
@@ -33,55 +29,75 @@
             <input class="form-control" type="date" formControlName="date" />
           </div>
 
-          <div class="row">
-            <div class="col mb-3">
-              <label>Start Time</label>
-              <input class="form-control" type="time" formControlName="start" />
-            </div>
-            <div class="col mb-3">
-              <label>End Time</label>
-              <input class="form-control" type="time" formControlName="end" />
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label>Location</label>
-            <input
-              class="form-control"
-              formControlName="location"
-              placeholder="Event location"
-            />
-          </div>
-
           <div class="mb-3">
             <label>Description</label>
-            <textarea
-              class="form-control"
-              formControlName="description"
-              rows="3"
-            ></textarea>
+            <textarea class="form-control" formControlName="description" rows="3"></textarea>
           </div>
 
           <div class="mb-3">
             <label>Type</label>
-            <select class="form-select" formControlName="className">
-              <option value="bg-primary-subtle">Primary</option>
-              <option value="bg-success-subtle">Success</option>
-              <option value="bg-danger-subtle">Danger</option>
-              <option value="bg-info-subtle">Info</option>
-              <option value="bg-dark-subtle">Dark</option>
-              <option value="bg-warning-subtle">Warning</option>
+            <select class="form-select" formControlName="type">
+              <option value="WORKSHOP">Workshop</option>
+              <option value="MEETUP">Meetup</option>
+              <!-- add other types as needed -->
             </select>
           </div>
 
-          <div class="text-end">
-            <button
-              type="button"
-              class="btn btn-secondary me-2"
-              (click)="closeModal()"
-            >
-              Cancel
+          <div class="mb-3">
+            <label>Duration (hours)</label>
+            <input class="form-control" type="number" formControlName="duration" placeholder="Enter duration" />
+          </div>
+
+          <!-- Sessions Section -->
+          <div formArrayName="sessions">
+            <div *ngFor="let session of sessions.controls; let i = index" [formGroupName]="i" class="border p-3 mb-3">
+              <h6>Session {{ i + 1 }}</h6>
+              <div class="mb-2">
+                <label>Room</label>
+                <input class="form-control" formControlName="room" placeholder="Room name/number" />
+              </div>
+              <div class="mb-2">
+                <label>Date</label>
+                <input class="form-control" type="date" formControlName="date" />
+              </div>
+              <div class="row mb-2">
+                <div class="col">
+                  <label>Start Time</label>
+                  <input class="form-control" type="time" formControlName="timeStart" />
+                </div>
+                <div class="col">
+                  <label>End Time</label>
+                  <input class="form-control" type="time" formControlName="timeEnd" />
+                </div>
+              </div>
+              <div class="mb-2">
+                <label>Link Meet</label>
+                <input class="form-control" formControlName="linkMeet" placeholder="Meeting link" />
+              </div>
+              <div class="mb-2">
+                <label>Session Type</label>
+                <select class="form-select" formControlName="type">
+                  <option value="ONLINE">Online</option>
+                  <option value="OFFLINE">Offline</option>
+                </select>
+              </div>
+              <div class="text-end">
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeSession(i)">
+                  Remove Session
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Button to add a new session -->
+          <div class="mb-3">
+            <button type="button" class="btn btn-info" (click)="addSession()">
+              Ajouter Session
             </button>
+          </div>
+
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary me-2" (click)="closeModal()">Cancel</button>
             <button type="submit" class="btn btn-success">Add Event</button>
           </div>
         </form>
