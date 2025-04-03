@@ -10,10 +10,11 @@ import fr from '@angular/common/locales/fr';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
-
+import { HttpClientModule } from '@angular/common/http'; 
 registerLocaleData(fr);
 
 export const appConfig: ApplicationConfig = {
+<<<<<<< HEAD
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
@@ -24,4 +25,14 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient()
   ]
   // bootstrap: [AppComponent] // This is not needed in standalone components
+=======
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes), provideNzIcons(icons),
+    provideNzI18n(fr_FR),
+    importProvidersFrom(FormsModule),
+    provideAnimationsAsync(),
+     provideHttpClient(),
+    HttpClientModule
+  ]
+>>>>>>> createformation
 };
