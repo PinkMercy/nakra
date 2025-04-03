@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Component, OnInit } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular'
 import { CalendarOptions } from '@fullcalendar/core';
@@ -12,18 +11,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
   selector: 'app-calendar',
   standalone: true,
   imports: [CommonModule, FullCalendarModule, ReactiveFormsModule],
-=======
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-
-@Component({
-  selector: 'app-calendar',
-  imports: [FormsModule],
->>>>>>> createformation
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
-<<<<<<< HEAD
 export class CalendarComponent implements OnInit {
   calendarOptions!: CalendarOptions;
   calendarEvents: EventInput[] = [];
@@ -91,8 +81,3 @@ export class CalendarComponent implements OnInit {
     this.showModal = false;
   }
 }
-=======
-export class CalendarComponent {
-  
-}
->>>>>>> createformation
