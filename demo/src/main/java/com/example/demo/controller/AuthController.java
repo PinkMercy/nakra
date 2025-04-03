@@ -4,23 +4,17 @@ import com.example.demo.dto.LoginDTO;
 import com.example.demo.dto.UserDto;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     @Autowired
     private UserService userService;
-
-    // Registration endpoint – test with Postman using JSON similar to:
-    // {
-    //     "username": "admin",
-    //     "password": "admin",
-    //     "email": "admin@example.com",
-    //     "roles": ["ADMIN"]
-    // }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDto userDto) {
         // Convert UserDto to User entity
