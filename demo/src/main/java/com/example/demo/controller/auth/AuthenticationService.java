@@ -7,6 +7,7 @@ import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,7 +17,7 @@ public class AuthenticationService {
     private final UserRepository repository;
 
     private final JwtService jwtService;
-
+    private final BCryptPasswordEncoder passwordEncoder;
 private final AuthenticationManager authenticationManager;
 
 
@@ -25,7 +26,7 @@ private final AuthenticationManager authenticationManager;
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
         repository.save(user);
@@ -53,6 +54,10 @@ private final AuthenticationManager authenticationManager;
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .role(user.getRole().name())
                 .build();
 
     }
