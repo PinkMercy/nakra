@@ -34,6 +34,10 @@ private final AuthenticationManager authenticationManager;
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .role(user.getRole().name())
                 .build();
     }
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
