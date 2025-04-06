@@ -24,13 +24,11 @@ public class AdminUserController {
     }
 
     // Create a new user (Admin operation)
+    // Create a new user with selectable role
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
-        // Convert UserDto to User entity
-        User user = convertToEntity(userDto);
-        User createdUser = authenticationService.createUser(user);
-        return ResponseEntity.status(201).body(createdUser);
+        User createdUser = authenticationService.createUser(userDto);
+        return ResponseEntity.ok(createdUser);
     }
 
     // Update an existing user (Admin operation)

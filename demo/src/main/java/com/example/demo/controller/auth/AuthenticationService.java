@@ -71,12 +71,28 @@ private final AuthenticationManager authenticationManager;
         return repository.findAll();
     }
 
-    // Create a new user; encodes the password before saving
-    public User createUser(User user) {
-        if (user.getRole() == null) {
+    // Create a new user with selectable role
+    public User createUser(UserDto userDto) {
+        User user = User.builder()
+                .firstname(userDto.getFirstname())
+                .lastname(userDto.getLastname())
+                .email(userDto.getEmail())
+                // Encode the password
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .build();
+
+        // If a role is provided, convert it; otherwise, default to USER.
+        if (userDto.getRole() != null && !userDto.getRole().isEmpty()) {
+            try {
+                Role chosenRole = Role.valueOf(userDto.getRole().toUpperCase());
+                user.setRole(chosenRole);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid role provided: " + userDto.getRole());
+            }
+        } else {
             user.setRole(Role.USER);
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return repository.save(user);
     }
 

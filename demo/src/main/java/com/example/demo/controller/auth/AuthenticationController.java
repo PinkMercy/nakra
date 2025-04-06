@@ -40,8 +40,8 @@ public class AuthenticationController {
 
     // Create a new user
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = service.createUser(user);
+    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
+        User createdUser = service.createUser(userDto);
         return ResponseEntity.ok(createdUser);
     }
 
