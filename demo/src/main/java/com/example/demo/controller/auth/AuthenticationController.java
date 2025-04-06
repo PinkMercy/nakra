@@ -2,14 +2,12 @@ package com.example.demo.controller.auth;
 
 import com.example.demo.dto.UserDto;
 import com.example.demo.model.User;
-import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,5 +29,33 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
 
+    }
+
+    // Retrieve all users
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = service.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    // Create a new user
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User createdUser = service.createUser(user);
+        return ResponseEntity.ok(createdUser);
+    }
+
+    // Update an existing user by id
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        User updatedUser = service.updateUser(id, userDto);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // Delete a user by id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        service.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

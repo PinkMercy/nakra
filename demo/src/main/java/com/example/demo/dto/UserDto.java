@@ -1,14 +1,20 @@
 package com.example.demo.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
-    private String username;
+    private String firstname;
+    private String lastname;
     private String password;
     private String email;
-    // Although your User entity has a single role field, you can receive a list
-    // and pick the first one or handle multiple roles as needed.
+    private String role;
+    // Keep roles as a list so you can support multiple roles if needed.
     private List<String> roles;
 }
