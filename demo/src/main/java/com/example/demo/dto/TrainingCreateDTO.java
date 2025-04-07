@@ -22,8 +22,8 @@ public class TrainingCreateDTO {
     @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message = "Type is required")
-    private TrainingType type;
+//    @NotNull(message = "Type is required")
+//    private TrainingType type;
 
     @NotNull(message = "Date is required")
     @FutureOrPresent(message = "Date must be in the present or future")

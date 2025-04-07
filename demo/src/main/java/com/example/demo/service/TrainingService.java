@@ -29,7 +29,7 @@ public class TrainingService {
         Training training = new Training();
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
-        training.setType(dto.getType());
+//        training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
         training.setCreatedBy(admin);
@@ -61,7 +61,7 @@ public class TrainingService {
         // 2. Update the basic properties
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
-        training.setType(dto.getType());
+//        training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
 

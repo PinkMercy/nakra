@@ -54,15 +54,15 @@
             ></textarea>
           </div>
 
-          <!-- Duration -->
+          <!-- durationInHours -->
           <div class="mb-3">
-            <label for="duration" class="form-label">Duration (hours)</label>
+            <label for="durationInHours" class="form-label">durationInHours (hours)</label>
             <input
               type="number"
-              id="duration"
+              id="durationInHours"
               class="form-control"
-              formControlName="duration"
-              placeholder="Enter duration"
+              formControlName="durationInHours"
+              placeholder="Enter durationInHours"
             />
           </div>
 
@@ -118,7 +118,7 @@
             <select
               id="sessionType"
               class="form-select"
-              formControlName="type"
+              formControlName="sessionType"
             >
               <option value="ONLINE">Online</option>
               <option value="OFFLINE">Offline</option>
@@ -197,7 +197,7 @@
                 <select
                   [id]="'sessionType' + i"
                   class="form-select"
-                  formControlName="type"
+                  formControlName="sessiontype"
                 >
                   <option value="ONLINE">Online</option>
                   <option value="OFFLINE">Offline</option>
