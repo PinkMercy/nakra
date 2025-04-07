@@ -47,7 +47,7 @@ export class CalendarComponent implements OnInit {
       // Additional sessions will be stored in this FormArray
       sessions: this.fb.array([]),
     });
-
+  
     this.calendarOptions = {
       plugins: [dayGridPlugin, interactionPlugin],
       initialView: 'dayGridMonth',
@@ -67,7 +67,40 @@ export class CalendarComponent implements OnInit {
       },
       events: this.calendarEvents,
     };
+  
+    // Fetch events from the backend
+    this.eventService.getEvents().subscribe({
+      next: (events) => {
+        // Transform each training into calendar events.
+        // Assuming each Event (training) has a sessions array.
+        this.calendarEvents = events.flatMap((training) =>
+          training.sessions.map((session, index) => {
+            const eventTitle = index === 0 ? training.title : `${training.title} (${session.type})`;
+            return {
+              title: eventTitle,
+              start: session.date + 'T' + session.timeStart,
+              end: session.date + 'T' + session.timeEnd,
+              extendedProps: {
+                description: training.description,
+                room: session.room,
+                linkMeet: session.linkMeet,
+                durationInHours: training.durationInHours,
+              },
+            };
+          })
+        );
+        // Update the calendar options with the fetched events
+        this.calendarOptions = {
+          ...this.calendarOptions,
+          events: this.calendarEvents,
+        };
+      },
+      error: (err) => {
+        console.error('Error fetching events:', err);
+      }
+    });
   }
+  
 
   // Getter to access sessions FormArray
   get sessions(): FormArray {

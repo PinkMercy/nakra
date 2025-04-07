@@ -17,7 +17,7 @@ export class SessionService {
     const password = 'admin';
     const basicAuth = this.getBasicAuthHeader(username, password);
 
-    return this.http.get<Event[]>(this.apiUrl, {
+    return this.http.get<Event[]>('http://localhost:8080/admin/trainings/all', {
       headers: {
         Authorization: basicAuth
       }
@@ -40,31 +40,28 @@ export class SessionService {
 
   // Update an event
   updateEvent(id: number, eventData: Partial<Event>): Observable<any> {
-    const url = `${this.apiUrl}/${id}`;
+    const url = `http://localhost:8080/admin/trainings/update/${id}`;
     const username = 'admin';
     const password = 'admin';
     const basicAuth = this.getBasicAuthHeader(username, password);
-
+  
     return this.http.put(url, eventData, {
-      headers: {
-        Authorization: basicAuth
-      }
+      headers: { Authorization: basicAuth }
     });
   }
 
   // Delete an event
   deleteEvent(id: number): Observable<any> {
-    const url = `${this.apiUrl}/${id}`;
+    const url = `http://localhost:8080/admin/trainings/delete/${id}`;
     const username = 'admin';
     const password = 'admin';
     const basicAuth = this.getBasicAuthHeader(username, password);
-
+  
     return this.http.delete(url, {
-      headers: {
-        Authorization: basicAuth
-      }
+      headers: { Authorization: basicAuth }
     });
   }
+  
 
   private getBasicAuthHeader(username: string, password: string): string {
     const credentials = btoa(`${username}:${password}`);
