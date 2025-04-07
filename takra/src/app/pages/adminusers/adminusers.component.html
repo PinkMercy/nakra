@@ -6,7 +6,7 @@
   <thead>
     <tr>
       <th>ID</th>
-      <th>Username</th>
+      <th>Nom</th>
       <th>Email</th>
       <th>Role</th>
       <th>Action</th>
@@ -17,9 +17,9 @@
       <td>{{ data.id }}</td>
       <td>
         <div class="editable-cell" *ngIf="editId !== data.id" (click)="startEdit(data.id)">
-          {{ data.username }}
+          {{ data.firstname }}
         </div>
-        <input *ngIf="editId === data.id" type="text" nz-input [(ngModel)]="data.username" (blur)="stopEdit()" />
+        <input *ngIf="editId === data.id" type="text" nz-input [(ngModel)]="data.firstname" (blur)="stopEdit()" />
       </td>
       <td>{{ data.email }}</td>
       <td>{{ data.role }}</td>
@@ -45,11 +45,17 @@
 >
   <div *nzModalContent>
     <form [formGroup]="userForm">
-      <label>Nom d'utilisateur:</label>
-      <input nz-input formControlName="username" />
-      <div *ngIf="userForm.get('username')?.touched && userForm.get('username')?.invalid" class="error">
-        Username is required.
-      </div>
+      <label>Prénom:</label>
+<input nz-input formControlName="firstname" />
+<div *ngIf="userForm.get('firstname')?.touched && userForm.get('firstname')?.invalid" class="error">
+  Firstname is required (min 2 characters).
+</div>
+
+<label>Nom:</label>
+<input nz-input formControlName="lastname" />
+<div *ngIf="userForm.get('lastname')?.touched && userForm.get('lastname')?.invalid" class="error">
+  Lastname is required (max 50 characters).
+</div>
 
       <label>Email:</label>
       <input nz-input formControlName="email" />

@@ -32,28 +32,28 @@ public class AuthenticationController {
     }
 
     // Retrieve all users
-    @GetMapping
+    @GetMapping("/admin/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = service.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     // Create a new user
-    @PostMapping
+    @PostMapping("/admin/users")
     public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
         User createdUser = service.createUser(userDto);
         return ResponseEntity.ok(createdUser);
     }
 
     // Update an existing user by id
-    @PutMapping("/{id}")
+    @PutMapping("/admin/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         User updatedUser = service.updateUser(id, userDto);
         return ResponseEntity.ok(updatedUser);
     }
 
     // Delete a user by id
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         service.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
