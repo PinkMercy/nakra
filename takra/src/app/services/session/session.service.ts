@@ -39,29 +39,30 @@ export class SessionService {
   }
 
   // Update an event
-  updateEvent(id: number, eventData: Partial<Event>): Observable<any> {
+  updateEvent(id: number, payload: any): Observable<any> {
     const url = `http://localhost:8080/admin/trainings/update/${id}`;
     const username = 'admin';
     const password = 'admin';
     const basicAuth = this.getBasicAuthHeader(username, password);
   
-    return this.http.put(url, eventData, {
+    return this.http.put(url, payload, {
       headers: { Authorization: basicAuth }
     });
   }
 
   // Delete an event
-  deleteEvent(id: number): Observable<any> {
-    const url = `http://localhost:8080/admin/trainings/delete/${id}`;
-    const username = 'admin';
-    const password = 'admin';
-    const basicAuth = this.getBasicAuthHeader(username, password);
-  
-    return this.http.delete(url, {
-      headers: { Authorization: basicAuth }
-    });
-  }
-  
+ deleteEvent(id: number): Observable<any> {
+  const url = `http://localhost:8080/admin/trainings/delete/${id}`;
+  const username = 'admin';
+  const password = 'admin';
+  const basicAuth = this.getBasicAuthHeader(username, password);
+
+  return this.http.delete(url, {
+    headers: { Authorization: basicAuth },
+    responseType: 'text'
+  });
+}
+
 
   private getBasicAuthHeader(username: string, password: string): string {
     const credentials = btoa(`${username}:${password}`);

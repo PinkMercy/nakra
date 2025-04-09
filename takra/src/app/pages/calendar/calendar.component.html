@@ -1,6 +1,6 @@
 <!-- Calendar Display -->
 <div>
-  <full-calendar [options]="calendarOptions"></full-calendar>
+  <full-calendar #calendar [options]="calendarOptions"></full-calendar>
 </div>
 
 <!-- Modal for Adding an Event -->
@@ -56,7 +56,9 @@
 
           <!-- durationInHours -->
           <div class="mb-3">
-            <label for="durationInHours" class="form-label">durationInHours (hours)</label>
+            <label for="durationInHours" class="form-label"
+              >durationInHours (hours)</label
+            >
             <input
               type="number"
               id="durationInHours"
@@ -148,7 +150,9 @@
 
               <!-- Session Date -->
               <div class="mb-2">
-                <label [for]="'sessionDate' + i" class="form-label">Session Date</label>
+                <label [for]="'sessionDate' + i" class="form-label"
+                  >Session Date</label
+                >
                 <input
                   type="date"
                   [id]="'sessionDate' + i"
@@ -160,7 +164,9 @@
               <!-- Start and End Time -->
               <div class="row mb-2">
                 <div class="col">
-                  <label [for]="'timeStart' + i" class="form-label">Start Time</label>
+                  <label [for]="'timeStart' + i" class="form-label"
+                    >Start Time</label
+                  >
                   <input
                     type="time"
                     [id]="'timeStart' + i"
@@ -169,7 +175,9 @@
                   />
                 </div>
                 <div class="col">
-                  <label [for]="'timeEnd' + i" class="form-label">End Time</label>
+                  <label [for]="'timeEnd' + i" class="form-label"
+                    >End Time</label
+                  >
                   <input
                     type="time"
                     [id]="'timeEnd' + i"
@@ -181,7 +189,9 @@
 
               <!-- Link Meet -->
               <div class="mb-2">
-                <label [for]="'linkMeet' + i" class="form-label">Link Meet</label>
+                <label [for]="'linkMeet' + i" class="form-label"
+                  >Link Meet</label
+                >
                 <input
                   type="text"
                   [id]="'linkMeet' + i"
@@ -193,11 +203,13 @@
 
               <!-- Session Type (Select) -->
               <div class="mb-2">
-                <label [for]="'sessionType' + i" class="form-label">Session Type</label>
+                <label [for]="'sessionType' + i" class="form-label"
+                  >Session Type</label
+                >
                 <select
                   [id]="'sessionType' + i"
                   class="form-select"
-                  formControlName="sessiontype"
+                  formControlName="type"
                 >
                   <option value="ONLINE">Online</option>
                   <option value="OFFLINE">Offline</option>
@@ -233,8 +245,16 @@
             >
               Cancel
             </button>
+            <!-- Delete Event button: only visible when editing -->
+            <button
+              *ngIf="isEditing"
+              type="button"
+              class="btn btn-danger me-2"
+              (click)="onDelete()">
+              Delete Event
+            </button>
             <button type="submit" class="btn btn-success">
-              Add Event
+              {{ isEditing ? "Update Event" : "Add Event" }}
             </button>
           </div>
         </form>
