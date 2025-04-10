@@ -2,6 +2,7 @@ package com.example.demo.controller.auth;
 
 import com.example.demo.dto.UserDto;
 import com.example.demo.model.User;
+import com.example.demo.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AuthenticationController {
 
     //@Autowired
     private final AuthenticationService service;
-
+    private final PasswordResetService passwordResetService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
@@ -29,6 +30,24 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
 
+    }
+
+
+    // Endpoint to initiate password reset
+    @PostMapping("/reset-password-request")
+    public ResponseEntity<String> requestPasswordReset(@RequestParam("email") String email,
+                                                       @RequestParam("appUrl") String appUrl) {
+        // In production you might derive appUrl dynamically or from configuration
+        passwordResetService.createPasswordResetToken(email, appUrl);
+        return ResponseEntity.ok("Password reset link has been sent to your email address.");
+    }
+
+    // Endpoint to reset the password
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam("token") String token,
+                                                @RequestParam("newPassword") String newPassword) {
+        passwordResetService.resetPassword(token, newPassword);
+        return ResponseEntity.ok("Password has been successfully reset.");
     }
 
     // Retrieve all users
