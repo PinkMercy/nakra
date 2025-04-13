@@ -8,6 +8,7 @@ import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,6 +18,11 @@ public class TrainingService {
 
     @Autowired
     private UserRepository userRepository;
+
+    // New method to get all trainings
+    public List<Training> getAllTrainning() {
+        return trainingRepository.findAll();
+    }
 
     public Training createTraining(TrainingCreateDTO dto) {
         if (trainingRepository.findByDate(dto.getDate()).isPresent()) {
@@ -29,7 +35,7 @@ public class TrainingService {
         Training training = new Training();
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
-        training.setType(dto.getType());
+//        training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
         training.setCreatedBy(admin);
@@ -61,7 +67,7 @@ public class TrainingService {
         // 2. Update the basic properties
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
-        training.setType(dto.getType());
+//        training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
 

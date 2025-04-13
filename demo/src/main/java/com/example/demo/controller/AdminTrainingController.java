@@ -7,12 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/trainings")
 public class AdminTrainingController {
 
     @Autowired
     private TrainingService trainingService;
+
+    // New endpoint to get all trainings
+    @GetMapping("/all")
+    public ResponseEntity<List<Training>> getAllTrainning() {
+        List<Training> trainings = trainingService.getAllTrainning();
+        return ResponseEntity.ok(trainings);
+    }
 
     // Endpoint for ADMIN to create a new training
     @PostMapping("/create")
