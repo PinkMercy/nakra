@@ -40,7 +40,7 @@ public class PasswordResetService {
         tokenRepository.save(resetToken);
 
         // Build the email message
-        String resetUrl = appUrl + "/api/auth/reset-password?token=" + token;
+        String resetUrl = appUrl + "/reset-password?token=" + token;
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setTo(user.getEmail());
         emailMessage.setSubject("Password Reset Request");

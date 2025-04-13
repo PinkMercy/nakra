@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 interface RegisterRequest {
   firstname: string;
@@ -37,7 +37,7 @@ export class AuthService {
   // Adjust the URL if needed; sometimes the extra '/register' might not be necessary
   private apiUrl = 'http://localhost:8080/api/auth';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, ) {}
 
   register(user: RegisterRequest): Observable<RegisterResponse> {
     const body = { ...user, role: 'USER' };
@@ -46,4 +46,21 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/authenticate`, credentials);
   }
+
+   requestReset(email: string, appUrl: string): Observable<any> {
+     const params = new HttpParams()
+       .set('email', email)
+       .set('appUrl', appUrl);
+ 
+     return this.http.post(`${this.apiUrl}/reset-password-request`, null, { params });
+   }
+ 
+   // Reset password by token
+   resetPassword(token: string, newPassword: string): Observable<any> {
+     const params = new HttpParams()
+       .set('token', token)
+       .set('newPassword', newPassword);
+ 
+     return this.http.post(`${this.apiUrl}/reset-password`, null, { params });
+   }
 }
