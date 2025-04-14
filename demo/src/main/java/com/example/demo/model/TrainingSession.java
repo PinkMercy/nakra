@@ -33,7 +33,7 @@ public class TrainingSession {
     private String linkMeet;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private SessionType type;
 
     @JsonBackReference

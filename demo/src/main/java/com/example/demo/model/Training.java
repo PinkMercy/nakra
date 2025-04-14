@@ -39,7 +39,7 @@ public class Training {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private TrainingType type;
 
     @Column(nullable = false)
