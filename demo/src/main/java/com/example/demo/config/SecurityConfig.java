@@ -1,16 +1,23 @@
 package com.example.demo.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,45 +26,34 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // needed if you use @PreAuthorize in your code
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
 
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        // Create an admin user with the ADMIN role
-        UserDetails admin = User.withUsername("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(admin);
-    }
+
+
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for development purposes
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/auth/register",
-                                "/auth/login",
-                                "/admin/users/*",
-                                "/admin/trainings/create",
-                                "/admin/trainings/update/**",
-                                "/admin/trainings/delete/*",
-                                "/admin/trainings/all",
-                                "/admin/trainings/*/sessions/update/**"
-                               // "/admin/trainings/*/sessions/delete/**"
-                        ).permitAll() // Permit these endpoints without authentication
-                        .anyRequest().authenticated() // All other endpoints require authentication
-                )
-                .httpBasic(Customizer.withDefaults()) // Use HTTP Basic Auth
-                .sessionManagement(session -> session.disable()); // Disable session management
+                .authorizeHttpRequests()
+                .requestMatchers("/api/auth/**","/admin/trainings/**") // Permit authentication endpoints
+                .permitAll() // Permit these endpoints without authentication
+                .anyRequest()
+                .authenticated() // All other endpoints require authentication
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+
 
         return http.build();
     }
@@ -72,4 +68,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
+
 }

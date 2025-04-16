@@ -1,20 +1,19 @@
-package com.example.demo.dto;
+package com.example.demo.controller.auth;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class AuthenticationResponse {
+    private String token;
     private String firstname;
     private String lastname;
-    private String password;
     private String email;
     private String role;
-    // Keep roles as a list so you can support multiple roles if needed.
-    private List<String> roles;
+
 }

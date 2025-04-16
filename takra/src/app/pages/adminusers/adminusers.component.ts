@@ -35,7 +35,8 @@ export class AdminusersComponent implements OnInit {
     // Create the form group with validators.
     this.userForm = this.fb.group({
       id: [null],
-      username: ['', Validators.required],
+      firstname: ['', [Validators.required, Validators.minLength(2)]],
+      lastname: ['', [Validators.required, Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       role: ['', Validators.required]
@@ -103,8 +104,9 @@ export class AdminusersComponent implements OnInit {
 
     if (this.isAddMode) {
       const newUser: User = {
-        id: this.listOfData.length + 1, // For demo purposes only; ideally, the backend generates the ID.
-        username: this.userForm.value.username,
+        id: this.listOfData.length + 1, 
+        firstname: this.userForm.value.firstname,// For demo purposes only; ideally, the backend generates the ID.
+        lastname: this.userForm.value.lastname,
         email: this.userForm.value.email,
         password: this.userForm.value.password,
         role: this.userForm.value.role
@@ -119,7 +121,8 @@ export class AdminusersComponent implements OnInit {
     } else {
       // For editing, we assume the user already has an ID.
       const updatedUser: Partial<User> = {
-        username: this.userForm.value.username,
+        firstname: this.userForm.value.firstname,
+        lastname: this.userForm.value.lastname,
         email: this.userForm.value.email,
         password: this.userForm.value.password,
         role: this.userForm.value.role
