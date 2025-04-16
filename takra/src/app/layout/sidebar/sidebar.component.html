@@ -13,24 +13,28 @@
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
       <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
         <ul>
-          <li nz-menu-item nzMatchRouter>
+          <!-- For USER role -->
+          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
             <a routerLink="/welcome">Welcome</a>
           </li>
-          <li nz-menu-item nzMatchRouter>
+          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
             <a routerLink="/calendar">Calendrier</a>
           </li>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/AdminUsersControle">gérer les users</a>
+          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+            <a>profile</a>
           </li>
-          <li nz-menu-item nzMatchRouter>
-            <a>Workplace</a>
+    
+          <!-- For ADMIN role -->
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <a routerLink="AdminUsersControle">gérer les users</a>
           </li>
-        </ul>
-      </li>
-      <li nz-submenu nzOpen nzTitle="Form" nzIcon="form">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a>Basic Form</a>
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <a routerLink="calendar">Calendrier</a>
+          </li>
+    
+          <!-- Common to both roles -->
+          <li *ngIf="role" nz-menu-item nzMatchRouter>
+            <a (click)="logout()">Deconnection</a>
           </li>
         </ul>
       </li>

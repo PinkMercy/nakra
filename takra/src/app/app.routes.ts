@@ -6,17 +6,20 @@ import { SignupComponent } from './auth/signup/signup.component';
 import { AdminusersComponent } from './pages/adminusers/adminusers.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { authGuard } from './auth/gard/auth.guard';
+import { adminGuard } from './auth/gard/admin.guard';
 
 export const routes: Routes = [
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { path: '', component: SidebarComponent, children: [
-    { path: 'calendar', component: CalendarComponent }, 
-    { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
-  {path: 'AdminUsersControle',component:AdminusersComponent}
-  ]},
   { path: 'login', component: LoginComponent }, 
   {path: 'signup', component: SignupComponent},
-  { path: '', pathMatch: 'full', redirectTo: '/welcome' },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+
+  { path: 'home', component: SidebarComponent,canActivate: [authGuard], children: [
+    { path: 'calendar', component: CalendarComponent , canActivate: [adminGuard]}, 
+    { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
+    {path: 'AdminUsersControle',component:AdminusersComponent, canActivate: [adminGuard]}
+  ]},
+  { path: '', pathMatch: 'full', redirectTo: '/home' },
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) }
 ];
