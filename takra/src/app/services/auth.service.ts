@@ -46,6 +46,13 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/authenticate`, credentials);
   }
+  // Logout
+  logout(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/logout`, null, {
+      responseType: 'text'
+    });
+  }
+ 
 
    requestReset(email: string, appUrl: string): Observable<any> {
      const params = new HttpParams()

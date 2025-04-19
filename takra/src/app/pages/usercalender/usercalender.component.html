@@ -1,0 +1,29 @@
+<div class="calendar-wrapper">
+  <full-calendar
+    #calendar
+    [options]="calendarOptions">
+  </full-calendar>
+</div>
+
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  nzTitle="Détails de la session"
+  nzOkText="S'inscrire"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+  [nzOkLoading]="isOkLoading"
+>
+  <div *ngIf="currentSession">
+    <p><strong>Salle :</strong> {{ currentSession.room }}</p>
+    <p><strong>Date :</strong> {{ currentSession.date }}</p>
+    <p><strong>Heure de début :</strong> {{ currentSession.timeStart }}</p>
+    <p><strong>Heure de fin :</strong> {{ currentSession.timeEnd }}</p>
+    <p><strong>Type :</strong> {{ currentSession.type }}</p>
+    <p>
+      <strong>Lien Meet :</strong>
+      <a [href]="currentSession.linkMeet" target="_blank">
+        {{ currentSession.linkMeet }}
+      </a>
+    </p>
+  </div>
+</nz-modal>

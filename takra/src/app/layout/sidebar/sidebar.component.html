@@ -18,19 +18,17 @@
             <a routerLink="/welcome">Welcome</a>
           </li>
           <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
-            <a routerLink="/calendar">Calendrier</a>
+            <a routerLink="usercalendar">Calendrier</a>
           </li>
           <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
-            <a>profile</a>
+            <a>Profile</a>
           </li>
-    
+
           <!-- For ADMIN role -->
           <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
             <a routerLink="AdminUsersControle">gérer les users</a>
           </li>
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
-            <a routerLink="calendar">Calendrier</a>
-          </li>
+          
     
           <!-- Common to both roles -->
           <li *ngIf="role" nz-menu-item nzMatchRouter>
