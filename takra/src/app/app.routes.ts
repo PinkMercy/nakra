@@ -9,6 +9,7 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 import { authGuard } from './auth/gard/auth.guard';
 import { adminGuard } from './auth/gard/admin.guard';
 import { UsercalenderComponent } from './pages/usercalender/usercalender.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent }, 
@@ -21,6 +22,7 @@ export const routes: Routes = [
     { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
     {path: 'AdminUsersControle',component:AdminusersComponent, canActivate: [adminGuard],},
     {path: 'usercalendar', component: UsercalenderComponent },
+    {path: 'profile', component:ProfileComponent },
   ]},
   { path: '', pathMatch: 'full', redirectTo: '/home' },
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) }
