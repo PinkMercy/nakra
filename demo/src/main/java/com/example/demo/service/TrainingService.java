@@ -8,8 +8,12 @@ import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class TrainingService {
@@ -59,29 +63,45 @@ public class TrainingService {
         return trainingRepository.save(training);
     }
 
+    public List<Training> getAllTrainings() {
+        return trainingRepository.findAll();
+    }
+
     public Training updateTraining(Long id, TrainingCreateDTO dto) {
         // 1. Retrieve the existing training
         Training training = trainingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Training not found with id: " + id));
 
-        // 2. Update the basic properties
+        // 2. Update the basic training properties
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
-//        training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
 
-        // 3. Update the sessions:
-        // Clear existing sessions. With cascade and orphanRemoval true,
-        // removing them from the collection will delete them from the DB.
-        training.getSessions().clear();
+        // 3. Process sessions
+        // Instead of clearing all sessions immediately, you can update existing sessions
+        // and add new ones. One approach is to:
+        //   a. Create a map of existing sessions by id.
+        Map<Long, TrainingSession> existingSessions = training.getSessions().stream()
+                .filter(session -> session.getId() != null)
+                .collect(Collectors.toMap(TrainingSession::getId, Function.identity()));
 
-        // Process each session DTO and add it to the training.
+        //   b. Create a new list for sessions to hold the updated set.
+        List<TrainingSession> updatedSessions = new ArrayList<>();
+
+        //   c. Iterate over the sessions from the DTO.
         if (dto.getSessions() != null) {
             for (TrainingSessionDTO sessionDTO : dto.getSessions()) {
-                TrainingSession session = new TrainingSession();
+                TrainingSession session;
+                if (sessionDTO.getId() != null && existingSessions.containsKey(sessionDTO.getId())) {
+                    // Found an existing session; update its fields
+                    session = existingSessions.get(sessionDTO.getId());
+                } else {
+                    // No existing session with this ID, so create a new session
+                    session = new TrainingSession();
+                }
 
-                // Convert room and type from String to Enum.
+                // Update common session fields.
                 session.setRoom(Room.valueOf(sessionDTO.getRoom().toUpperCase()));
                 session.setDate(sessionDTO.getDate());
                 session.setTimeStart(sessionDTO.getTimeStart());
@@ -89,14 +109,20 @@ public class TrainingService {
                 session.setLinkMeet(sessionDTO.getLinkMeet());
                 session.setType(SessionType.valueOf(sessionDTO.getType().toUpperCase()));
 
-                // Add session to training (this also sets the back reference)
-                training.addSession(session);
+                updatedSessions.add(session);
             }
         }
 
-        // 4. Save the updated training entity
+        // Optionally, if you want to completely replace the sessions, you can do:
+        training.getSessions().clear();
+        for (TrainingSession session : updatedSessions) {
+            training.addSession(session);
+        }
+
+        // 4. Save and return the updated training entity.
         return trainingRepository.save(training);
     }
+
 
 
     // Delete training by ID
