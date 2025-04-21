@@ -26,7 +26,10 @@
 
           <!-- For ADMIN role -->
           <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
-            <a routerLink="AdminUsersControle">gérer les users</a>
+            <a routerLink="AdminUsersControle">Gérer les utilisateur</a>
+          </li>
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <a routerLink="calendar">Calendrier</a>
           </li>
           
     
