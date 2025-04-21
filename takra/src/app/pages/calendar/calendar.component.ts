@@ -192,7 +192,8 @@ export class CalendarComponent implements OnInit {
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
       console.log('Form Value:', formValue); // Check trainingId here
-      // Build payload for the main session from top-level fields
+      // Build payload for the main session from top-level fields  
+      
       const mainSession = {
         room: formValue.room,
         date: formValue.date,
