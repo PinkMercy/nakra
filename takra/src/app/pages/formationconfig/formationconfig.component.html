@@ -1,0 +1,29 @@
+<button nz-button nzType="primary" (click)="onAdd()">Ajouter Formation</button>
+
+<nz-table [nzData]="events" [nzBordered]="true" [nzSize]="'middle'" [nzScroll]="{ x: '1000px' }">
+  <thead>
+    <tr>
+      <th>Titre</th>
+      <th>Date</th>
+      <th>Durée</th>
+      
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let event of events">
+      <td>{{ event.title }}</td>
+      <td>{{ event.date }}</td>
+      <td>{{ event.duration }} heures</td>
+      
+      <td>
+        <nz-icon nzType="usergroup-add" nzTheme="outline" />
+        <button nz-button nzType="primary" nzDanger >
+          <i nz-icon nzType="close" nzTheme="outline"></i>
+        </button>
+        <button nz-button nzType="link" (click)="onEdit(event)">Modifier</button>
+        <button nz-button nzType="link" (click)="onAssignTrainer(event)">Affecter Formateur</button>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>

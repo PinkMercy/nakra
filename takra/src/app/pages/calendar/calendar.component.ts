@@ -209,7 +209,44 @@ export class CalendarComponent implements OnInit {
   }
   onDelete(): void {
     // Add logic to delete the event
+    const trainingId = this.eventForm.value.trainingId;
+    if (trainingId && confirm('Are you sure you want to delete this event?')) {
+      this.eventService.deleteEvent(trainingId).subscribe({
+        next: () => {
+          this.fetchEventsAndUpdateCalendar();
+          this.closeModal();
+        },
+        error: (err) => console.error('Error deleting event:', err)
+      });
+    }
     console.log('Event deleted');
+  }
+  // fetchEventsAndUpdateCalendar: Refreshes events from the backend and updates the FullCalendar view.
+  fetchEventsAndUpdateCalendar(): void {
+    this.eventService.getEvents().subscribe({
+      next: (events) => {
+        this.calendarEvents = events.flatMap(training =>
+          training.sessions.map((session, index) => ({
+            id: String(training.id),
+            title: index === 0 ? training.title : `${training.title} (${session.type})`,
+            start: `${session.date}T${session.timeStart}`,
+            end: `${session.date}T${session.timeEnd}`,
+            extendedProps: {
+              trainingId: training.id,
+              description: training.description,
+              room: session.room,
+              linkMeet: session.linkMeet,
+              durationInHours: training.durationInHours,
+              sessionType: session.type
+            }
+          }))
+        );
+        const calendarApi = this.calendarComponent.getApi();
+        calendarApi.removeAllEvents();
+        this.calendarEvents.forEach((event) => calendarApi.addEvent(event));
+      },
+      error: (err) => console.error('Error re-fetching events:', err)
+    });
   }
   private buildCalendarEvents(trainings: any[]): EventInput[] {
     return trainings.flatMap(training => 
@@ -236,4 +273,5 @@ export class CalendarComponent implements OnInit {
   }
 
   // Delete and closeModal methods remain the same...
+  
 }
