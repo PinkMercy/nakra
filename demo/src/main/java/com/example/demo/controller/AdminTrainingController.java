@@ -16,19 +16,19 @@ public class AdminTrainingController {
     @Autowired
     private TrainingService trainingService;
 
-    // New endpoint to get all trainings
-    @GetMapping("/all")
-    public ResponseEntity<List<Training>> getAllTrainning() {
-        List<Training> trainings = trainingService.getAllTrainning();
-        return ResponseEntity.ok(trainings);
-    }
-
     // Endpoint for ADMIN to create a new training
     @PostMapping("/create")
     public ResponseEntity<Training> createTraining(@RequestBody TrainingCreateDTO trainingDTO) {
         Training createdTraining = trainingService.createTraining(trainingDTO);
         return ResponseEntity.ok(createdTraining);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Training>> getAllTrainings() {
+        List<Training> trainings = trainingService.getAllTrainings();
+        return ResponseEntity.ok(trainings);
+    }
+
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Training> updateTraining(@PathVariable Long id, @RequestBody TrainingCreateDTO dto) {

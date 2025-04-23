@@ -237,4 +237,3 @@ export class CalendarComponent implements OnInit {
 
   // Delete and closeModal methods remain the same...
 }
-
