@@ -32,7 +32,7 @@ public class TrainingCreateDTO {
     @JsonProperty("duration")
     @Min(value = 1, message = "Duration must be at least 1 hour")
     private int durationInHours;
-
+    private String formateurEmail;
     // List of sessions for the training
     private List<TrainingSessionDTO> sessions;
 }

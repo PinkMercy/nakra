@@ -6,6 +6,8 @@ import com.example.demo.model.*;
 import com.example.demo.repository.TrainingRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,37 +31,44 @@ public class TrainingService {
     }
 
     public Training createTraining(TrainingCreateDTO dto) {
+        // 1) Prevent duplicate on date
         if (trainingRepository.findByDate(dto.getDate()).isPresent()) {
             throw new RuntimeException("Training already exists on date: " + dto.getDate());
         }
 
-        User admin = userRepository.findById(SecurityUtils.getCurrentUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
+
+        // 3) Find the formateur by email
+        User formateur = userRepository.findByEmail(dto.getFormateurEmail())
+                .orElseThrow(() -> new RuntimeException(
+                        "No user found with email: " + dto.getFormateurEmail()));
+
+        // 4) Build the Training
         Training training = new Training();
         training.setTitle(dto.getTitle());
         training.setDescription(dto.getDescription());
-//        training.setType(dto.getType());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
-        training.setCreatedBy(admin);
 
-        // Process each session DTO, convert and add to training
+        // 5) Set relationships
+        training.setFormateur(formateur);
+
+
+        // 6) Map and add sessions
         if (dto.getSessions() != null) {
-            for (TrainingSessionDTO sessionDTO : dto.getSessions()) {
+            for (TrainingSessionDTO s : dto.getSessions()) {
                 TrainingSession session = new TrainingSession();
-
-                // Convert room string to enum. You may want to add error handling.
-                session.setRoom(Room.valueOf(sessionDTO.getRoom().toUpperCase()));
-                session.setDate(sessionDTO.getDate());
-                session.setTimeStart(sessionDTO.getTimeStart());
-                session.setTimeEnd(sessionDTO.getTimeEnd());
-                session.setLinkMeet(sessionDTO.getLinkMeet());
-                session.setType(SessionType.valueOf(sessionDTO.getType().toUpperCase()));
-
+                session.setRoom(Room.valueOf(s.getRoom().toUpperCase()));
+                session.setDate(s.getDate());
+                session.setTimeStart(s.getTimeStart());
+                session.setTimeEnd(s.getTimeEnd());
+                session.setLinkMeet(s.getLinkMeet());
+                session.setType(SessionType.valueOf(s.getType().toUpperCase()));
                 training.addSession(session);
             }
         }
+
+        // 7) Persist
         return trainingRepository.save(training);
     }
 
@@ -77,7 +86,11 @@ public class TrainingService {
         training.setDescription(dto.getDescription());
         training.setDate(dto.getDate());
         training.setDurationInHours(dto.getDurationInHours());
-
+        // Update formateur
+        User formateur = userRepository.findByEmail(dto.getFormateurEmail())
+                .orElseThrow(() -> new RuntimeException(
+                        "No user found with email: " + dto.getFormateurEmail()));
+        training.setFormateur(formateur);
         // 3. Process sessions
         // Instead of clearing all sessions immediately, you can update existing sessions
         // and add new ones. One approach is to:

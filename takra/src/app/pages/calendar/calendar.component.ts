@@ -196,14 +196,18 @@ export class CalendarComponent implements OnInit {
         });
       } else {
         this.eventService.addEvent(payload).subscribe({
+          
           next: (response) => {
+            console.log('Event created:', response);
             const newTraining = { ...payload, id: response.id };
             this.trainings.push(newTraining);
             this.calendarEvents = this.buildCalendarEvents(this.trainings);
             this.calendarOptions.events = this.calendarEvents;
             this.closeModal();
           }
+          
         });
+        console.log('Event created:', payload);
       }
     }
   }
