@@ -12,7 +12,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session/session.service';
 import { Router } from '@angular/router';
-
+import { NzModalService } from 'ng-zorro-antd/modal';
 interface FormationPreview {
   title: string;
   description: string;
@@ -44,7 +44,8 @@ export class UsercalenderComponent implements OnInit{
   
 
   constructor(private fb: FormBuilder,private sessionService: SessionService,
-    private router: Router) {}
+    private router: Router,
+    private modal: NzModalService) {}
 
   ngOnInit(): void {
     // build the calendar options
@@ -74,19 +75,43 @@ export class UsercalenderComponent implements OnInit{
   }
 
   onEventClick(clickInfo: EventClickArg) {
-    console.log('⚡ eventClick fired, props=', clickInfo.event.extendedProps);
+    //display in console the props
+    console.log(clickInfo.event.extendedProps);
+    
     const props = clickInfo.event.extendedProps as any;
-    // pick out only the six fields you want
-    this.currentFormation = {
-      title: props.title,
-      description: props.description,
-      type: props.type,
-      date: props.date,
-      formateurEmail: props.formateurEmail,
-      durationInHours: props.durationInHours
-    };
-    this.isModalVisible = true;
+  
+    // create the modal on the fly
+    const m = this.modal.create({
+      nzTitle: 'Détails de la formation',
+      nzClosable: true,
+      // simple HTML string for the body
+      nzContent: `
+        <p><strong>Titre :</strong> ${props.title}</p>
+        <p><strong>Description :</strong> ${props.description}</p>
+        <p><strong>Type :</strong> ${props.type}</p>
+        <p><strong>Date :</strong> ${props.date}</p>
+        <p><strong>Formateur :</strong> ${props.formateur?.firstname } ${props.formateur?.lastname}</p>
+        <p><strong>Durée (heures) :</strong> ${props.durationInHours}</p>
+      `,
+      nzFooter: [
+        {
+          label: 'Annuler',
+          onClick: () => m.destroy()
+        },
+        {
+          label: 'Détails formation',
+          type: 'primary',
+          onClick: () => {
+            m.destroy();
+            // assume you stored an `id` in extendedProps
+            const id = (props as any).id;
+            this.router.navigate(['detailformation', id]);
+          }
+        }
+      ]
+    });
   }
+  
 
   // Cancel button
   handleCancel(): void {

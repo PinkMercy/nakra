@@ -4,26 +4,3 @@
     [options]="calendarOptions">
   </full-calendar>
 </div>
-
-<nz-modal
-  [(nzVisible)]="isModalVisible"
-  nzTitle="Détails de la formation"
-  (nzOnCancel)="handleCancel()"
-  [nzFooter]="modalFooter"
->
-  <div *ngIf="currentFormation">
-    <p><strong>Titre :</strong> {{ currentFormation.title }}</p>
-    <p><strong>Description :</strong> {{ currentFormation.description }}</p>
-    <p><strong>Type :</strong> {{ currentFormation.type }}</p>
-    <p><strong>Date :</strong> {{ currentFormation.date }}</p>
-    <p><strong>Formateur :</strong> {{ currentFormation.formateurEmail }}</p>
-    <p><strong>Durée (heures) :</strong> {{ currentFormation.durationInHours }}</p>
-  </div>
-</nz-modal>
-
-<ng-template #modalFooter>
-  <button nz-button (click)="handleCancel()">Annuler</button>
-  <button nz-button nzType="primary" (click)="goToDetailFormation()">
-    Détails formation
-  </button>
-</ng-template>
