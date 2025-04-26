@@ -34,7 +34,7 @@ interface FormationPreview {
 })
 export class UsercalenderComponent implements OnInit{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-
+  private lastClickedId!: number;
   calendarOptions!: CalendarOptions;
   calendarEvents: EventInput[] = [];
 
@@ -75,37 +75,29 @@ export class UsercalenderComponent implements OnInit{
   }
 
   onEventClick(clickInfo: EventClickArg) {
-    //display in console the props
-    console.log(clickInfo.event.extendedProps);
-    
     const props = clickInfo.event.extendedProps as any;
+    this.lastClickedId = props.id;
+    console.log( "id formation",this.lastClickedId)    // ← save this for later
   
-    // create the modal on the fly
     const m = this.modal.create({
       nzTitle: 'Détails de la formation',
       nzClosable: true,
-      // simple HTML string for the body
       nzContent: `
         <p><strong>Titre :</strong> ${props.title}</p>
         <p><strong>Description :</strong> ${props.description}</p>
         <p><strong>Type :</strong> ${props.type}</p>
         <p><strong>Date :</strong> ${props.date}</p>
-        <p><strong>Formateur :</strong> ${props.formateur?.firstname } ${props.formateur?.lastname}</p>
+        <p><strong>Formateur :</strong> ${props.formateur.firstname} ${props.formateur.lastname}</p>
         <p><strong>Durée (heures) :</strong> ${props.durationInHours}</p>
       `,
       nzFooter: [
-        {
-          label: 'Annuler',
-          onClick: () => m.destroy()
-        },
+        { label: 'Annuler', onClick: () => m.destroy() },
         {
           label: 'Détails formation',
           type: 'primary',
           onClick: () => {
             m.destroy();
-            // assume you stored an `id` in extendedProps
-            const id = (props as any).id;
-            this.router.navigate(['detailformation', id]);
+            this.goToDetailFormation();   // ← call the new function
           }
         }
       ]
@@ -118,15 +110,18 @@ export class UsercalenderComponent implements OnInit{
     this.isModalVisible = false;
   }
 
-  // When user clicks “Détails formation”
   goToDetailFormation(): void {
-    // assuming you have a route like /detailformation/:id
-    // grab the id from extendedProps if you stored it (make sure you did above)
-    const routeId = (this.calendarComponent
-      .getApi()
-      .getEventById(this.currentFormation.title)  // or store id separately
-      ?.extendedProps as any).id;
-    this.isModalVisible = false;
-    this.router.navigate(['/detailformation', routeId]);
+    this.sessionService.getTrainingById(this.lastClickedId)
+      .subscribe({
+        next: training => {
+          console.log('Full training details:', training);
+          // now navigate with the full object’s ID
+          this.router.navigate(['home/detailformation', training.id]);
+        },
+        error: err => {
+          console.error('Error loading training details', err);
+        }
+      });
   }
+  
 }

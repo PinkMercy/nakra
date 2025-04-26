@@ -26,7 +26,7 @@ export const routes: Routes = [
     {path: 'gformation',component:FormationconfigComponent, canActivate: [adminGuard],},
     {path: 'usercalendar', component: UsercalenderComponent },
     {path: 'profile', component:ProfileComponent },
-    {path: 'detailformation', component: DetailformationComponent },
+    {path: 'detailformation/:id', component: DetailformationComponent },
 
   ]},
   { path: '', pathMatch: 'full', redirectTo: '/home' },

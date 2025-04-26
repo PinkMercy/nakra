@@ -75,6 +75,10 @@ public class TrainingService {
     public List<Training> getAllTrainings() {
         return trainingRepository.findAll();
     }
+    public Training getTrainingById(Long id) {
+        return trainingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Training not found with id: " + id));
+    }
 
     public Training updateTraining(Long id, TrainingCreateDTO dto) {
         // 1. Retrieve the existing training

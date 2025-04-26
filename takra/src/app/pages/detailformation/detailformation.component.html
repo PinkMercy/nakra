@@ -1,1 +1,113 @@
-<p>detailformation works!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formation Details - Java Basics</title>
+    
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Formation Details</h1>
+                <div class="breadcrumb">
+                    <a href="#">Home</a> / <a href="#">Formations</a> / <span>Java Basics</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="formation-card">
+                <div class="formation-header">
+                    <h2 class="formation-title">Java Basics</h2>
+                    <span class="formation-id">ID: 1</span>
+                </div>
+                
+                <div class="formation-details">
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Date: May 1, 2025</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Duration: Not specified</span>
+                    </div>
+                </div>
+
+                <div class="formation-description">
+                    <h3>Description</h3>
+                    <p>Learn Java Fundamentals</p>
+                </div>
+
+                <div class="formateur-section">
+                    <h3>Formateur</h3>
+                    <div class="formateur-card">
+                        <div class="formateur-avatar">
+                            <span>AL</span>
+                        </div>
+                        <div class="formateur-info">
+                            <h4>Aziz Labidi</h4>
+                            <div class="formateur-detail">
+                                <i class="fas fa-envelope"></i>
+                                <a href="mailto:aziz@soprahr.com">azizsoprahr.com</a>
+                            </div>
+                            <div class="formateur-detail">
+                                <i class="fas fa-id-badge"></i>
+                                <span>ID: 7</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sessions-section">
+                    <h3>Sessions</h3>
+                    <div class="sessions-list">
+                        <div class="session-card">
+                            <div class="session-header">
+                                <span class="session-type online">ONLINE</span>
+                                <span class="session-id">Session ID: 2</span>
+                            </div>
+                            <div class="session-details">
+                                <div class="session-detail">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>May 1, 2025</span>
+                                </div>
+                                <div class="session-detail">
+                                    <i class="fas fa-clock"></i>
+                                    <span>09:00 - 12:00</span>
+                                </div>
+                                <div class="session-detail">
+                                    <i class="fas fa-door-open"></i>
+                                    <span>Room: ROOM_101</span>
+                                </div>
+                            </div>
+                            <div class="session-actions">
+                                <a href="https://meet.google.com/xxx-xxx" class="btn-join" target="_blank">
+                                    <i class="fas fa-video"></i> Join Meeting
+                                </a>
+                                <button class="btn-calendar">
+                                    <i class="fas fa-calendar-plus"></i> Add to Calendar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Formation Platform. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Add to calendar functionality could be implemented here
+        document.querySelectorAll('.btn-calendar').forEach(button => {
+            button.addEventListener('click', function() {
+                alert('Calendar event creation would be implemented here.');
+            });
+        });
+    </script>
+</body>
+</html>

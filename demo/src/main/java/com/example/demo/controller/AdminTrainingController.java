@@ -28,6 +28,11 @@ public class AdminTrainingController {
         List<Training> trainings = trainingService.getAllTrainings();
         return ResponseEntity.ok(trainings);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Training> getTrainingById(@PathVariable Long id) {
+        Training training = trainingService.getTrainingById(id);
+        return ResponseEntity.ok(training);
+    }
 
 
     @PutMapping("/update/{id}")
