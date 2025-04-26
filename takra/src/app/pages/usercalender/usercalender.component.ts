@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CalendarOptions, EventInput } from '@fullcalendar/core';
+import { CalendarOptions, EventClickArg,EventInput } from '@fullcalendar/core';
+
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
@@ -9,26 +10,17 @@ import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular
 import { NzFormModule }  from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { CommonModule } from '@angular/common';
+import { SessionService } from '../../services/session/session.service';
+import { Router } from '@angular/router';
 
-// 1) Interface pour les détails de la session
-interface SessionDetail {
-  room: string;
+interface FormationPreview {
+  title: string;
+  description: string;
+  type: string;
   date: string;
-  timeStart: string;
-  timeEnd: string;
-  linkMeet: string;
-  type: 'ONLINE' | 'OFFLINE';   // adapte si tu as d’autres types
+  formateurEmail: string;
+  durationInHours: number;
 }
-
-// 2) Objet “par défaut” (celui que tu veux afficher au clic)
-const DEFAULT_SESSION: SessionDetail = {
-  room:      'ROOM_102',
-  date:      '2025-03-25',
-  timeStart: '13:00:00',
-  timeEnd:   '15:00:00',
-  linkMeet:  'http://example.com/updated-meeting2',
-  type:      'ONLINE'
-};
 @Component({
   selector: 'app-usercalender',
   imports: [FullCalendarModule,
@@ -46,56 +38,70 @@ export class UsercalenderComponent implements OnInit{
   calendarOptions!: CalendarOptions;
   calendarEvents: EventInput[] = [];
 
-  currentSession!: SessionDetail;
-  isModalVisible = false;
-  isOkLoading   = false;
-  eventForm!: FormGroup;
+   // will hold just the six fields
+   currentFormation!: FormationPreview;
+   isModalVisible = false;
+  
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder,private sessionService: SessionService,
+    private router: Router) {}
 
   ngOnInit(): void {
-    // 1) Construction du formulaire (pas utilisé pour affichage, mais utile si tu veux étendre)
-    this.eventForm = this.fb.group({
-      title:     ['', Validators.required],
-      date:      ['', Validators.required],
-      timeStart: ['', Validators.required],
-      timeEnd:   ['', Validators.required],
-      description: ['']
-    });
-
-    // 2) Configuration de FullCalendar
+    // build the calendar options
     this.calendarOptions = {
-      plugins:      [ dayGridPlugin, interactionPlugin ],
-      initialView:  'dayGridMonth',
-      headerToolbar:{
-        left:   'prev,next today',
+      plugins: [ dayGridPlugin, interactionPlugin ],
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
         center: 'title',
-        right:  'dayGridMonth,timeGridWeek,timeGridDay'
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
-      dateClick: this.onDateClick.bind(this),
-      events: this.calendarEvents
+      events: this.calendarEvents,
+      eventClick: this.onEventClick.bind(this)
     };
+
+    // fetch your trainings
+    this.sessionService.getEvents().subscribe((trainings) => {
+      this.calendarEvents = trainings.map(t => ({
+        id: t.id?.toString(),        // optional, if you have an ID
+        title: t.title,
+        start: t.date,
+        extendedProps: { ...t }      // stash the full JSON in extendedProps
+      }));
+      // re-assign so FullCalendar picks them up
+      this.calendarOptions = { ...this.calendarOptions, events: this.calendarEvents };
+    });
   }
 
-  onDateClick(info: any) {
-    // Cloner DEFAULT_SESSION et mettre à jour la date cliquée
-    this.currentSession = {
-      ...DEFAULT_SESSION,
-      date: info.dateStr
+  onEventClick(clickInfo: EventClickArg) {
+    console.log('⚡ eventClick fired, props=', clickInfo.event.extendedProps);
+    const props = clickInfo.event.extendedProps as any;
+    // pick out only the six fields you want
+    this.currentFormation = {
+      title: props.title,
+      description: props.description,
+      type: props.type,
+      date: props.date,
+      formateurEmail: props.formateurEmail,
+      durationInHours: props.durationInHours
     };
     this.isModalVisible = true;
   }
 
-  handleOk(): void {
-    this.isOkLoading = true;
-    // Ici tu pourrais appeler un service pour "s'inscrire"
-    setTimeout(() => {
-      this.isModalVisible = false;
-      this.isOkLoading = false;
-    }, 300);
-  }
-
+  // Cancel button
   handleCancel(): void {
     this.isModalVisible = false;
+  }
+
+  // When user clicks “Détails formation”
+  goToDetailFormation(): void {
+    // assuming you have a route like /detailformation/:id
+    // grab the id from extendedProps if you stored it (make sure you did above)
+    const routeId = (this.calendarComponent
+      .getApi()
+      .getEventById(this.currentFormation.title)  // or store id separately
+      ?.extendedProps as any).id;
+    this.isModalVisible = false;
+    this.router.navigate(['/detailformation', routeId]);
   }
 }
