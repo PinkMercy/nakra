@@ -42,6 +42,7 @@ export class CalendarComponent implements OnInit {
       description: [''],
       date: ['', Validators.required],
       durationInHours: [0],
+      formateurEmail: ['', [Validators.required, Validators.email]],
       room: ['', Validators.required],
       timeStart: ['', Validators.required],
       timeEnd: ['', Validators.required],
@@ -104,6 +105,7 @@ export class CalendarComponent implements OnInit {
         title: training.title,
         description: training.description,
         durationInHours: training.durationInHours,
+        formateurEmail: training.formateurEmail,
       });
 
       // Clear existing sessions
@@ -171,6 +173,7 @@ export class CalendarComponent implements OnInit {
         timeEnd: formValue.timeEnd,
         linkMeet: formValue.linkMeet,
         type: formValue.sessionType,
+        
       };
       const sessionsPayload = [mainSession, ...formValue.sessions];
       const payload = {
@@ -178,6 +181,7 @@ export class CalendarComponent implements OnInit {
         description: formValue.description,
         date: formValue.date,
         durationInHours: formValue.durationInHours,
+        formateurEmail: formValue.formateurEmail,
         sessions: sessionsPayload,
       };
 
@@ -262,6 +266,7 @@ export class CalendarComponent implements OnInit {
         extendedProps: {
           trainingId: training.id,
           description: training.description,
+          formateurEmail: training.formateurEmail,
           room: session.room,
           linkMeet: session.linkMeet,
           durationInHours: training.durationInHours,

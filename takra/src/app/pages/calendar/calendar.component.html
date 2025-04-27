@@ -68,6 +68,7 @@
               placeholder="Enter durationInHours"
             />
           </div>
+          
 
           <!-- Main Session Details -->
           <div class="mb-3">
@@ -80,6 +81,25 @@
               placeholder="Room name/number"
             />
           </div>
+            <!-- New: Formateur Email -->
+            <div class="mb-3">
+              <label for="formateurEmail" class="form-label">
+                Trainer Email
+              </label>
+              <input
+                type="email"
+                id="formateurEmail"
+                class="form-control"
+                formControlName="formateurEmail"
+                placeholder="e.g. name@domain.com"
+                />
+              <div
+                *ngIf="eventForm.get('formateurEmail')?.invalid
+                  && eventForm.get('formateurEmail')?.touched"
+                class="text-danger small">
+                A valid email is required.
+              </div>
+            </div>
 
           <!-- Start and End Time -->
           <div class="row mb-2">
