@@ -11,7 +11,7 @@ public class TrainingSessionDTO {
     // Since we are using enums, you can either accept the string and convert it,
     // or if using Jackson with proper settings, you can directly use the enum type.
     private Long id; // Optional: will be null for new sessions
-    private String room;  // e.g., "ROOM_101"
+    private Long roomId;
     private LocalDate date;
     private LocalTime timeStart;
     private LocalTime timeEnd;

@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.TrainingCreateDTO;
 import com.example.demo.dto.TrainingSessionDTO;
 import com.example.demo.model.*;
+import com.example.demo.repository.RoomRepository;
 import com.example.demo.repository.TrainingRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class TrainingService {
+public class    TrainingService {
     @Autowired
     private TrainingRepository trainingRepository;
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private RoomRepository roomRepository;
     // New method to get all trainings
     public List<Training> getAllTrainning() {
         return trainingRepository.findAll();
@@ -58,7 +60,9 @@ public class TrainingService {
         if (dto.getSessions() != null) {
             for (TrainingSessionDTO s : dto.getSessions()) {
                 TrainingSession session = new TrainingSession();
-                session.setRoom(Room.valueOf(s.getRoom().toUpperCase()));
+                Room room = roomRepository.findById(s.getRoomId())
+                        .orElseThrow(() -> new RuntimeException("No room with id " + s.getRoomId()));
+                session.setRoom(room);
                 session.setDate(s.getDate());
                 session.setTimeStart(s.getTimeStart());
                 session.setTimeEnd(s.getTimeEnd());
@@ -119,7 +123,11 @@ public class TrainingService {
                 }
 
                 // Update common session fields.
-                session.setRoom(Room.valueOf(sessionDTO.getRoom().toUpperCase()));
+                Room room = roomRepository.findById(sessionDTO.getRoomId())
+                        .orElseThrow(() -> new RuntimeException(
+                                "No room found with id: " + sessionDTO.getRoomId()
+                        ));
+                session.setRoom(room);
                 session.setDate(sessionDTO.getDate());
                 session.setTimeStart(sessionDTO.getTimeStart());
                 session.setTimeEnd(sessionDTO.getTimeEnd());
