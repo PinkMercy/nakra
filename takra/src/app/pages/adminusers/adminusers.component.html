@@ -21,7 +21,7 @@
         </div>
         <input *ngIf="editId === data.id" type="text" nz-input [(ngModel)]="data.firstname" (blur)="stopEdit()" />
       </td>
-      <td>{{ data.email }}</td>
+      <td >{{ data.email }}</td>
       <td>{{ data.role }}</td>
       <td>
         <button nz-button nzDanger nzType="primary" nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(data.id)">
@@ -58,7 +58,7 @@
 </div>
 
       <label>Email:</label>
-      <input nz-input formControlName="email" />
+      <input nz-input formControlName="email" [disabled]="true" />
       <div *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid" class="error">
         <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
         <div *ngIf="userForm.get('email')?.errors?.['email']">Invalid email format.</div>

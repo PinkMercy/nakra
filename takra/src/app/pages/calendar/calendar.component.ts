@@ -76,7 +76,7 @@ export class CalendarComponent implements OnInit {
         this.calendarEvents = trainings.flatMap(training => 
           training.sessions.map((session: any, index: number) => ({
             id: String(training.id),
-            title: index === 0 ? training.title : `${training.title} (${session.type})`,
+            title: index === 0 ? training.title : `${training.title} `,
             start: session.date + 'T' + session.timeStart,
             end: session.date + 'T' + session.timeEnd,
             extendedProps: {
@@ -236,7 +236,7 @@ export class CalendarComponent implements OnInit {
         this.calendarEvents = events.flatMap(training =>
           training.sessions.map((session, index) => ({
             id: String(training.id),
-            title: index === 0 ? training.title : `${training.title} (${session.type})`,
+            title: index === 0 ? training.title : `${training.title} `,
             start: `${session.date}T${session.timeStart}`,
             end: `${session.date}T${session.timeEnd}`,
             extendedProps: {
@@ -260,7 +260,7 @@ export class CalendarComponent implements OnInit {
     return trainings.flatMap(training => 
       training.sessions.map((session: { room: string; date: string; timeStart: string; timeEnd: string; linkMeet?: string; type?: string }, index: number) => ({
         id: String(training.id),
-        title: index === 0 ? training.title : `${training.title} (${session.type})`,
+        title: index === 0 ? training.title : `${training.title} `,
         start: session.date + 'T' + session.timeStart,
         end: session.date + 'T' + session.timeEnd,
         extendedProps: {
