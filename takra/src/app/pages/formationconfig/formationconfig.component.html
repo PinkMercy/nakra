@@ -1,138 +1,194 @@
-<button nz-button nzType="primary" (click)="openModal()">Ajouter Formation</button>
+<div class="container">
+  <div class="header-actions">
+    <button nz-button nzType="primary" (click)="openModal()">
+      <i nz-icon nzType="plus"></i> Ajouter Formation
+    </button>
+  </div>
 
-<nz-table [nzData]="events" [nzBordered]="true">
-  <thead>
-    <tr>
-      <th>Titre</th><th>Date</th><th>Durée</th><th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let ev of events">
-      <td>{{ ev.title }}</td>
-      <td>{{ ev.date }}</td>
-      <td>{{ ev.durationInHours }} heures</td>
-      <td>
-        <button nz-button nzType="link" (click)="openModal(true, ev)">Modifier</button>
-        <!-- …other actions… -->
-      </td>
-    </tr>
-  </tbody>
-</nz-table>
+  <nz-table 
+    [nzData]="events" 
+    [nzBordered]="true"
+    [nzLoading]="events.length === 0"
+    [nzShowSizeChanger]="true">
+    <thead>
+      <tr>
+        <th>Titre</th>
+        <th>Date</th>
+        <th>Durée</th>
+        <th>Sessions</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let ev of events">
+        <td>{{ ev.title }}</td>
+        <td>{{ ev.date }}</td>
+        <td>{{ ev.durationInHours }} heures</td>
+        <td>{{ ev.sessions.length || 0 }}</td>
+        <td>
+          <button nz-button nzType="primary" nzSize="small" (click)="openModal(true, ev)">
+            <i nz-icon nzType="edit"></i> Modifier
+          </button>
+          <!-- You can add a delete button here if needed -->
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
 
-<!-- modal content -->
+<!-- Modal Form Template -->
 <ng-template #modalFormTemplate>
-  <form [formGroup]="modalForm" nz-form>
+  <form [formGroup]="modalForm" nz-form [nzLayout]="'horizontal'">
     <!-- Title -->
     <nz-form-item>
-      <nz-form-label [nzSpan]="6">Titre</nz-form-label>
-      <nz-form-control [nzSpan]="14">
-        <input nz-input formControlName="title" />
+      <nz-form-label [nzSpan]="6" nzRequired>Titre</nz-form-label>
+      <nz-form-control [nzSpan]="18" nzErrorTip="Please input the title!">
+        <input nz-input formControlName="title" placeholder="Titre de la formation" />
       </nz-form-control>
     </nz-form-item>
 
     <!-- Description -->
     <nz-form-item>
-      <nz-form-label [nzSpan]="6">Description</nz-form-label>
-      <nz-form-control [nzSpan]="14">
-        <textarea nz-input formControlName="description"></textarea>
+      <nz-form-label [nzSpan]="6" nzRequired>Description</nz-form-label>
+      <nz-form-control [nzSpan]="18" nzErrorTip="Please input the description!">
+        <textarea nz-input formControlName="description" [nzAutosize]="{ minRows: 3, maxRows: 6 }" 
+          placeholder="Description de la formation"></textarea>
       </nz-form-control>
     </nz-form-item>
 
     <!-- Type -->
     <nz-form-item>
-      <nz-form-label [nzSpan]="6">Type</nz-form-label>
-      <nz-form-control [nzSpan]="14">
+      <nz-form-label [nzSpan]="6" nzRequired>Type</nz-form-label>
+      <nz-form-control [nzSpan]="18" nzErrorTip="Please select a type!">
         <nz-select formControlName="type">
-          <nz-option nzValue="ONLINE" nzLabel="Online"></nz-option>
-          <nz-option nzValue="INPERSON" nzLabel="In Person"></nz-option>
+          <nz-option nzValue="ONLINE" nzLabel="ONLINE"></nz-option>
+          <nz-option nzValue="OFFLINE" nzLabel="OFFLINE"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
 
     <!-- Date -->
     <nz-form-item>
-      <nz-form-label [nzSpan]="6">Date</nz-form-label>
-      <nz-form-control [nzSpan]="14">
-        <nz-date-picker formControlName="date"></nz-date-picker>
+      <nz-form-label [nzSpan]="6" nzRequired>Date</nz-form-label>
+      <nz-form-control [nzSpan]="18" nzErrorTip="Please select a date!">
+        <nz-date-picker formControlName="date" nzPlaceHolder="Select date"></nz-date-picker>
       </nz-form-control>
     </nz-form-item>
 
     <!-- Duration -->
     <nz-form-item>
-      <nz-form-label [nzSpan]="6">Durée (heures)</nz-form-label>
-      <nz-form-control [nzSpan]="14">
-        <input type="number" nz-input formControlName="durationInHours" min="1" />
+      <nz-form-label [nzSpan]="6" nzRequired>Durée (heures)</nz-form-label>
+      <nz-form-control [nzSpan]="18" nzErrorTip="Please input a valid duration!">
+        <input type="number" nz-input formControlName="durationInHours" min="1" placeholder="Durée en heures" />
       </nz-form-control>
     </nz-form-item>
 
     <!-- Formateur Email -->
     <nz-form-item>
-      <nz-form-label [nzSpan]="6">Email Formateur</nz-form-label>
-      <nz-form-control [nzSpan]="14">
-        <input nz-input formControlName="formateurEmail" />
+      <nz-form-label [nzSpan]="6" nzRequired>Email Formateur</nz-form-label>
+      <nz-form-control [nzSpan]="18" [nzErrorTip]="emailErrorTpl">
+        <input nz-input formControlName="formateurEmail" placeholder="email@example.com" />
+        <ng-template #emailErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            Please input the email!
+          </ng-container>
+          <ng-container *ngIf="control.hasError('email')">
+            Please input a valid email address!
+          </ng-container>
+        </ng-template>
       </nz-form-control>
     </nz-form-item>
 
     <nz-divider>Sessions</nz-divider>
 
     <div formArrayName="sessions">
-      <div *ngFor="let grp of sessions.controls; let i = index" [formGroupName]="i">
-        <!-- Room -->
-        <nz-form-item>
-          <nz-form-label [nzSpan]="4">Salle</nz-form-label>
-          <nz-form-control [nzSpan]="8">
-            <input nz-input formControlName="room" />
-          </nz-form-control>
-        </nz-form-item>
+      <div *ngFor="let grp of sessions.controls; let i = index" [formGroupName]="i" class="session-block">
+        <div class="session-header">
+          <h4>Session {{ i + 1 }}</h4>
+          <button nz-button nzType="default" nzDanger nzSize="small" (click)="removeSession(i)">
+            <i nz-icon nzType="delete"></i> Supprimer
+          </button>
+        </div>
 
-        <!-- Session Date -->
-        <nz-form-item>
-          <nz-form-label [nzSpan]="4">Date</nz-form-label>
-          <nz-form-control [nzSpan]="8">
-            <nz-date-picker formControlName="date"></nz-date-picker>
-          </nz-form-control>
-        </nz-form-item>
+        <div nz-row [nzGutter]="16">
+          <!-- Session Room - Changed from room to roomId -->
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Salle</nz-form-label>
+              <nz-form-control nzErrorTip="Please select a room!">
+                <nz-select formControlName="roomId" placeholder="Choisir une salle">
+                  <nz-option *ngFor="let room of rooms" [nzValue]="room.id" [nzLabel]="room.id"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
 
-        <!-- Time Start -->
-        <nz-form-item>
-          <nz-form-label [nzSpan]="4">Heure début</nz-form-label>
-          <nz-form-control [nzSpan]="8">
-            <input nz-input formControlName="timeStart" placeholder="HH:mm" />
-          </nz-form-control>
-        </nz-form-item>
+          <!-- Session Date -->
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Date</nz-form-label>
+              <nz-form-control nzErrorTip="Please select a date!">
+                <nz-date-picker formControlName="date" nzPlaceHolder="Select date"></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
 
-        <!-- Time End -->
-        <nz-form-item>
-          <nz-form-label [nzSpan]="4">Heure fin</nz-form-label>
-          <nz-form-control [nzSpan]="8">
-            <input nz-input formControlName="timeEnd" placeholder="HH:mm" />
-          </nz-form-control>
-        </nz-form-item>
+        <div nz-row [nzGutter]="16">
+          <!-- Time Start -->
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Heure début</nz-form-label>
+              <nz-form-control nzErrorTip="Please input start time!">
+                <input nz-input formControlName="timeStart" placeholder="HH:mm" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
 
-        <!-- Meet Link -->
-        <nz-form-item>
-          <nz-form-label [nzSpan]="4">Lien Meet</nz-form-label>
-          <nz-form-control [nzSpan]="8">
-            <input nz-input formControlName="linkMeet" />
-          </nz-form-control>
-        </nz-form-item>
+          <!-- Time End -->
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Heure fin</nz-form-label>
+              <nz-form-control nzErrorTip="Please input end time!">
+                <input nz-input formControlName="timeEnd" placeholder="HH:mm" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
 
-        <!-- Session Type -->
-        <nz-form-item>
-          <nz-form-label [nzSpan]="4">Type</nz-form-label>
-          <nz-form-control [nzSpan]="8">
-            <nz-select formControlName="type">
-              <nz-option nzValue="ONLINE" nzLabel="Online"></nz-option>
-              <nz-option nzValue="INPERSON" nzLabel="In Person"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
+        <div nz-row [nzGutter]="16">
+          <!-- Meet Link -->
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Lien Meet</nz-form-label>
+              <nz-form-control nzErrorTip="Please input meeting link!">
+                <input nz-input formControlName="linkMeet" placeholder="https://meet.google.com/..." />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
 
-        <button nz-button nzType="link" (click)="removeSession(i)">✖ Supprimer session</button>
+          <!-- Session Type -->
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Type</nz-form-label>
+              <nz-form-control nzErrorTip="Please select a type!">
+                <nz-select formControlName="type">
+                  <nz-option nzValue="ONLINE" nzLabel="ONLINE"></nz-option>
+                  <nz-option nzValue="OFFLINE" nzLabel="OFFLINE"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
         <nz-divider></nz-divider>
       </div>
     </div>
 
-    <button nz-button nzType="dashed" (click)="addSession()">+ Ajouter Session</button>
+    <div class="add-session-btn">
+      <button nz-button nzType="dashed" (click)="addSession()">
+        <i nz-icon nzType="plus"></i> Ajouter Session
+      </button>
+    </div>
   </form>
 </ng-template>

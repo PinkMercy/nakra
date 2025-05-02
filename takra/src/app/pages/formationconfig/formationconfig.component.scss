@@ -1,0 +1,50 @@
+.container {
+    padding: 24px;
+  }
+  
+  .header-actions {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  nz-table {
+    margin-top: 16px;
+  }
+  
+  .session-block {
+    padding: 16px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  
+  .session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h4 {
+      margin-bottom: 0;
+    }
+  }
+  
+  .add-session-btn {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  // Form validation styles
+  .ant-form-item-has-error {
+    margin-bottom: 24px;
+  }
+  
+  // For the description truncation in the table
+  td {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
