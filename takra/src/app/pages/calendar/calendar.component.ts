@@ -3,6 +3,7 @@ import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular
 import { CalendarOptions, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session/session.service';
 import {
@@ -13,6 +14,7 @@ import {
   FormArray,
 } from '@angular/forms';
 import { EventImpl } from '@fullcalendar/core/internal';
+import { RoomService } from '../../services/room.service';
 
 @Component({
   selector: 'app-calendar',
@@ -29,10 +31,12 @@ export class CalendarComponent implements OnInit {
   isEditing = false;
   eventForm!: FormGroup;
   trainings: any[] = []; // Added to store original training data
+  rooms: any[] = []; // Added to store room data
 
   constructor(
     private fb: FormBuilder,
-    private eventService: SessionService
+    private eventService: SessionService,
+    private sessionRooms: RoomService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +46,8 @@ export class CalendarComponent implements OnInit {
       description: [''],
       date: ['', Validators.required],
       durationInHours: [0],
-      room: ['', Validators.required],
+      formateurEmail: ['', [Validators.required, Validators.email]],
+      roomId: [null, Validators.required],
       timeStart: ['', Validators.required],
       timeEnd: ['', Validators.required],
       linkMeet: [''],
@@ -51,48 +56,81 @@ export class CalendarComponent implements OnInit {
     });
 
     this.calendarOptions = {
-      plugins: [dayGridPlugin, interactionPlugin],
+      plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
       initialView: 'dayGridMonth',
-      dateClick: (info) => {
-        this.showModal = true;
-        this.isEditing = false;
-        this.eventForm.patchValue({ date: info.dateStr });
-        this.sessions.clear();
-      },
+      dateClick: (info) => this.dateClick(info), // Use our improved method
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay',
       },
-      eventClick: (info) => this.openUpdateModal(info.event),
+      eventClick: (info) => this.openUpdateModal(info.event), // Use our improved method
       events: this.calendarEvents,
+      height: 'auto', // Adjust height automatically
+      // Add these new options for better interaction
+      eventTimeFormat: {
+        hour: '2-digit',
+        minute: '2-digit',
+        meridiem: false,
+        hour12: false
+      },
+      eventDisplay: 'block', // Better display for events
+      nowIndicator: true, // Shows a marker for current time
+      eventInteractive: true, // Ensures events are clickable
+      selectable: true, // Allow selecting date ranges
+      selectMirror: true, // Shows a placeholder when selecting dates
+      dayMaxEvents: true, // When too many events, show "+more" link
     };
 
+    // Fetch rooms
+    this.fetchRooms();
+
     // Fetch and store original trainings
-    this.eventService.getEvents().subscribe({
-      next: (trainings) => {
-        this.trainings = trainings; // Store original data
-        this.calendarEvents = trainings.flatMap(training => 
-          training.sessions.map((session: any, index: number) => ({
-            id: String(training.id),
-            title: index === 0 ? training.title : `${training.title} (${session.type})`,
-            start: session.date + 'T' + session.timeStart,
-            end: session.date + 'T' + session.timeEnd,
-            extendedProps: {
-              trainingId: training.id,
-              description: training.description,
-              room: session.room,
-              linkMeet: session.linkMeet,
-              durationInHours: training.durationInHours,
-            },
-          }))
-        );
-        this.calendarOptions = { ...this.calendarOptions, events: this.calendarEvents };
-      },
-      error: (err) => console.error('Error fetching events:', err)
-    });
+    this.fetchEventsAndUpdateCalendar();
   }
 
+  fetchRooms(): void {
+    // Assuming there's a method in the service to get rooms
+    this.sessionRooms.getRooms().subscribe({
+      next: (rooms) => {
+        this.rooms = rooms;
+      },
+      error: (err) => console.error('Error fetching rooms:', err)
+    });
+  }
+  openModal(): void {
+    this.showModal = true;
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    setTimeout(() => {
+      // Focus on the first input element after modal is rendered
+      const firstInput = document.querySelector('.modal-content input') as HTMLElement;
+      if (firstInput) {
+        firstInput.focus();
+      }
+    }, 100);
+  }
+  onBackdropClick(event: MouseEvent): void {
+    // Only close if clicking directly on the backdrop, not on modal content
+    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
+      this.closeModal();
+    }
+  }
+  closeModal(): void {
+    this.showModal = false;
+    document.body.style.overflow = ''; // Restore scrolling
+    this.eventForm.reset();
+    this.sessions.clear();
+  }
+  stopPropagation(event: Event): void {
+    event.stopPropagation();
+  }
+  dateClick(info: any): void {
+    this.isEditing = false;
+    this.eventForm.reset(); // Ensure form is fully reset
+    this.sessions.clear();
+    this.eventForm.patchValue({ date: info.dateStr });
+    this.openModal();
+  }
   openUpdateModal(event: EventImpl): void {
     const trainingId = event.extendedProps['trainingId'] || event.id;
     const training = this.trainings.find(t => t.id === trainingId);
@@ -104,31 +142,32 @@ export class CalendarComponent implements OnInit {
         title: training.title,
         description: training.description,
         durationInHours: training.durationInHours,
+        formateurEmail: training.formateurEmail || '',
       });
 
       // Clear existing sessions
       this.sessions.clear();
 
       // Add all sessions to the form
-      training.sessions.forEach((session: { room: string; date: string; timeStart: string; timeEnd: string; linkMeet?: string; type?: string }, index: number) => {
+      training.sessions.forEach((session: { roomId: number; date: string; timeStart: string; timeEnd: string; linkMeet?: string; type?: string }, index: number) => {
         if (index === 0) {
           // Main session fields
           this.eventForm.patchValue({
             date: session.date,
-            room: session.room,
+            roomId: session.roomId,
             timeStart: session.timeStart,
             timeEnd: session.timeEnd,
-            linkMeet: session.linkMeet,
+            linkMeet: session.linkMeet || '',
             sessionType: session.type || 'ONLINE'
           });
         } else {
           // Additional sessions
           this.sessions.push(this.fb.group({
-            room: [session.room, Validators.required],
+            roomId: [session.roomId, Validators.required],
             date: [session.date, Validators.required],
             timeStart: [session.timeStart, Validators.required],
             timeEnd: [session.timeEnd, Validators.required],
-            linkMeet: [session.linkMeet],
+            linkMeet: [session.linkMeet || ''],
             type: [session.type || 'ONLINE']
           }));
         }
@@ -138,8 +177,6 @@ export class CalendarComponent implements OnInit {
       this.isEditing = true;
     }
   }
-
-  // Rest of the component code remains the same...
   
   get sessions(): FormArray {
     return this.eventForm.get('sessions') as FormArray;
@@ -147,7 +184,7 @@ export class CalendarComponent implements OnInit {
 
   addSession(): void {
     const sessionGroup = this.fb.group({
-      room: ['', Validators.required],
+      roomId: [null, Validators.required],
       date: ['', Validators.required],
       timeStart: ['', Validators.required],
       timeEnd: ['', Validators.required],
@@ -165,7 +202,7 @@ export class CalendarComponent implements OnInit {
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
       const mainSession = {
-        room: formValue.room,
+        roomId: formValue.roomId,
         date: formValue.date,
         timeStart: formValue.timeStart,
         timeEnd: formValue.timeEnd,
@@ -178,41 +215,32 @@ export class CalendarComponent implements OnInit {
         description: formValue.description,
         date: formValue.date,
         durationInHours: formValue.durationInHours,
+        formateurEmail: formValue.formateurEmail,
         sessions: sessionsPayload,
       };
 
       if (this.isEditing && formValue.trainingId) {
         this.eventService.updateEvent(formValue.trainingId, payload).subscribe({
           next: () => {
-            this.eventService.getEvents().subscribe({
-              next: (events) => {
-                this.trainings = events;
-                this.calendarEvents = this.buildCalendarEvents(events);
-                this.calendarOptions.events = this.calendarEvents;
-                this.closeModal();
-              }
-            });
-          }
+            this.fetchEventsAndUpdateCalendar();
+            this.closeModal();
+          },
+          error: (err) => console.error('Error updating event:', err)
         });
       } else {
         this.eventService.addEvent(payload).subscribe({
-          
           next: (response) => {
             console.log('Event created:', response);
-            const newTraining = { ...payload, id: response.id };
-            this.trainings.push(newTraining);
-            this.calendarEvents = this.buildCalendarEvents(this.trainings);
-            this.calendarOptions.events = this.calendarEvents;
+            this.fetchEventsAndUpdateCalendar();
             this.closeModal();
-          }
-          
+          },
+          error: (err) => console.error('Error creating event:', err)
         });
-        console.log('Event created:', payload);
       }
     }
   }
+
   onDelete(): void {
-    // Add logic to delete the event
     const trainingId = this.eventForm.value.trainingId;
     if (trainingId && confirm('Are you sure you want to delete this event?')) {
       this.eventService.deleteEvent(trainingId).subscribe({
@@ -223,59 +251,57 @@ export class CalendarComponent implements OnInit {
         error: (err) => console.error('Error deleting event:', err)
       });
     }
-    console.log('Event deleted');
   }
-  // fetchEventsAndUpdateCalendar: Refreshes events from the backend and updates the FullCalendar view.
+
   fetchEventsAndUpdateCalendar(): void {
     this.eventService.getEvents().subscribe({
-      next: (events) => {
-        this.calendarEvents = events.flatMap(training =>
-          training.sessions.map((session, index) => ({
-            id: String(training.id),
-            title: index === 0 ? training.title : `${training.title} (${session.type})`,
-            start: `${session.date}T${session.timeStart}`,
-            end: `${session.date}T${session.timeEnd}`,
-            extendedProps: {
-              trainingId: training.id,
-              description: training.description,
-              room: session.room,
-              linkMeet: session.linkMeet,
-              durationInHours: training.durationInHours,
-              sessionType: session.type
-            }
-          }))
-        );
-        const calendarApi = this.calendarComponent.getApi();
-        calendarApi.removeAllEvents();
-        this.calendarEvents.forEach((event) => calendarApi.addEvent(event));
+      next: (trainings) => {
+        this.trainings = trainings; // Store original data
+        this.calendarEvents = this.buildCalendarEvents(trainings);
+        
+        if (this.calendarComponent) {
+          const calendarApi = this.calendarComponent.getApi();
+          calendarApi.removeAllEvents();
+          this.calendarEvents.forEach((event) => calendarApi.addEvent(event));
+        } else {
+          this.calendarOptions = { ...this.calendarOptions, events: this.calendarEvents };
+        }
       },
-      error: (err) => console.error('Error re-fetching events:', err)
+      error: (err) => console.error('Error fetching events:', err)
     });
   }
+
   private buildCalendarEvents(trainings: any[]): EventInput[] {
     return trainings.flatMap(training => 
-      training.sessions.map((session: { room: string; date: string; timeStart: string; timeEnd: string; linkMeet?: string; type?: string }, index: number) => ({
-        id: String(training.id),
-        title: index === 0 ? training.title : `${training.title} (${session.type})`,
-        start: session.date + 'T' + session.timeStart,
-        end: session.date + 'T' + session.timeEnd,
-        extendedProps: {
-          trainingId: training.id,
-          description: training.description,
-          room: session.room,
-          linkMeet: session.linkMeet,
-          durationInHours: training.durationInHours,
-        },
-      }))
+      training.sessions.map((session: { roomId: number; date: string; timeStart: string; timeEnd: string; linkMeet?: string; type?: string }, index: number) => {
+        // Find room name from roomId
+        const room = this.rooms.find(r => r.id === session.roomId);
+        const roomName = room ? room.name : `Room ID: ${session.roomId}`;
+        
+        return {
+          id: String(training.id),
+          title: index === 0 ? training.title : `${training.title} (${session.type})`,
+          start: session.date + 'T' + session.timeStart,
+          end: session.date + 'T' + session.timeEnd,
+          extendedProps: {
+            trainingId: training.id,
+            description: training.description,
+            roomId: session.roomId,
+            roomName: roomName,
+            linkMeet: session.linkMeet,
+            durationInHours: training.durationInHours,
+            formateurEmail: training.formateurEmail,
+            sessionType: session.type
+          },
+        };
+      })
     );
   }
 
-  closeModal(): void {
-    this.showModal = false;
-    this.eventForm.reset();
-    this.sessions.clear();
-  }
-
-  // Delete and closeModal methods remain the same...
   
+
+  getRoomName(roomId: number): string {
+    const room = this.rooms.find(r => r.id === roomId);
+    return room ? room.name : `Room ID: ${roomId}`;
+  }
 }

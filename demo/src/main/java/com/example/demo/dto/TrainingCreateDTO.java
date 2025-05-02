@@ -13,8 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-@Setter
-@Getter
+
 public class TrainingCreateDTO {
     @NotBlank(message = "Title is required")
     private String title;
@@ -32,6 +31,7 @@ public class TrainingCreateDTO {
     @JsonProperty("duration")
     @Min(value = 1, message = "Duration must be at least 1 hour")
     private int durationInHours;
+
     private String formateurEmail;
     // List of sessions for the training
     private List<TrainingSessionDTO> sessions;
