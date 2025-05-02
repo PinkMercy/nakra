@@ -28,7 +28,7 @@ public class TrainingCreateDTO {
     @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDate date;
 
-    @JsonProperty("duration")
+    @JsonProperty("durationInHours")
     @Min(value = 1, message = "Duration must be at least 1 hour")
     private int durationInHours;
 
