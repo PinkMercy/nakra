@@ -14,9 +14,9 @@ export class UserService {
 
 
   private getToken(): string | null {
-    return localStorage.getItem('token'); // Ensure that 'token' is the key used to store the token
+    return localStorage.getItem('token'); 
   }
-
+  
 
   private getAuthHeaders(): { [header: string]: string } {
     const token = this.getToken();
