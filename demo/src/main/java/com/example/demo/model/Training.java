@@ -56,6 +56,9 @@ public class Training {
     @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
 
+    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Enrollment> enrollments = new ArrayList<>();
     // Helper method to manage bidirectional relationship
     public void addSession(TrainingSession session) {
         sessions.add(session);

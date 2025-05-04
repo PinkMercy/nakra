@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for development purposes
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**","/admin/trainings/**","/api/rooms/**") // Permit authentication endpoints
+                .requestMatchers("/api/auth/**","/admin/trainings/**","/api/rooms/**","/api/enrollments/**") // Permit authentication endpoints
                 .permitAll() // Permit these endpoints without authentication
                 .anyRequest()
                 .authenticated() // All other endpoints require authentication
