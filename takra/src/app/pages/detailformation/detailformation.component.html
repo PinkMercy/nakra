@@ -112,6 +112,7 @@
                 </div>
             </div>
         </section>
+        <app-comment-section *ngIf="formation" [trainingId]="formation.id"></app-comment-section>
     </main>
 
     <footer>

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session/session.service';
 import { EnrollmentService } from '../../services/enrollment.service';
 import { AuthService } from '../../services/auth.service';
+import { CommentSectionComponent } from '../comment-section/comment-section.component';
 
 interface Formation {
   id: number;
@@ -33,7 +34,7 @@ interface Session {
 @Component({
   selector: 'app-detailformation',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,CommentSectionComponent],
   templateUrl: './detailformation.component.html',
   styleUrl: './detailformation.component.scss'
 })
