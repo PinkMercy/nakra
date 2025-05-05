@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/enrollments")
 public class EnrollmentController {
@@ -51,4 +54,9 @@ public class EnrollmentController {
         boolean isEnrolled = enrollmentService.isUserEnrolled(userId, trainingId);
         return ResponseEntity.ok(isEnrolled);
     }
+        // GET all enrollments of a user with training details and status
+        @GetMapping("/user/{userId}")
+        public List<Map<String, Object>> getAllEnrollmentsByUserId(@PathVariable Long userId) {
+            return enrollmentService.getAllEnrollments(userId);
+        }
 }

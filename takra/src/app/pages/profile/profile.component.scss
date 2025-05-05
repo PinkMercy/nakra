@@ -1,264 +1,291 @@
 // Variables
-$primary-color: #3f51b5;
-$secondary-color: #f5f5f5;
-$text-color: #333;
-$light-text: #666;
-$border-color: #e0e0e0;
-$completed-color: #4caf50;
-$in-progress-color: #ff9800;
-$planned-color: #9e9e9e;
-$shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-$border-radius: 8px;
+$primary-color: #3498db;
+$secondary-color: #2c3e50;
+$light-gray: #f5f5f5;
+$medium-gray: #e0e0e0;
+$dark-gray: #777;
+$white: #fff;
 
-// Main container
+// Status colors
+$status-completed: #27ae60;
+$status-in-progress: #f39c12;
+$status-planned: #3498db;
+
 .profile-container {
-  font-family: 'Roboto', 'Segoe UI', sans-serif;
-  color: $text-color;
   max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
-  background-color: white;
-  border-radius: $border-radius;
-  box-shadow: $shadow;
+  font-family: 'Roboto', sans-serif;
 }
 
 // Profile header
 .profile-header {
   display: flex;
-  align-items: center;
-  padding-bottom: 20px;
-  border-bottom: 1px solid $border-color;
-  margin-bottom: 20px;
-
+  background-color: $white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-bottom: 24px;
+  
   .profile-avatar {
-    margin-right: 30px;
-    
     img {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid $primary-color;
-      box-shadow: $shadow;
+      border: 4px solid $light-gray;
     }
   }
-
+  
   .profile-info {
+    margin-left: 24px;
     flex: 1;
-
+    
     h1 {
-      margin: 0 0 15px 0;
-      font-size: 28px;
-      font-weight: 500;
-      color: $primary-color;
+      margin: 0 0 16px 0;
+      font-size: 24px;
+      color: $secondary-color;
     }
-
+    
     .profile-details {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-
+      gap: 16px;
+      
       .detail-item {
         display: flex;
         align-items: center;
-        color: $light-text;
         
         i {
-          margin-right: 10px;
           color: $primary-color;
+          margin-right: 8px;
           font-size: 16px;
         }
+        
+        span {
+          color: $dark-gray;
+          font-size: 14px;
+        }
       }
     }
   }
 }
 
-// Training stats
-.training-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-
-  .stat-card {
-    background-color: $secondary-color;
-    border-radius: $border-radius;
-    padding: 20px;
-    text-align: center;
-    box-shadow: $shadow;
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-    }
-
-    .stat-value {
-      font-size: 36px;
-      font-weight: 700;
-      color: $primary-color;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      color: $light-text;
-      font-size: 14px;
-    }
-  }
-}
-
-// Training section
-.training-section {
-  h2 {
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: $primary-color;
-    font-weight: 500;
-    border-bottom: 2px solid $border-color;
-    padding-bottom: 10px;
-  }
-
-  .training-list {
+// Profile content
+.profile-content {
+  .training-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-
-    .training-card {
-      background-color: white;
-      border-radius: $border-radius;
-      box-shadow: $shadow;
-      padding: 20px;
-      border-left: 4px solid $planned-color;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: translateY(-5px);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+    
+    .stat-card {
+      background-color: $white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      text-align: center;
+      
+      &:nth-child(1) {
+        border-top: 4px solid $status-completed;
       }
-
-      &.status-completed {
-        border-left-color: $completed-color;
+      
+      &:nth-child(2) {
+        border-top: 4px solid $status-in-progress;
       }
-
-      &.status-in-progress {
-        border-left-color: $in-progress-color;
+      
+      &:nth-child(3) {
+        border-top: 4px solid $status-planned;
       }
-
-      &.status-planned {
-        border-left-color: $planned-color;
+      
+      .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: $secondary-color;
       }
-
-      .training-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 15px;
-
-        h3 {
-          margin: 0;
-          font-size: 18px;
-          font-weight: 500;
-        }
-
-        .training-status {
-          font-size: 12px;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-weight: 500;
-          
-          &.status-completed {
-            background-color: rgba($completed-color, 0.1);
-            color: $completed-color;
-          }
-          
-          &.status-in-progress {
-            background-color: rgba($in-progress-color, 0.1);
-            color: $in-progress-color;
-          }
-          
-          &.status-planned {
-            background-color: rgba($planned-color, 0.1);
-            color: $planned-color;
-          }
-        }
-      }
-
-      .training-details {
+      
+      .stat-label {
+        color: $dark-gray;
         font-size: 14px;
-        color: $light-text;
-
-        > div {
-          margin-bottom: 8px;
-          display: flex;
-          align-items: center;
-
-          i {
-            margin-right: 8px;
-            width: 16px;
-          }
-        }
-
-        .training-score {
-          i {
-            color: #ffc107;
-          }
-        }
-
-        .training-certificate {
-          i {
-            color: #9c27b0;
-          }
-        }
       }
     }
-  }
-}
-/* Training filters */
-.training-filters {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-.filter-btn {
-    background-color: $primary-color;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }
-  .filter-btn:hover {
-    background-color: #e0e0e0;
   }
   
-  .filter-btn.active {
-    background-color: var(--primary-color);
-    color: white;
+  .training-section {
+    background-color: $white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    
+    h2 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      color: $secondary-color;
+      font-size: 20px;
+      border-bottom: 1px solid $medium-gray;
+      padding-bottom: 12px;
+    }
+    
+    .training-filters {
+      display: flex;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      
+      .filter-btn {
+        background-color: $light-gray;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        margin-right: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+        
+        &.active {
+          background-color: $primary-color;
+          color: $white;
+        }
+        
+        &:hover:not(.active) {
+          background-color: $medium-gray;
+        }
+      }
+    }
+    
+    .training-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      
+      .training-card {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+        border-left: 4px solid #ccc;
+        
+        &:hover {
+          transform: translateY(-4px);
+        }
+        
+        &.status-completed {
+          border-left-color: $status-completed;
+        }
+        
+        &.status-in-progress {
+          border-left-color: $status-in-progress;
+        }
+        
+        &.status-planned {
+          border-left-color: $status-planned;
+        }
+        
+        .training-header {
+          padding: 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          background-color: #fafafa;
+          border-bottom: 1px solid $medium-gray;
+          
+          h3 {
+            margin: 0;
+            font-size: 16px;
+            color: $secondary-color;
+          }
+          
+          .training-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            
+            &.status-completed {
+              background-color: rgba($status-completed, 0.1);
+              color: $status-completed;
+            }
+            
+            &.status-in-progress {
+              background-color: rgba($status-in-progress, 0.1);
+              color: $status-in-progress;
+            }
+            
+            &.status-planned {
+              background-color: rgba($status-planned, 0.1);
+              color: $status-planned;
+            }
+          }
+        }
+        
+        .training-details {
+          padding: 16px;
+          
+          .training-date {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            
+            i {
+              color: $dark-gray;
+              margin-right: 8px;
+              font-size: 14px;
+            }
+            
+            span {
+              color: $dark-gray;
+              font-size: 14px;
+            }
+          }
+          
+          .training-description {
+            p {
+              margin: 0;
+              font-size: 14px;
+              color: $dark-gray;
+              line-height: 1.5;
+            }
+          }
+        }
+      }
+    }
   }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   .profile-header {
     flex-direction: column;
+    align-items: center;
     text-align: center;
     
     .profile-avatar {
-      margin-right: 0;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     
-    .profile-details {
-      grid-template-columns: 1fr;
+    .profile-info {
+      margin-left: 0;
       
-      .detail-item {
-        justify-content: center;
+      .profile-details {
+        grid-template-columns: 1fr;
       }
     }
   }
   
-  .training-stats {
-    grid-template-columns: 1fr;
-  }
-  .training-filters {
-    flex-wrap: wrap;
-    justify-content: center;
+  .profile-content {
+    .training-stats {
+      grid-template-columns: 1fr;
+    }
+    
+    .training-section {
+      .training-filters {
+        flex-wrap: wrap;
+        justify-content: center;
+        
+        .filter-btn {
+          margin-bottom: 8px;
+        }
+      }
+    }
   }
 }

@@ -1,89 +1,37 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-interface Training {
-  id: number;
-  title: string;
-  date: string;
-  status: 'completed' | 'in-progress' | 'planned';
-  score?: number;
-  certificate?: string;
-}
+import { EnrollmentService } from '../../services/enrollment.service';
 
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  department: string;
-  position: string;
-  avatar: string;
-  joinDate: string;
-  trainings: Training[];
+interface Training {
+  trainingId: number;
+  title: string;
+  description: string;
+  date: string;
+  status: string;
 }
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss'
+  styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
   // User data
-  user: User = {
-    id: 1,
-    firstName: 'Jean',
-    lastName: 'Dupont',
-    email: 'jean.dupont@company.com',
+  user = {
+    firstName: 'Oussemaa',
+    lastName: 'Heni',
+    position: 'Directeur',
     department: 'IT',
-    position: 'Développeur Full Stack',
-    avatar: 'https://via.placeholder.com/120',
-    joinDate: '15/03/2020',
-    trainings: [
-      {
-        id: 1,
-        title: 'Angular Avancé',
-        date: '10/01/2023',
-        status: 'completed',
-        score: 92,
-        certificate: 'CERT-ANG-2023'
-      },
-      {
-        id: 2,
-        title: 'DevOps pour Développeurs',
-        date: '05/03/2023',
-        status: 'completed',
-        score: 88,
-        certificate: 'CERT-DEVOPS-2023'
-      },
-      {
-        id: 3,
-        title: 'Sécurité Web',
-        date: '20/06/2023',
-        status: 'in-progress'
-      },
-      {
-        id: 4,
-        title: 'Architecture Microservices',
-        date: '15/09/2023',
-        status: 'planned'
-      },
-      {
-        id: 5,
-        title: 'React Native',
-        date: '10/11/2023',
-        status: 'planned'
-      },
-      {
-        id: 6,
-        title: 'Introduction à Docker',
-        date: '03/12/2022',
-        status: 'completed',
-        score: 95,
-        certificate: 'CERT-DOCKER-2022'
-      }
-    ]
+    email: 'oussema.heni@soprahr.com',
+    joinDate: '12/07/2025',
+    avatar: '../../../assets/img/user.png'
   };
 
+  // Trainings
+  trainings: Training[] = [];
+  
   // Filtered training lists
   completedTrainings: Training[] = [];
   inProgressTrainings: Training[] = [];
@@ -93,35 +41,68 @@ export class ProfileComponent implements OnInit {
   currentFilter: string = 'all';
   filteredTrainings: Training[] = [];
 
-  constructor() { }
+  constructor(private enrollmentService: EnrollmentService) { }
 
   ngOnInit(): void {
-    // Filter trainings by status
-    this.completedTrainings = this.user.trainings.filter(t => t.status === 'completed');
-    this.inProgressTrainings = this.user.trainings.filter(t => t.status === 'in-progress');
-    this.plannedTrainings = this.user.trainings.filter(t => t.status === 'planned');
-    
-    // Initialize filtered trainings with all trainings
-    this.applyFilter('all');
+    // Charger les formations de l'utilisateur
+    this.loadUserTrainings();
   }
 
-  // Apply filter to trainings
+  loadUserTrainings(): void {
+    // Utiliser l'ID 3 comme dans l'exemple de l'API
+    this.enrollmentService.getUserEnrollments(3).subscribe({
+      next: (data) => {
+        this.trainings = data;
+        
+        // Filtrer les formations par statut
+        this.completedTrainings = this.trainings.filter(t => t.status === 'terminer');
+        this.inProgressTrainings = this.trainings.filter(t => t.status === 'en_cours');
+        this.plannedTrainings = this.trainings.filter(t => t.status === 'planifier');
+        
+        // Initialiser les formations filtrées
+        this.applyFilter('all');
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des formations:', error);
+      }
+    });
+  }
+
+  // Appliquer un filtre aux formations
   applyFilter(filter: string): void {
     this.currentFilter = filter;
     
-    if (filter === 'all') {
-      this.filteredTrainings = this.user.trainings;
-    } else {
-      this.filteredTrainings = this.user.trainings.filter(t => t.status === filter);
+    switch(filter) {
+      case 'completed':
+        this.filteredTrainings = this.completedTrainings;
+        break;
+      case 'in-progress':
+        this.filteredTrainings = this.inProgressTrainings;
+        break;
+      case 'planned':
+        this.filteredTrainings = this.plannedTrainings;
+        break;
+      default:
+        this.filteredTrainings = this.trainings;
     }
   }
 
-  // Get status text based on status code
+  // Obtenir le texte du statut en fonction du code de statut
   getStatusText(status: string): string {
     switch(status) {
-      case 'completed': return 'Terminé';
-      case 'in-progress': return 'En cours';
-      case 'planned': return 'Planifié';
+      case 'terminer': return 'Terminé';
+      case 'en_cours': return 'En cours';
+      case 'planifier': return 'Planifié';
+      default: return status;
+    }
+  }
+
+  // Convertir le statut API en classe CSS
+  getStatusClass(status: string): string {
+    switch(status) {
+      case 'terminer': return 'completed';
+      case 'en_cours': return 'in-progress';
+      case 'planifier': return 'planned';
       default: return '';
     }
   }

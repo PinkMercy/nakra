@@ -50,5 +50,9 @@ export class EnrollmentService {
     
     return this.http.get<boolean>(`${this.apiUrl}/status`, { params });
   }
-
+//get all enrollments for a user
+  getUserEnrollments(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
+  }
+  
 }

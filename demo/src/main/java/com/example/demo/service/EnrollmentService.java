@@ -11,7 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
@@ -74,5 +79,47 @@ public class EnrollmentService {
     }
     public boolean isUserEnrolled(Long userId, Long trainingId) {
         return enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId).isPresent();
+    }
+
+    /*ajouter la methode getAllEnrollments of that user id and return training details and status
+    if date systeme < date training status = planifier
+    if date systeme = date training status = en cours
+    if date systeme = date training status = en terminer */
+
+    public List<Map<String, Object>> getAllEnrollments(Long userId) {
+        // Vérifier si l'utilisateur existe
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Récupérer toutes les inscriptions de l'utilisateur
+        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+
+        // Date système actuelle
+        LocalDate today = LocalDate.now();
+
+        // Préparer la réponse
+        return enrollments.stream().map(enrollment -> {
+            Training training = enrollment.getTraining();
+            LocalDate trainingDate = training.getDate(); // Assurez-vous que Training a un champ `date` de type LocalDate
+
+            String status;
+            if (today.isBefore(trainingDate)) {
+                status = "planifier";
+            } else if (today.isEqual(trainingDate)) {
+                status = "en cours";
+            } else {
+                status = "terminer";
+            }
+
+            // Créer une map contenant les détails
+            Map<String, Object> trainingInfo = new HashMap<>();
+            trainingInfo.put("trainingId", training.getId());
+            trainingInfo.put("title", training.getTitle());
+            trainingInfo.put("description", training.getDescription());
+            trainingInfo.put("date", training.getDate());
+            trainingInfo.put("status", status);
+
+            return trainingInfo;
+        }).collect(Collectors.toList());
     }
 }
