@@ -21,7 +21,7 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
-private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -57,6 +57,7 @@ private final AuthenticationManager authenticationManager;
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .iduser(user.getId())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())
@@ -126,5 +127,12 @@ private final AuthenticationManager authenticationManager;
     // Delete a user by id
     public void deleteUser(Long id) {
         repository.deleteById(id);
+    }
+
+
+    public Long getUserIdByEmail(String email) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return user.getId();
     }
 }
