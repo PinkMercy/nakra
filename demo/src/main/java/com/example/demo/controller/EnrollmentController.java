@@ -44,4 +44,11 @@ public class EnrollmentController {
         enrollmentService.unenrollUserFromTraining(userId, trainingId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+    @GetMapping("/status")
+    public ResponseEntity<Boolean> checkEnrollmentStatus(
+            @RequestParam Long userId,
+            @RequestParam Long trainingId) {
+        boolean isEnrolled = enrollmentService.isUserEnrolled(userId, trainingId);
+        return ResponseEntity.ok(isEnrolled);
+    }
 }

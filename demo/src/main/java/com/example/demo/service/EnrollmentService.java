@@ -72,4 +72,7 @@ public class EnrollmentService {
         // Delete the enrollment
         enrollmentRepository.delete(enrollment);
     }
+    public boolean isUserEnrolled(Long userId, Long trainingId) {
+        return enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId).isPresent();
+    }
 }

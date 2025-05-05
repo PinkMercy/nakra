@@ -61,7 +61,9 @@ export class DetailformationComponent implements OnInit {
       const id = Number(params.get('id'));
       if (id) {
         this.loadFormationDetails(id);
-        
+        if (this.userId) {
+          this.checkEnrollmentStatus(id);
+        }
 
       } else {
         this.error = 'Formation ID not found';
