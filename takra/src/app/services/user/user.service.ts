@@ -50,4 +50,10 @@ export class UserService {
       headers: this.getAuthHeaders()
     });
   }
+  getUserById(id: number): Observable<User> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.get<User>(url, {
+      headers: this.getAuthHeaders()
+    });
+  }
 }

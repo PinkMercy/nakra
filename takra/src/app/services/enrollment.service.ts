@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient , HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
@@ -10,36 +10,45 @@ export class EnrollmentService {
 
   constructor(private http: HttpClient) {}
 
-  private getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  private getHeaders(): { [header: string]: string } {
-    const token = this.getToken();
-    return {
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : ''
-    };
-  }
-
-  // Enroll a user to a training
+  /**
+   * Enroll a user to a training
+   * @param userId the ID of the user
+   * @param trainingId the ID of the training
+   * @returns Observable of the created enrollment
+   */
   enrollUser(userId: number, trainingId: number): Observable<any> {
-    return this.http.post(this.apiUrl, { userId, trainingId }, {
-      headers: this.getHeaders()
+    return this.http.post(this.apiUrl, {
+      userId: userId,
+      trainingId: trainingId
     });
   }
 
-  // Unenroll a user from a training
+  /**
+   * Unenroll a user from a training
+   * @param userId the ID of the user
+   * @param trainingId the ID of the training
+   * @returns Observable of the response
+   */
   unenrollUser(userId: number, trainingId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}?userId=${userId}&trainingId=${trainingId}`, {
-      headers: this.getHeaders()
-    });
+    const params = new HttpParams()
+      .set('userId', userId.toString())
+      .set('trainingId', trainingId.toString());
+    
+    return this.http.delete(this.apiUrl, { params });
   }
 
-  // Check if user is enrolled in a training
-  checkEnrollment(userId: number, trainingId: number): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/check?userId=${userId}&trainingId=${trainingId}`, {
-      headers: this.getHeaders()
-    });
+  /**
+   * Check if a user is enrolled in a training
+   * @param userId the ID of the user
+   * @param trainingId the ID of the training
+   * @returns Observable of the enrollment status
+   */
+  checkEnrollmentStatus(userId: number, trainingId: number): Observable<boolean> {
+    const params = new HttpParams()
+      .set('userId', userId.toString())
+      .set('trainingId', trainingId.toString());
+    
+    return this.http.get<boolean>(`${this.apiUrl}/status`, { params });
   }
+
 }

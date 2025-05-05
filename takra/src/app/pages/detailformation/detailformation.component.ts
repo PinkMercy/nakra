@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SessionService } from '../../services/session/session.service';
+import { EnrollmentService } from '../../services/enrollment.service';
+import { AuthService } from '../../services/auth.service';
 
 interface Formation {
   id: number;
@@ -40,13 +42,20 @@ export class DetailformationComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   currentYear = new Date().getFullYear();
-
+  userId: number | null = null;
+  isEnrolled = false;
+  isEnrollmentLoading = false;
   constructor(
     private route: ActivatedRoute,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private enrollmentService: EnrollmentService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    // Get user ID
+    this.userId = this.authService.getUserId();
+    console.log('Checking enrollment status for user:', this.userId);
     // Get the formation ID from the route parameters
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
@@ -75,6 +84,62 @@ export class DetailformationComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+
+  checkEnrollmentStatus(formationId: number): void {
+    
+    if (!this.userId) return;
+    
+    this.isEnrollmentLoading = true;
+    this.enrollmentService.checkEnrollmentStatus(this.userId, formationId).subscribe({
+      next: (enrolled) => {
+        this.isEnrolled = enrolled;
+        this.isEnrollmentLoading = false;
+      },
+      error: (err) => {
+        console.error('Error checking enrollment status', err);
+        this.isEnrollmentLoading = false;
+      }
+    });
+  }
+  toggleEnrollment(): void {
+    if (!this.userId || !this.formation) {
+      alert('Vous devez être connecté pour vous inscrire à une formation');
+      return;
+    }
+
+    this.isEnrollmentLoading = true;
+    
+    if (this.isEnrolled) {
+      // Unenroll
+      this.enrollmentService.unenrollUser(this.userId, this.formation.id).subscribe({
+        next: () => {
+          this.isEnrolled = false;
+          this.isEnrollmentLoading = false;
+          console.log('Successfully unenrolled');
+        },
+        error: (err) => {
+          console.error('Error unenrolling', err);
+          this.isEnrollmentLoading = false;
+          alert('Erreur lors de la désinscription');
+        }
+      });
+    } else {
+      // Enroll
+      this.enrollmentService.enrollUser(this.userId, this.formation.id).subscribe({
+        next: () => {
+          this.isEnrolled = true;
+          this.isEnrollmentLoading = false;
+          console.log('Successfully enrolled');
+        },
+        error: (err) => {
+          console.error('Error enrolling', err);
+          this.isEnrollmentLoading = false;
+          alert('Erreur lors de l\'inscription');
+        }
+      });
+    }
   }
 
   addToCalendar(session: Session): void {

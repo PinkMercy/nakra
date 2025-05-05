@@ -26,6 +26,22 @@
         <section class="formation-card">
             <div class="formation-header">
                 <h2 class="formation-title">{{ formation.title }}</h2>
+                
+                <!-- Enrollment Button -->
+                <div class="enrollment-actions" *ngIf="userId">
+                    <button 
+                        [class]="isEnrolled ? 'btn-unenroll' : 'btn-enroll'" 
+                        (click)="toggleEnrollment()" 
+                        [disabled]="isEnrollmentLoading">
+                        <i class="fas" [ngClass]="isEnrolled ? 'fa-user-minus' : 'fa-user-plus'"></i>
+                        {{ isEnrollmentLoading ? 'En cours...' : (isEnrolled ? 'Se désabonner' : 'S\'abonner') }}
+                    </button>
+                </div>
+                <div class="enrollment-actions" *ngIf="!userId">
+                    <button class="btn-enroll disabled" disabled>
+                        <i class="fas fa-lock"></i> Connectez-vous pour vous abonner
+                    </button>
+                </div>
             </div>
             
             <div class="formation-details">

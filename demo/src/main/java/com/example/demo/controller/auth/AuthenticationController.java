@@ -88,4 +88,11 @@ public class AuthenticationController {
         service.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
     }
+
+    // Get user by ID
+    @GetMapping("/admin/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = service.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
 }

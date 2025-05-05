@@ -129,10 +129,9 @@ public class AuthenticationService {
         repository.deleteById(id);
     }
 
-
-    public Long getUserIdByEmail(String email) {
-        User user = repository.findByEmail(email)
+    //get user by id
+    public User getUserById(Long id) {
+        return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return user.getId();
     }
 }

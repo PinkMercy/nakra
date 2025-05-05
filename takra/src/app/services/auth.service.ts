@@ -70,4 +70,13 @@ export class AuthService {
  
      return this.http.post(`${this.apiUrl}/reset-password`, null, { params });
    }
+   //get user id from local storage
+    getUserId(): number | null {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const parsedUser = JSON.parse(user);
+        return parsedUser.iduser;
+      }
+      return null;
+    }
 }
