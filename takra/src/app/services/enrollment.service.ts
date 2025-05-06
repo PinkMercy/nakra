@@ -2,6 +2,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient , HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
+interface EnrollmentRequest {
+  userId: number;
+  trainingId: number;
+}
+
+interface RatingRequest {
+  userId: number;
+  trainingId: number;
+  stars: number;
+}
+
+interface TrainingRating {
+  averageRating: number;
+  ratingCount: number;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -53,6 +68,17 @@ export class EnrollmentService {
 //get all enrollments for a user
   getUserEnrollments(userId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
+  }
+  
+  //get all enrollments for a training
+  rateTraining(userId: number, trainingId: number, stars: number): Observable<any> {
+    const request: RatingRequest = { userId, trainingId, stars };
+    return this.http.put(`${this.apiUrl}/rate`, request);
+  }
+
+  //get the average rating and count of ratings for a training
+  getTrainingRating(trainingId: number): Observable<TrainingRating> {
+    return this.http.get<TrainingRating>(`${this.apiUrl}/training/${trainingId}/rating`);
   }
   
 }

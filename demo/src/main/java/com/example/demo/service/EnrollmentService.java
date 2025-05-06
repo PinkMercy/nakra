@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.EnrollmentDTO;
 import com.example.demo.model.Enrollment;
 import com.example.demo.model.Training;
 import com.example.demo.model.User;
@@ -34,13 +35,23 @@ public class EnrollmentService {
         this.trainingRepository = trainingRepository;
     }
 
+    // Convert Enrollment entity to DTO
+    private EnrollmentDTO convertToDTO(Enrollment enrollment) {
+        EnrollmentDTO dto = new EnrollmentDTO();
+        dto.setId(enrollment.getId());
+        dto.setUserId(enrollment.getUser().getId());
+        dto.setTrainingId(enrollment.getTraining().getId());
+        dto.setStars(enrollment.getStars());
+        return dto;
+    }
+
     /**
      * Enroll a user to a training
      * @param userId the ID of the user
      * @param trainingId the ID of the training
-     * @return the created enrollment
+     * @return the created enrollment as DTO
      */
-    public Enrollment enrollUserToTraining(Long userId, Long trainingId) {
+    public EnrollmentDTO enrollUserToTraining(Long userId, Long trainingId) {
         // Find user and training
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -60,7 +71,8 @@ public class EnrollmentService {
         enrollment.setTraining(training);
         enrollment.setStars(0); // Default rating is 0
 
-        return enrollmentRepository.save(enrollment);
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+        return convertToDTO(savedEnrollment);
     }
 
     /**
@@ -77,14 +89,65 @@ public class EnrollmentService {
         // Delete the enrollment
         enrollmentRepository.delete(enrollment);
     }
+
     public boolean isUserEnrolled(Long userId, Long trainingId) {
         return enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId).isPresent();
     }
 
-    /*ajouter la methode getAllEnrollments of that user id and return training details and status
-    if date systeme < date training status = planifier
-    if date systeme = date training status = en cours
-    if date systeme = date training status = en terminer */
+    /**
+     * Update the rating (stars) for a user's enrollment in a training
+     * @param userId the ID of the user
+     * @param trainingId the ID of the training
+     * @param stars the rating value (0-5)
+     * @return the updated enrollment as DTO
+     */
+    public EnrollmentDTO rateTraining(Long userId, Long trainingId, int stars) {
+        if (stars < 0 || stars > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating must be between 0 and 5");
+        }
+
+        // Find the enrollment
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User must be enrolled to rate this training"));
+
+        // Update the rating
+        enrollment.setStars(stars);
+        Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
+        return convertToDTO(updatedEnrollment);
+    }
+
+    /**
+     * Calculate the average rating for a training
+     * @param trainingId the ID of the training
+     * @return the average rating and count of ratings
+     */
+    public Map<String, Object> getTrainingRating(Long trainingId) {
+        // Check if training exists
+        trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Training not found"));
+
+        // Get all enrollments for this training with stars > 0 (only count actual ratings)
+        List<Enrollment> enrollments = enrollmentRepository.findByTrainingIdAndStarsGreaterThan(trainingId, 0);
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (enrollments.isEmpty()) {
+            result.put("averageRating", 0.0);
+            result.put("ratingCount", 0);
+        } else {
+            // Calculate average
+            double sum = enrollments.stream().mapToInt(Enrollment::getStars).sum();
+            double average = sum / enrollments.size();
+            // Round to 1 decimal place
+            double roundedAverage = Math.round(average * 10.0) / 10.0;
+
+            result.put("averageRating", roundedAverage);
+            result.put("ratingCount", enrollments.size());
+        }
+
+        return result;
+    }
 
     public List<Map<String, Object>> getAllEnrollments(Long userId) {
         // Vérifier si l'utilisateur existe
@@ -100,7 +163,7 @@ public class EnrollmentService {
         // Préparer la réponse
         return enrollments.stream().map(enrollment -> {
             Training training = enrollment.getTraining();
-            LocalDate trainingDate = training.getDate(); // Assurez-vous que Training a un champ `date` de type LocalDate
+            LocalDate trainingDate = training.getDate();
 
             String status;
             if (today.isBefore(trainingDate)) {
@@ -118,6 +181,7 @@ public class EnrollmentService {
             trainingInfo.put("description", training.getDescription());
             trainingInfo.put("date", training.getDate());
             trainingInfo.put("status", status);
+            trainingInfo.put("userRating", enrollment.getStars());
 
             return trainingInfo;
         }).collect(Collectors.toList());

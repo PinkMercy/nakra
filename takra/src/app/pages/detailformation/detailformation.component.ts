@@ -5,6 +5,7 @@ import { SessionService } from '../../services/session/session.service';
 import { EnrollmentService } from '../../services/enrollment.service';
 import { AuthService } from '../../services/auth.service';
 import { CommentSectionComponent } from '../comment-section/comment-section.component';
+import { FormsModule } from '@angular/forms';
 
 interface Formation {
   id: number;
@@ -27,14 +28,19 @@ interface Session {
   timeStart: string;
   timeEnd: string;
   type: 'ONLINE' | 'INPERSON';
-  room:any;
+  room: any;
   meetingLink?: string;
+}
+
+interface TrainingRating {
+  averageRating: number;
+  ratingCount: number;
 }
 
 @Component({
   selector: 'app-detailformation',
   standalone: true,
-  imports: [CommonModule,CommentSectionComponent],
+  imports: [CommonModule, CommentSectionComponent, FormsModule],
   templateUrl: './detailformation.component.html',
   styleUrl: './detailformation.component.scss'
 })
@@ -46,6 +52,10 @@ export class DetailformationComponent implements OnInit {
   userId: number | null = null;
   isEnrolled = false;
   isEnrollmentLoading = false;
+  userRating = 0;
+  trainingRating: TrainingRating = { averageRating: 0, ratingCount: 0 };
+  isRatingLoading = false;
+  
   constructor(
     private route: ActivatedRoute,
     private sessionService: SessionService,
@@ -62,10 +72,11 @@ export class DetailformationComponent implements OnInit {
       const id = Number(params.get('id'));
       if (id) {
         this.loadFormationDetails(id);
+        this.loadTrainingRating(id);
         if (this.userId) {
           this.checkEnrollmentStatus(id);
+          this.loadUserEnrollment(this.userId, id);
         }
-
       } else {
         this.error = 'Formation ID not found';
         this.isLoading = false;
@@ -89,9 +100,32 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
+  loadTrainingRating(trainingId: number): void {
+    this.enrollmentService.getTrainingRating(trainingId).subscribe({
+      next: (rating) => {
+        this.trainingRating = rating;
+      },
+      error: (err) => {
+        console.error('Error loading training rating', err);
+      }
+    });
+  }
+
+  loadUserEnrollment(userId: number, trainingId: number): void {
+    this.enrollmentService.getUserEnrollments(userId).subscribe({
+      next: (enrollments) => {
+        const enrollment = enrollments.find(e => e.trainingId === trainingId);
+        if (enrollment) {
+          this.userRating = enrollment.userRating || 0;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading user enrollment', err);
+      }
+    });
+  }
 
   checkEnrollmentStatus(formationId: number): void {
-    
     if (!this.userId) return;
     
     this.isEnrollmentLoading = true;
@@ -106,6 +140,7 @@ export class DetailformationComponent implements OnInit {
       }
     });
   }
+  
   toggleEnrollment(): void {
     if (!this.userId || !this.formation) {
       alert('Vous devez être connecté pour vous inscrire à une formation');
@@ -143,6 +178,30 @@ export class DetailformationComponent implements OnInit {
         }
       });
     }
+  }
+
+  rateTraining(stars: number): void {
+    if (!this.userId || !this.formation || !this.isEnrolled) {
+      alert('Vous devez être abonné pour noter cette formation');
+      return;
+    }
+
+    this.isRatingLoading = true;
+    this.enrollmentService.rateTraining(this.userId, this.formation.id, stars).subscribe({
+      next: () => {
+        this.userRating = stars;
+        this.isRatingLoading = false;
+        // Reload the training rating to update the average
+        if (this.formation) {
+          this.loadTrainingRating(this.formation.id);
+        }
+      },
+      error: (err) => {
+        console.error('Error rating training', err);
+        this.isRatingLoading = false;
+        alert('Erreur lors de la notation');
+      }
+    });
   }
 
   addToCalendar(session: Session): void {

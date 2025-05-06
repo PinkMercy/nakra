@@ -27,6 +27,19 @@
             <div class="formation-header">
                 <h2 class="formation-title">{{ formation.title }}</h2>
                 
+                <!-- Training Rating Display -->
+                <div class="training-rating">
+                    <div class="rating-stars">
+                        <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                           [ngClass]="{'filled': trainingRating.averageRating >= star, 
+                                      'half-filled': trainingRating.averageRating > star - 0.5 && trainingRating.averageRating < star}"></i>
+                    </div>
+                    <div class="rating-text">
+                        {{ trainingRating.averageRating.toFixed(1) }}/5 
+                        <span class="rating-count">({{ trainingRating.ratingCount }} avis)</span>
+                    </div>
+                </div>
+                
                 <!-- Enrollment Button -->
                 <div class="enrollment-actions" *ngIf="userId">
                     <button 
@@ -42,6 +55,20 @@
                         <i class="fas fa-lock"></i> Connectez-vous pour vous abonner
                     </button>
                 </div>
+            </div>
+            
+            <!-- User Rating Section (visible only when enrolled) -->
+            <div class="user-rating-section" *ngIf="isEnrolled">
+                <h3>Votre évaluation</h3>
+                <div class="user-rating-stars">
+                    <i class="fas fa-star rating-star" 
+                       *ngFor="let star of [1,2,3,4,5]" 
+                       [ngClass]="{'selected': userRating >= star}"
+                       [class.disabled]="isRatingLoading"
+                       (click)="rateTraining(star)"></i>
+                </div>
+                <p class="rating-hint" *ngIf="userRating === 0">Cliquez sur une étoile pour noter cette formation</p>
+                <p class="rating-hint" *ngIf="userRating > 0">Vous avez noté cette formation {{ userRating }}/5</p>
             </div>
             
             <div class="formation-details">

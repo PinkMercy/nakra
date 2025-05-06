@@ -1,9 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.EnrollmentRequest;
-import com.example.demo.model.Enrollment;
+import com.example.demo.dto.EnrollmentDTO;
+import com.example.demo.dto.RatingRequest;
 import com.example.demo.service.EnrollmentService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,40 +22,48 @@ public class EnrollmentController {
         this.enrollmentService = enrollmentService;
     }
 
-    /**
-     * Enroll a user to a training
-     * @param request the enrollment request containing userId and trainingId
-     * @return the created enrollment
-     */
     @PostMapping
-    public ResponseEntity<Enrollment> enrollUser(@Valid @RequestBody EnrollmentRequest request) {
-        Enrollment enrollment = enrollmentService.enrollUserToTraining(
-                request.getUserId(),
-                request.getTrainingId());
+    public ResponseEntity<EnrollmentDTO> enrollUserToTraining(@RequestBody Map<String, Long> request) {
+        Long userId = request.get("userId");
+        Long trainingId = request.get("trainingId");
+        EnrollmentDTO enrollment = enrollmentService.enrollUserToTraining(userId, trainingId);
         return new ResponseEntity<>(enrollment, HttpStatus.CREATED);
     }
 
-    /**
-     * Unenroll a user from a training
-     * @param userId the ID of the user
-     * @param trainingId the ID of the training
-     * @return no content response
-     */
     @DeleteMapping
-    public ResponseEntity<Void> unenrollUser(@RequestParam Long userId, @RequestParam Long trainingId) {
+    public ResponseEntity<Void> unenrollUserFromTraining(
+            @RequestParam Long userId,
+            @RequestParam Long trainingId) {
         enrollmentService.unenrollUserFromTraining(userId, trainingId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
     @GetMapping("/status")
-    public ResponseEntity<Boolean> checkEnrollmentStatus(
+    public ResponseEntity<Boolean> isUserEnrolled(
             @RequestParam Long userId,
             @RequestParam Long trainingId) {
         boolean isEnrolled = enrollmentService.isUserEnrolled(userId, trainingId);
-        return ResponseEntity.ok(isEnrolled);
+        return new ResponseEntity<>(isEnrolled, HttpStatus.OK);
     }
-        // GET all enrollments of a user with training details and status
-        @GetMapping("/user/{userId}")
-        public List<Map<String, Object>> getAllEnrollmentsByUserId(@PathVariable Long userId) {
-            return enrollmentService.getAllEnrollments(userId);
-        }
+
+    @PutMapping("/rate")
+    public ResponseEntity<EnrollmentDTO> rateTraining(@RequestBody RatingRequest request) {
+        EnrollmentDTO enrollment = enrollmentService.rateTraining(
+                request.getUserId(),
+                request.getTrainingId(),
+                request.getStars());
+        return new ResponseEntity<>(enrollment, HttpStatus.OK);
+    }
+
+    @GetMapping("/training/{trainingId}/rating")
+    public ResponseEntity<Map<String, Object>> getTrainingRating(@PathVariable Long trainingId) {
+        Map<String, Object> rating = enrollmentService.getTrainingRating(trainingId);
+        return new ResponseEntity<>(rating, HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Map<String, Object>>> getAllEnrollments(@PathVariable Long userId) {
+        List<Map<String, Object>> enrollments = enrollmentService.getAllEnrollments(userId);
+        return new ResponseEntity<>(enrollments, HttpStatus.OK);
+    }
 }
