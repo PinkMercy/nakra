@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { EnrollmentService } from '../../services/enrollment.service';
+import { AuthService } from '../../services/auth.service';
 
 interface Training {
   trainingId: number;
@@ -20,14 +21,15 @@ interface Training {
 export class ProfileComponent implements OnInit {
   // User data
   user = {
-    firstName: 'Oussemaa',
-    lastName: 'Heni',
+    firstName: '',
+    lastName: '',
     position: 'Directeur',
     department: 'IT',
     email: 'oussema.heni@soprahr.com',
     joinDate: '12/07/2025',
     avatar: '../../../assets/img/user.png'
   };
+  
 
   // Trainings
   trainings: Training[] = [];
@@ -36,14 +38,22 @@ export class ProfileComponent implements OnInit {
   completedTrainings: Training[] = [];
   inProgressTrainings: Training[] = [];
   plannedTrainings: Training[] = [];
-  
+
   // Current filter
   currentFilter: string = 'all';
   filteredTrainings: Training[] = [];
 
-  constructor(private enrollmentService: EnrollmentService) { }
+  constructor(private enrollmentService: EnrollmentService,private authService :AuthService) { }
 
   ngOnInit(): void {
+    const me = this.authService.getUser();
+    if (me) {
+      this.user.firstName = me.firstname;
+      this.user.lastName  = me.lastname;
+      this.user.email     = me.email;
+      
+      // if you also have me.role or me.joinDate, you can set them here too
+    }
     // Charger les formations de l'utilisateur
     this.loadUserTrainings();
   }

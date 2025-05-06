@@ -62,6 +62,7 @@
           [nzText]="getInitials(comment.userFirstname, comment.userLastname)"
         ></nz-avatar>
         <nz-comment-content>
+          <span class="comment-author">{{ comment.userFirstname }} {{ comment.userLastname }}</span>
           <p class="comment-text">{{ comment.content }}</p>
         </nz-comment-content>
         <nz-comment-action>
@@ -101,7 +102,7 @@
             <i nz-icon nzType="delete" nzTheme="outline"></i>
           </span>
         </nz-comment-action>
-        <span class="comment-author">{{ comment.userFirstname }} {{ comment.userLastname }}</span>
+        
         <span class="comment-time">{{ formatDate(comment.createdAt) }}</span>
       </nz-comment>
     </div>

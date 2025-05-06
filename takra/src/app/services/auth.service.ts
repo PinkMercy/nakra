@@ -79,4 +79,12 @@ export class AuthService {
       }
       return null;
     }
+  //get user from local storage
+  getUser(): any {
+    const user = localStorage.getItem('user');
+    if (user) {
+      return JSON.parse(user);
+    }
+    return null;
+  }
 }

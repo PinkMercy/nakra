@@ -1,0 +1,30 @@
+.error-container {
+    text-align: center;
+    padding: 40px;
+  
+    .error-image {
+      max-width: 50%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+  
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+  
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+  
+    .btn-return {
+      display: inline-block;
+      padding: 0.5em 1.2em;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+    }
+  }
+  

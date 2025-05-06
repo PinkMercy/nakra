@@ -10,6 +10,6 @@ export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
     return true;
   } else {
     // Redirect to login if no valid user is found.
-    return router.createUrlTree(['/login']);
+    return router.createUrlTree(['errorpage']);
   }
 };

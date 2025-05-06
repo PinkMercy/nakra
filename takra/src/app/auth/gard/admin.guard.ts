@@ -10,6 +10,6 @@ export const adminGuard: CanActivateFn = (route, state): boolean | UrlTree => {
     return true;
   } else {
     // Optionally redirect to a 'Not Authorized' page or login.
-    return router.createUrlTree(['/login']);
+    return router.createUrlTree(['errorpage']);
   }
 };

@@ -12,6 +12,7 @@ import { UsercalenderComponent } from './pages/usercalender/usercalender.compone
 import { ProfileComponent } from './pages/profile/profile.component';
 import { FormationconfigComponent } from './pages/formationconfig/formationconfig.component';
 import { DetailformationComponent } from './pages/detailformation/detailformation.component';
+import { ErrorpageComponent } from './pages/errorpage/errorpage.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent }, 
@@ -30,5 +31,6 @@ export const routes: Routes = [
 
   ]},
   { path: '', pathMatch: 'full', redirectTo: '/home' },
-  { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) }
+  { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
+  {path: 'errorpage',component:ErrorpageComponent} // Wildcard route for a 404 page
 ];

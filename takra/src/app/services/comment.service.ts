@@ -17,7 +17,7 @@ export class CommentService {
    */
   getCommentsForTraining(trainingId: number, userId: number | null): Observable<Comment[]> {
     let url = `${this.apiUrl}/training/${trainingId}`;
-    if (userId) {
+    if (userId){
       url += `?userId=${userId}`;
     }
     return this.http.get<Comment[]>(url);
