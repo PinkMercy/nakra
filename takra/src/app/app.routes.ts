@@ -13,6 +13,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { FormationconfigComponent } from './pages/formationconfig/formationconfig.component';
 import { DetailformationComponent } from './pages/detailformation/detailformation.component';
 import { ErrorpageComponent } from './pages/errorpage/errorpage.component';
+import { RoomadminComponent } from './pages/roomadmin/roomadmin.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent }, 
@@ -25,6 +26,7 @@ export const routes: Routes = [
     { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
     {path: 'AdminUsersControle',component:AdminusersComponent, canActivate: [adminGuard],},
     {path: 'gformation',component:FormationconfigComponent, canActivate: [adminGuard],},
+    {path: 'adminsalle',component:RoomadminComponent, canActivate: [adminGuard],},
     {path: 'usercalendar', component: UsercalenderComponent },
     {path: 'profile', component:ProfileComponent },
     {path: 'detailformation/:id', component: DetailformationComponent },

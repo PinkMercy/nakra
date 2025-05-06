@@ -21,4 +21,16 @@ export class RoomService {
       headers: this.getAuthHeaders()
     });
   }
+  //add room
+  addRoom(room: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}`, room, {
+      headers: this.getAuthHeaders()
+    });
+  }
+  //delete room
+  deleteRoom(roomId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${roomId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
 }
