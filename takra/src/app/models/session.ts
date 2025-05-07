@@ -14,6 +14,7 @@ export interface Event {
   description: string;
   type?: string;
   date: string;
+  formateur?: { firstname: string; lastname: string };
   durationInHours: number;
   sessions: Session[];
 }
