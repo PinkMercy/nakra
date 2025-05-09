@@ -14,6 +14,7 @@ import { FormationconfigComponent } from './pages/formationconfig/formationconfi
 import { DetailformationComponent } from './pages/detailformation/detailformation.component';
 import { ErrorpageComponent } from './pages/errorpage/errorpage.component';
 import { RoomadminComponent } from './pages/roomadmin/roomadmin.component';
+import { StatsComponent } from './pages/stats/stats.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent }, 
@@ -27,6 +28,7 @@ export const routes: Routes = [
     {path: 'AdminUsersControle',component:AdminusersComponent, canActivate: [adminGuard],},
     {path: 'gformation',component:FormationconfigComponent, canActivate: [adminGuard],},
     {path: 'adminsalle',component:RoomadminComponent, canActivate: [adminGuard],},
+    {path: 'stats',component:StatsComponent, canActivate: [adminGuard],},
     {path: 'usercalendar', component: UsercalenderComponent },
     {path: 'profile', component:ProfileComponent },
     {path: 'detailformation/:id', component: DetailformationComponent },
