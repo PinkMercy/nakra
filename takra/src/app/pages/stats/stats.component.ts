@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import * as echarts from 'echarts';
 import { StatsService } from '../../services/stats.service';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
+import { TrainingstatsComponent } from '../trainingstats/trainingstats.component';
 
 @Component({
   selector: 'app-stats',
@@ -11,7 +12,9 @@ import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
   imports: [
     CommonModule,
     HttpClientModule,
-    NgxEchartsModule
+    NgxEchartsModule,
+    TrainingstatsComponent,
+
   ],
   providers: [
     {
@@ -19,31 +22,8 @@ import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
       useFactory: () => ({ echarts })
     }
   ],
-  template: `
-    <div class="stats-container">
-      <h2>Nombre de formations par mois</h2>
-      <div 
-        echarts 
-        [options]="chartOptions" 
-        class="chart"
-        [loading]="loading"
-      ></div>
-    </div>
-  `,
-  styles: [`
-    .stats-container {
-      width: 100%;
-      padding: 20px;
-    }
-    .chart {
-      height: 400px;
-      width: 100%;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-  `]
+  templateUrl: './stats.component.html',
+  styleUrls: ['./stats.component.scss']
 })
 export class StatsComponent implements OnInit {
   chartOptions: echarts.EChartsOption = {};

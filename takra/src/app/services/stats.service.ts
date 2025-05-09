@@ -8,7 +8,7 @@ import { catchError } from 'rxjs/operators';
 })
 export class StatsService {
   constructor(private http: HttpClient) {}
-
+private apiUrl = 'http://localhost:8080/api/stats';
   getTrainingsPerMonth(): Observable<any> {
     return this.http.get<any>('http://localhost:8080/api/stats/trainings-per-month')
       .pipe(
@@ -24,6 +24,29 @@ export class StatsService {
     return {
       months: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
       counts: [5, 8, 12, 6, 9, 4, 7, 3, 10, 11, 8, 6]
+    };
+  }
+
+
+  getStatueTrainingsPerMonth(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/statuetrainings-per-month`)
+      .pipe(
+        catchError(error => {
+          console.error('Error fetching training statistics:', error);
+          // Return mock data in case of error
+          return of(this.getMockData_2());
+        })
+      );
+  }
+
+  private getMockData_2(): any {
+    return {
+      currentMonth: 'Mai',
+      data: [
+        { value: 12, name: 'Terminé' },
+        { value: 5, name: 'En cours' },
+        { value: 8, name: 'Planifié' }
+      ]
     };
   }
 }

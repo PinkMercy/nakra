@@ -1,10 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.model.Enrollment;
 import com.example.demo.model.Training;
+import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.TrainingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -18,10 +21,14 @@ import java.util.Locale;
 public class StatsService {
 
     private final TrainingRepository trainingRepository;
+    private final EnrollmentRepository enrollmentRepository;
+
 
     @Autowired
-    public StatsService(TrainingRepository trainingRepository) {
+    public StatsService(TrainingRepository trainingRepository,
+                        EnrollmentRepository enrollmentRepository)  {
         this.trainingRepository = trainingRepository;
+        this.enrollmentRepository = enrollmentRepository;
     }
 
     /**
@@ -61,4 +68,75 @@ public class StatsService {
 
         return result;
     }
+
+    /**
+     * Get statistics of trainings for the current month by status
+     * @return Map containing status names and counts
+     */
+    public Map<String, Object> getTrainingStatsByMonth() {
+        // Get all enrollments
+        List<Enrollment> allEnrollments = enrollmentRepository.findAll();
+
+        // Current date for status comparison
+        LocalDate today = LocalDate.now();
+
+        // Initialize counters for the current month
+        int plannedCount = 0;
+        int ongoingCount = 0;
+        int completedCount = 0;
+
+        // Count trainings by status for the current month only
+        for (Enrollment enrollment : allEnrollments) {
+            Training training = enrollment.getTraining();
+            LocalDate trainingDate = training.getDate();
+
+            // Filter for current month only
+            if (trainingDate.getMonth() == today.getMonth() &&
+                    trainingDate.getYear() == today.getYear()) {
+
+                // Determine status based on date comparison
+                if (today.isBefore(trainingDate)) {
+                    // Planned
+                    plannedCount++;
+                } else if (today.isEqual(trainingDate)) {
+                    // Ongoing
+                    ongoingCount++;
+                } else {
+                    // Completed
+                    completedCount++;
+                }
+            }
+        }
+
+        // Format current month name
+        String currentMonthName = today.getMonth().toString();
+        String formattedMonthName = currentMonthName.charAt(0) + currentMonthName.substring(1).toLowerCase();
+
+        // Create data array for the chart
+        List<Map<String, Object>> data = new ArrayList<>();
+
+        Map<String, Object> completedData = new HashMap<>();
+        completedData.put("value", completedCount);
+        completedData.put("name", "Terminé");
+        data.add(completedData);
+
+        Map<String, Object> ongoingData = new HashMap<>();
+        ongoingData.put("value", ongoingCount);
+        ongoingData.put("name", "En cours");
+        data.add(ongoingData);
+
+        Map<String, Object> plannedData = new HashMap<>();
+        plannedData.put("value", plannedCount);
+        plannedData.put("name", "Planifié");
+        data.add(plannedData);
+
+        // Create response map
+        Map<String, Object> result = new HashMap<>();
+        result.put("currentMonth", formattedMonthName);
+        result.put("data", data);
+
+        return result;
+    }
+
+
 }

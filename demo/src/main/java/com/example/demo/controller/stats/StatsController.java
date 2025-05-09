@@ -35,4 +35,14 @@ public class StatsController {
     }
 
 
+    /**
+     * Endpoint to get training statistics by month
+     * @return JSON with months and corresponding training counts by status
+     */
+    @GetMapping("/statuetrainings-per-month")
+    public ResponseEntity<Map<String, Object>> getStatueTrainingsPerMonth() {
+        Map<String, Object> stats = statsService.getTrainingStatsByMonth();
+        return ResponseEntity.ok(stats);
+    }
+
 }
