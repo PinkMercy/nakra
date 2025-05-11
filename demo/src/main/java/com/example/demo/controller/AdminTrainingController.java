@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.TrainingCreateDTO;
+import com.example.demo.dto.responses.ApiResponse;
 import com.example.demo.model.Training;
 import com.example.demo.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,34 +17,34 @@ public class AdminTrainingController {
     @Autowired
     private TrainingService trainingService;
 
-    // Endpoint for ADMIN to create a new training
     @PostMapping("/create")
-    public ResponseEntity<Training> createTraining(@RequestBody TrainingCreateDTO trainingDTO) {
-        Training createdTraining = trainingService.createTraining(trainingDTO);
-        return ResponseEntity.ok(createdTraining);
+    public ResponseEntity<ApiResponse<Training>> createTraining(@RequestBody TrainingCreateDTO trainingDTO) {
+        ApiResponse<Training> response = trainingService.createTraining(trainingDTO);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Training>> getAllTrainings() {
+    public ResponseEntity<ApiResponse<List<Training>>> getAllTrainings() {
         List<Training> trainings = trainingService.getAllTrainings();
-        return ResponseEntity.ok(trainings);
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<Training> getTrainingById(@PathVariable Long id) {
-        Training training = trainingService.getTrainingById(id);
-        return ResponseEntity.ok(training);
+        ApiResponse<List<Training>> response = ApiResponse.success("Liste des formations récupérée avec succès", trainings);
+        return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Training>> getTrainingById(@PathVariable Long id) {
+        ApiResponse<Training> response = trainingService.getTrainingById(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Training> updateTraining(@PathVariable Long id, @RequestBody TrainingCreateDTO dto) {
-        Training updatedTraining = trainingService.updateTraining(id, dto);
-        return ResponseEntity.ok(updatedTraining);
+    public ResponseEntity<ApiResponse<Training>> updateTraining(@PathVariable Long id, @RequestBody TrainingCreateDTO dto) {
+        ApiResponse<Training> response = trainingService.updateTraining(id, dto);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteTraining(@PathVariable Long id) {
-        trainingService.deleteTraining(id);
-        return ResponseEntity.ok("Training deleted successfully");
+    public ResponseEntity<ApiResponse<Void>> deleteTraining(@PathVariable Long id) {
+        ApiResponse<Void> response = trainingService.deleteTraining(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

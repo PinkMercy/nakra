@@ -208,7 +208,7 @@ export class UsercalenderComponent implements OnInit {
     this.sessionService.getTrainingById(this.lastClickedTrainingId)
       .subscribe({
         next: training => {
-          console.log('Full training details:', training);
+          console.log('Full training detailsaaaaaaaaaaaaaaa:', training);
           // now navigate with the full object's ID
           this.router.navigate(['home/detailformation', training.id]);
         },

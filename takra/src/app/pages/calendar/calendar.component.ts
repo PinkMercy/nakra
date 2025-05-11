@@ -15,11 +15,16 @@ import {
 } from '@angular/forms';
 import { EventImpl } from '@fullcalendar/core/internal';
 import { RoomService } from '../../services/room.service';
+import { NzMessageModule, NzMessageService } from 'ng-zorro-antd/message';
+import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FullCalendarModule, ReactiveFormsModule],
+  imports: [CommonModule, FullCalendarModule, ReactiveFormsModule,
+    NzMessageModule,
+    NzNotificationModule
+  ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
 })
@@ -32,11 +37,13 @@ export class CalendarComponent implements OnInit {
   eventForm!: FormGroup;
   trainings: any[] = []; // Added to store original training data
   rooms: any[] = []; // Added to store room data
-
+  data: any[] = [];
   constructor(
     private fb: FormBuilder,
     private eventService: SessionService,
-    private sessionRooms: RoomService
+    private sessionRooms: RoomService,
+    private message: NzMessageService,          // Service pour les messages simples
+    private notification: NzNotificationService // Service pour les notifications plus élaborées
   ) {}
 
   ngOnInit(): void {
@@ -54,7 +61,7 @@ export class CalendarComponent implements OnInit {
       sessionType: ['ONLINE'],
       sessions: this.fb.array([]),
     });
-
+    
     this.calendarOptions = {
       plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
       initialView: 'dayGridMonth',
@@ -199,46 +206,86 @@ export class CalendarComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.eventForm.valid) {
-      const formValue = this.eventForm.value;
-      const mainSession = {
-        roomId: formValue.roomId,
-        date: formValue.date,
-        timeStart: formValue.timeStart,
-        timeEnd: formValue.timeEnd,
-        linkMeet: formValue.linkMeet,
-        type: formValue.sessionType,
-      };
-      const sessionsPayload = [mainSession, ...formValue.sessions];
-      const payload = {
-        title: formValue.title,
-        description: formValue.description,
-        date: formValue.date,
-        durationInHours: formValue.durationInHours,
-        formateurEmail: formValue.formateurEmail,
-        sessions: sessionsPayload,
-      };
+  if (this.eventForm.valid) {
+    const formValue = this.eventForm.value;
+    const mainSession = {
+      roomId: formValue.roomId,
+      date: formValue.date,
+      timeStart: formValue.timeStart,
+      timeEnd: formValue.timeEnd,
+      linkMeet: formValue.linkMeet,
+      type: formValue.sessionType,
+    };
+    const sessionsPayload = [mainSession, ...formValue.sessions];
+    const payload = {
+      title: formValue.title,
+      description: formValue.description,
+      date: formValue.date,
+      durationInHours: formValue.durationInHours,
+      formateurEmail: formValue.formateurEmail,
+      sessions: sessionsPayload,
+    };
 
-      if (this.isEditing && formValue.trainingId) {
-        this.eventService.updateEvent(formValue.trainingId, payload).subscribe({
-          next: () => {
-            this.fetchEventsAndUpdateCalendar();
-            this.closeModal();
-          },
-          error: (err) => console.error('Error updating event:', err)
-        });
-      } else {
-        this.eventService.addEvent(payload).subscribe({
-          next: (response) => {
-            console.log('Event created:', response);
-            this.fetchEventsAndUpdateCalendar();
-            this.closeModal();
-          },
-          error: (err) => console.error('Error creating event:', err)
-        });
-      }
+    if (this.isEditing && formValue.trainingId) {
+      this.eventService.updateEvent(formValue.trainingId, payload).subscribe({
+        next: () => {
+          this.fetchEventsAndUpdateCalendar();
+          this.closeModal();
+          this.notification.success(
+            'Succès',
+            'Formation mise à jour avec succès'
+          );
+        },
+        error: (err) => this.handleApiError(err)
+      });
+    } else {
+      this.eventService.addEvent(payload).subscribe({
+        next: (response) => {
+          console.log('Event created:', response);
+          this.fetchEventsAndUpdateCalendar();
+          this.closeModal();
+          this.notification.success(
+            'Succès',
+            'Formation ajoutée avec succès'
+          );
+        },
+        error: (err) => this.handleApiError(err)
+      });
     }
+  } else {
+    // Marquer tous les champs comme touchés pour afficher les erreurs
+    this.markFormGroupTouched(this.eventForm);
   }
+}
+
+// Méthode d'aide pour marquer tous les champs comme touchés
+private markFormGroupTouched(formGroup: FormGroup): void {
+  Object.values(formGroup.controls).forEach(control => {
+    control.markAsTouched();
+    
+    if (control instanceof FormGroup) {
+      this.markFormGroupTouched(control);
+    } else if (control instanceof FormArray) {
+      (control as FormArray).controls.forEach(ctrl => {
+        if (ctrl instanceof FormGroup) {
+          this.markFormGroupTouched(ctrl as FormGroup);
+        } else {
+          ctrl.markAsTouched();
+        }
+      });
+    }
+  });
+}
+
+// Méthode pour gérer les erreurs d'API
+private handleApiError(error: any): void {
+  console.log("first error", error);
+    this.notification.error(
+      'Erreur',
+      error.error?.message || 'Une erreur est survenue lors de la création/modification de la formation.'
+    );
+  
+}
 
   onDelete(): void {
     const trainingId = this.eventForm.value.trainingId;
@@ -256,6 +303,7 @@ export class CalendarComponent implements OnInit {
   fetchEventsAndUpdateCalendar(): void {
     this.eventService.getEvents().subscribe({
       next: (trainings) => {
+        console.log('Fetched trainings:', trainings);
         this.trainings = trainings; // Store original data
         this.calendarEvents = this.buildCalendarEvents(trainings);
         
