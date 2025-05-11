@@ -26,17 +26,23 @@
         <td>{{ ev.durationInHours }} heures</td>
         <td>{{ ev.sessions.length || 0 }}</td>
         <td>
-         <!-- Modifier button -->
-        <button nz-button nzType="primary" nzSize="small" (click)="openModal(true, ev)" style="margin-right: 8px;">
-          <i nz-icon nzType="edit"></i> Modifier
-        </button>
+          <!-- Modifier button -->
+          <button nz-button nzType="primary" nzSize="small" (click)="openModal(true, ev)" style="margin-right: 8px;">
+            <i nz-icon nzType="edit"></i> 
+          </button>
 
-        <!-- Inviter button with custom warning color -->
-        <button nz-button nzType="default" nzSize="small" (click)="openModalInvite(true, ev)" class="warning-button" style="margin-right: 8px;">
-          <i nz-icon nzType="user-add"></i> Inviter
-        </button>
-
-       
+          <!-- Inviter button with custom warning color -->
+          <button nz-button nzType="default" nzSize="small" (click)="openModalInvite(true, ev)" class="warning-button" style="margin-right: 8px;">
+            <i nz-icon nzType="user-add"></i> 
+          </button>
+         
+          
+          <!-- Supprimer button -->
+          <button
+            class="delete-btn" nz-button nzType="primary" nzDanger nzSize="small" (click)="deleteEvent(ev.id)">
+            <i nz-icon nzType="delete"></i>
+            
+          </button>
         </td>
       </tr>
     </tbody>
@@ -49,7 +55,7 @@
     <!-- Title -->
     <nz-form-item>
       <nz-form-label [nzSpan]="6" nzRequired>Titre</nz-form-label>
-      <nz-form-control [nzSpan]="18" nzErrorTip="Please input the title!">
+      <nz-form-control [nzSpan]="18" nzErrorTip="Veuillez saisir un titre !">
         <input nz-input formControlName="title" placeholder="Titre de la formation" />
       </nz-form-control>
     </nz-form-item>
@@ -57,7 +63,7 @@
     <!-- Description -->
     <nz-form-item>
       <nz-form-label [nzSpan]="6" nzRequired>Description</nz-form-label>
-      <nz-form-control [nzSpan]="18" nzErrorTip="Please input the description!">
+      <nz-form-control [nzSpan]="18" nzErrorTip="Veuillez saisir une description !">
         <textarea nz-input formControlName="description" [nzAutosize]="{ minRows: 3, maxRows: 6 }" 
           placeholder="Description de la formation"></textarea>
       </nz-form-control>
@@ -66,7 +72,7 @@
     <!-- Type -->
     <nz-form-item>
       <nz-form-label [nzSpan]="6" nzRequired>Type</nz-form-label>
-      <nz-form-control [nzSpan]="18" nzErrorTip="Please select a type!">
+      <nz-form-control [nzSpan]="18" nzErrorTip="Veuillez sélectionner un type !">
         <nz-select formControlName="type">
           <nz-option nzValue="ONLINE" nzLabel="ONLINE"></nz-option>
           <nz-option nzValue="OFFLINE" nzLabel="OFFLINE"></nz-option>
@@ -74,18 +80,10 @@
       </nz-form-control>
     </nz-form-item>
 
-    <!-- Date -->
-    <nz-form-item>
-      <nz-form-label [nzSpan]="6" nzRequired>Date</nz-form-label>
-      <nz-form-control [nzSpan]="18" nzErrorTip="Please select a date!">
-        <nz-date-picker formControlName="date" nzPlaceHolder="Select date"></nz-date-picker>
-      </nz-form-control>
-    </nz-form-item>
-
     <!-- Duration -->
     <nz-form-item>
       <nz-form-label [nzSpan]="6" nzRequired>Durée (heures)</nz-form-label>
-      <nz-form-control [nzSpan]="18" nzErrorTip="Please input a valid duration!">
+      <nz-form-control [nzSpan]="18" nzErrorTip="Veuillez saisir une durée valide !">
         <input type="number" nz-input formControlName="durationInHours" min="1" placeholder="Durée en heures" />
       </nz-form-control>
     </nz-form-item>
@@ -97,10 +95,10 @@
         <input nz-input formControlName="formateurEmail" placeholder="email@example.com" />
         <ng-template #emailErrorTpl let-control>
           <ng-container *ngIf="control.hasError('required')">
-            Please input the email!
+            Veuillez saisir un email !
           </ng-container>
           <ng-container *ngIf="control.hasError('email')">
-            Please input a valid email address!
+            Veuillez saisir une adresse email valide !
           </ng-container>
         </ng-template>
       </nz-form-control>
@@ -112,17 +110,17 @@
       <div *ngFor="let grp of sessions.controls; let i = index" [formGroupName]="i" class="session-block">
         <div class="session-header">
           <h4>Session {{ i + 1 }}</h4>
-          <button nz-button nzType="default" nzDanger nzSize="small" (click)="removeSession(i)">
+          <button nz-button nzType="default" nzDanger nzSize="small" (click)="removeSession(i)" *ngIf="sessions.length > 1">
             <i nz-icon nzType="delete"></i> Supprimer
           </button>
         </div>
 
         <div nz-row [nzGutter]="16">
-          <!-- Session Room - Changed from room to roomId -->
+          <!-- Session Room -->
           <div nz-col [nzSpan]="12">
             <nz-form-item>
               <nz-form-label nzRequired>Salle</nz-form-label>
-              <nz-form-control nzErrorTip="Please select a room!">
+              <nz-form-control nzErrorTip="Veuillez sélectionner une salle !">
                 <nz-select formControlName="roomId" placeholder="Choisir une salle">
                   <nz-option *ngFor="let room of rooms" [nzValue]="room.id" [nzLabel]="room.id"></nz-option>
                 </nz-select>
@@ -134,8 +132,8 @@
           <div nz-col [nzSpan]="12">
             <nz-form-item>
               <nz-form-label nzRequired>Date</nz-form-label>
-              <nz-form-control nzErrorTip="Please select a date!">
-                <nz-date-picker formControlName="date" nzPlaceHolder="Select date"></nz-date-picker>
+              <nz-form-control nzErrorTip="Veuillez sélectionner une date !">
+                <nz-date-picker formControlName="date" nzPlaceHolder="Sélectionner une date"></nz-date-picker>
               </nz-form-control>
             </nz-form-item>
           </div>
@@ -146,7 +144,7 @@
           <div nz-col [nzSpan]="12">
             <nz-form-item>
               <nz-form-label nzRequired>Heure début</nz-form-label>
-              <nz-form-control nzErrorTip="Please input start time!">
+              <nz-form-control nzErrorTip="Veuillez saisir l'heure de début !">
                 <input nz-input formControlName="timeStart" placeholder="HH:mm" />
               </nz-form-control>
             </nz-form-item>
@@ -156,7 +154,7 @@
           <div nz-col [nzSpan]="12">
             <nz-form-item>
               <nz-form-label nzRequired>Heure fin</nz-form-label>
-              <nz-form-control nzErrorTip="Please input end time!">
+              <nz-form-control nzErrorTip="Veuillez saisir l'heure de fin !">
                 <input nz-input formControlName="timeEnd" placeholder="HH:mm" />
               </nz-form-control>
             </nz-form-item>
@@ -167,8 +165,8 @@
           <!-- Meet Link -->
           <div nz-col [nzSpan]="12">
             <nz-form-item>
-              <nz-form-label nzRequired>Lien Meet</nz-form-label>
-              <nz-form-control nzErrorTip="Please input meeting link!">
+              <nz-form-label [nzRequired]="grp.get('type')?.value === 'ONLINE'">Lien Meet</nz-form-label>
+              <nz-form-control nzErrorTip="Veuillez saisir un lien de réunion !">
                 <input nz-input formControlName="linkMeet" placeholder="https://meet.google.com/..." />
               </nz-form-control>
             </nz-form-item>
@@ -178,7 +176,7 @@
           <div nz-col [nzSpan]="12">
             <nz-form-item>
               <nz-form-label nzRequired>Type</nz-form-label>
-              <nz-form-control nzErrorTip="Please select a type!">
+              <nz-form-control nzErrorTip="Veuillez sélectionner un type !">
                 <nz-select formControlName="type">
                   <nz-option nzValue="ONLINE" nzLabel="ONLINE"></nz-option>
                   <nz-option nzValue="OFFLINE" nzLabel="OFFLINE"></nz-option>
