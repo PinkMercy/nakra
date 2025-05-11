@@ -75,7 +75,7 @@ public class StatsService {
      */
     public Map<String, Object> getTrainingStatsByMonth() {
         // Get all enrollments
-        List<Enrollment> allEnrollments = enrollmentRepository.findAll();
+        List<Training> allTraining = trainingRepository.findAll();
 
         // Current date for status comparison
         LocalDate today = LocalDate.now();
@@ -86,10 +86,11 @@ public class StatsService {
         int completedCount = 0;
 
         // Count trainings by status for the current month only
-        for (Enrollment enrollment : allEnrollments) {
-            Training training = enrollment.getTraining();
-            LocalDate trainingDate = training.getDate();
+        for (Training training : allTraining) {
 
+            LocalDate trainingDate = training.getDate();
+            //affichier training date
+            System.out.println("Training Date: " + trainingDate);
             // Filter for current month only
             if (trainingDate.getMonth() == today.getMonth() &&
                     trainingDate.getYear() == today.getYear()) {
