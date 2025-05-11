@@ -96,4 +96,16 @@ public class EnrollmentController {
 
         return ResponseEntity.ok(response);
     }
+    /**
+     * Get all enrollments for a specific training
+     * @param trainingId the ID of the training
+     * @return list of enrollments for the specified training
+     */
+    @GetMapping("/training/{trainingId}")
+    public ResponseEntity<List<EnrollmentDTO>> getEnrollmentsByTraining(@PathVariable Long trainingId) {
+        List<EnrollmentDTO> enrollments = enrollmentService.getEnrollmentsByTraining(trainingId);
+        return ResponseEntity.ok(enrollments);
+
+    }
+
 }

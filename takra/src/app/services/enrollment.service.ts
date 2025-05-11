@@ -85,5 +85,18 @@ export class EnrollmentService {
   inviteUsers(eventId: number, userIds: number[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/events/${eventId}/invitations`, { userIds });
   }
+// Méthode pour récupérer les inscriptions à une formation
+  getTrainingEnrollments(trainingId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/training/${trainingId}`);
+}
+  // Méthode pour désinscrire un utilisateur d'une formation
+  unenrollUserFromTraining(userId: number, trainingId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}`, {
+      params: {
+        userId: userId.toString(),
+        trainingId: trainingId.toString()
+      }
+    });
+  }
   
 }

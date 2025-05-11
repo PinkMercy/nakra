@@ -70,6 +70,8 @@ export class FormationconfigComponent implements OnInit {
   isSubmitting = false;
   private modalRef!: NzModalRef;
   private editingId: number | null = null;
+  enrolledUsers: User[] = []; // Pour stocker les utilisateurs déjà inscrits
+  eventForInvitation: Event | null = null; // Pour stocker l'événement sélectionné pour invitation
   inviteModalRef!: NzModalRef;
   inviteForm!: FormGroup;
   @ViewChild('modalFormTemplate', { static: true }) modalFormTemplate!: TemplateRef<any>;
@@ -108,6 +110,7 @@ private buildInviteForm(): void {
     this.loadUsers();
     this.buildForm();
     this.buildInviteForm();
+    
   }
 
   private buildForm(): void {
@@ -214,27 +217,31 @@ private buildInviteForm(): void {
     });
   }
 
-  // 7. Implémentez la méthode openModalInvite existante
-  openModalInvite(isEdit = false, ev?: Event): void {
-    if (!ev) {
-      this.message.error('Aucune formation sélectionnée');
-      return;
-    }
-    
-    console.log('Inviting users to event:', ev);
-    
-    this.inviteForm.reset();
-    this.selectedUsers = [];
-    
-    this.inviteModalRef = this.modal.create({
-      nzTitle: `Inviter des utilisateurs à la formation: ${ev.title}`,
-      nzContent: this.inviteModalTemplate,  
-      nzWidth: '600px',
-      nzOnOk: () => this.submitInvitations(ev.id),
-      nzOkText: 'Inviter',
-      nzCancelText: 'Annuler'
-    });
+ // 2. Modifiez la méthode openModalInvite pour charger les utilisateurs inscrits
+openModalInvite(isEdit = false, ev?: Event): void {
+  if (!ev) {
+    this.message.error('Aucune formation sélectionnée');
+    return;
   }
+  
+  this.eventForInvitation = ev;
+  console.log('Inviting users to event:', ev);
+  
+  this.inviteForm.reset();
+  this.selectedUsers = [];
+  
+  // Charger les utilisateurs déjà inscrits
+  this.loadEnrolledUsers(ev.id);
+  
+  this.inviteModalRef = this.modal.create({
+    nzTitle: `Inviter des utilisateurs à la formation: ${ev.title}`,
+    nzContent: this.inviteModalTemplate,  
+    nzWidth: '600px',
+    nzOnOk: () => this.submitInvitations(ev.id),
+    nzOkText: 'Inviter',
+    nzCancelText: 'Annuler'
+  });
+}
   // 8. Méthode pour soumettre les invitations
 submitInvitations(eventId: number): boolean | void {
   if (this.inviteForm.invalid) {
@@ -362,4 +369,64 @@ submitInvitations(eventId: number): boolean | void {
       }
     });
   }
+
+  // 3. Ajoutez cette méthode pour charger les utilisateurs inscrits
+private loadEnrolledUsers(eventId: number): void {
+  this.enrollmentService.getTrainingEnrollments(eventId).subscribe({
+    next: enrollments => {
+      // Extraire les IDs des utilisateurs inscrits
+      const enrolledUserIds = enrollments.map(enrollment => enrollment.userId);
+      
+      // Filtrer les utilisateurs déjà inscrits
+      this.enrolledUsers = this.users.filter(user => 
+        enrolledUserIds.includes(user.id)
+      );
+      
+      console.log('Utilisateurs inscrits:', this.enrolledUsers);
+    },
+    error: err => {
+      console.error('Erreur lors du chargement des inscriptions:', err);
+      this.message.error('Échec du chargement des inscriptions');
+    }
+  });
+}
+get filteredUsers(): User[] {
+  return this.users.filter(u => !this.enrolledUsers.some(eu => eu.id === u.id));
+}
+
+
+removeUser(userId: number, event?: MouseEvent): void {
+  // Empêcher la propagation pour éviter que le clic ne ferme la modal
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  
+  if (!this.eventForInvitation) {
+    this.message.error('Aucune formation sélectionnée');
+    return;
+  }
+// Demander confirmation avant de supprimer
+  this.modal.confirm({
+    nzTitle: 'Êtes-vous sûr de vouloir supprimer cet utilisateur de la formation ?',
+    nzOkText: 'Oui',
+    nzOkType: 'primary',
+    nzOkDanger: true,
+    nzCancelText: 'Non',
+    nzOnOk: () => {
+      // Appeler le service pour désinscrire l'utilisateur
+      this.enrollmentService.unenrollUserFromTraining(userId, this.eventForInvitation!.id).subscribe({
+        next: () => {
+          this.message.success('Utilisateur supprimé de la formation avec succès');
+          // Mettre à jour la liste des utilisateurs inscrits
+          this.loadEnrolledUsers(this.eventForInvitation!.id);
+        },
+        error: err => {
+          console.error('Erreur lors de la suppression de l\'utilisateur:', err);
+          this.message.error(`Échec de la suppression: ${err.error?.message || err.message || 'Erreur inconnue'}`);
+        }
+      });
+    }
+  });}
+  
 }

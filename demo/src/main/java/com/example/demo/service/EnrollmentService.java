@@ -187,6 +187,24 @@ public class EnrollmentService {
 
         return result;
     }
+    /**
+     * Get all enrollments for a specific training
+     * @param trainingId the ID of the training
+     * @return list of enrollment DTOs
+     */
+    public List<EnrollmentDTO> getEnrollmentsByTraining(Long trainingId) {
+        // Verify if training exists
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Training not found"));
+
+        // Get all enrollments for this training
+        List<Enrollment> enrollments = enrollmentRepository.findByTrainingId(trainingId);
+
+        // Convert to DTOs
+        return enrollments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     public List<Map<String, Object>> getAllEnrollments(Long userId) {
         // Vérifier si l'utilisateur existe

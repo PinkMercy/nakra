@@ -200,9 +200,31 @@
   </form>
 </ng-template>
 
-<!-- Ajoutez ce template après votre modalFormTemplate existant -->
+<!-- Template de la modal d'invitation -->
 <ng-template #inviteModalTemplate>
-  <form [formGroup]="inviteForm" nz-form [nzLayout]="'vertical'">
+  <form [formGroup]="inviteForm">
+    <!-- Liste des utilisateurs déjà inscrits avec bouton de suppression -->
+    <div *ngIf="enrolledUsers.length > 0">
+      <h4>Utilisateurs déjà inscrits</h4>
+      <ul>
+        <li *ngFor="let user of enrolledUsers" class="enrolled-user">
+          <span>{{ user.email }} ({{ user.firstname }} {{ user.lastname }})</span>
+          <button 
+            nz-button 
+            nzType="text" 
+            nzDanger 
+            (click)="removeUser(user.id, $event)" 
+            nz-tooltip 
+            nzTooltipTitle="Supprimer">
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+          </button>
+        </li>
+      </ul>
+    </div>
+    
+    <nz-divider nzText="Inviter de nouveaux utilisateurs"></nz-divider>
+    
+    <!-- Sélection des utilisateurs à inviter -->
     <nz-form-item>
       <nz-form-label nzRequired>Utilisateurs</nz-form-label>
       <nz-form-control nzErrorTip="Veuillez sélectionner au moins un utilisateur">
@@ -212,10 +234,10 @@
           nzPlaceHolder="Sélectionner les utilisateurs à inviter"
           [nzMaxTagCount]="3"
           [nzShowSearch]="true">
-          <nz-option 
-            *ngFor="let user of users" 
-            [nzValue]="user.id" 
-            [nzLabel]="user.email">
+            <nz-option 
+              *ngFor="let user of filteredUsers" 
+              [nzValue]="user.id" 
+              [nzLabel]="user.email + ' (' + user.firstname + ' ' + user.lastname + ')'">
           </nz-option>
         </nz-select>
       </nz-form-control>

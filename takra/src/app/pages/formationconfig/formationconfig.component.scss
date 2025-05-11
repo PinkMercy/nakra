@@ -74,3 +74,28 @@
   border-color: #ff7875;
   color: #fff;
 }
+.enrolled-user {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  
+ 
+  
+  // Style du bouton
+  button {
+    visibility: hidden;
+    margin-left: 8px;
+  }
+  
+   button {
+    visibility: visible;
+  }
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
