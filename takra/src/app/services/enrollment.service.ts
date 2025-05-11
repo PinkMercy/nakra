@@ -80,5 +80,10 @@ export class EnrollmentService {
   getTrainingRating(trainingId: number): Observable<TrainingRating> {
     return this.http.get<TrainingRating>(`${this.apiUrl}/training/${trainingId}/rating`);
   }
+
+   // Méthode pour inviter des utilisateurs à une formation
+  inviteUsers(eventId: number, userIds: number[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/events/${eventId}/invitations`, { userIds });
+  }
   
 }

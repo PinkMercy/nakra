@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -20,6 +21,8 @@ public class Enrollment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;  // reference to the enrolled user
 
+
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "training_id", nullable = false)
     private Training training;  // reference to the training

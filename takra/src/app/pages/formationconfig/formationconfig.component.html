@@ -26,10 +26,17 @@
         <td>{{ ev.durationInHours }} heures</td>
         <td>{{ ev.sessions.length || 0 }}</td>
         <td>
-          <button nz-button nzType="primary" nzSize="small" (click)="openModal(true, ev)">
-            <i nz-icon nzType="edit"></i> Modifier
-          </button>
-          <!-- You can add a delete button here if needed -->
+         <!-- Modifier button -->
+        <button nz-button nzType="primary" nzSize="small" (click)="openModal(true, ev)" style="margin-right: 8px;">
+          <i nz-icon nzType="edit"></i> Modifier
+        </button>
+
+        <!-- Inviter button with custom warning color -->
+        <button nz-button nzType="default" nzSize="small" (click)="openModalInvite(true, ev)" class="warning-button" style="margin-right: 8px;">
+          <i nz-icon nzType="user-add"></i> Inviter
+        </button>
+
+       
         </td>
       </tr>
     </tbody>
@@ -190,5 +197,28 @@
         <i nz-icon nzType="plus"></i> Ajouter Session
       </button>
     </div>
+  </form>
+</ng-template>
+
+<!-- Ajoutez ce template après votre modalFormTemplate existant -->
+<ng-template #inviteModalTemplate>
+  <form [formGroup]="inviteForm" nz-form [nzLayout]="'vertical'">
+    <nz-form-item>
+      <nz-form-label nzRequired>Utilisateurs</nz-form-label>
+      <nz-form-control nzErrorTip="Veuillez sélectionner au moins un utilisateur">
+        <nz-select
+          formControlName="selectedUsers"
+          nzMode="multiple"
+          nzPlaceHolder="Sélectionner les utilisateurs à inviter"
+          [nzMaxTagCount]="3"
+          [nzShowSearch]="true">
+          <nz-option 
+            *ngFor="let user of users" 
+            [nzValue]="user.id" 
+            [nzLabel]="user.email">
+          </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
   </form>
 </ng-template>

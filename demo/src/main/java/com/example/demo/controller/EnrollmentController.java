@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,5 +66,34 @@ public class EnrollmentController {
     public ResponseEntity<List<Map<String, Object>>> getAllEnrollments(@PathVariable Long userId) {
         List<Map<String, Object>> enrollments = enrollmentService.getAllEnrollments(userId);
         return new ResponseEntity<>(enrollments, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint to invite users to a training event
+     * @param trainingId the ID of the training
+     * @param requestBody containing list of user IDs to invite
+     * @return response with list of successfully invited users
+     */
+    @PostMapping("/events/{trainingId}/invitations")
+    public ResponseEntity<Map<String, Object>> inviteUsers(
+            @PathVariable Long trainingId,
+            @RequestBody Map<String, List<Long>> requestBody) {
+
+        List<Long> userIds = requestBody.get("userIds");
+        if (userIds == null || userIds.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "No users specified for invitation");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        List<Long> successfulInvitations = enrollmentService.inviteUsers(trainingId, userIds);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("invitedUsers", successfulInvitations);
+        response.put("totalInvited", successfulInvitations.size());
+
+        return ResponseEntity.ok(response);
     }
 }

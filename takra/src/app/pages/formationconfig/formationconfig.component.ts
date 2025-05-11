@@ -14,7 +14,9 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzMessageService, NzMessageModule } from 'ng-zorro-antd/message';
 import { RoomService } from '../../services/room.service';
-
+import { UserService } from '../../services/user/user.service';
+import { User } from '../../models/user'; // Import the User model
+import { EnrollmentService } from '../../services/enrollment.service';
 export interface Session {
   roomId: number; // Changed from 'room' to 'roomId'
   date: string;
@@ -60,27 +62,52 @@ export interface Room {
   styleUrl: './formationconfig.component.scss'
 })
 export class FormationconfigComponent implements OnInit {
+  selectedUsers: number[] = [];
   events: Event[] = [];
   rooms: Room[] = [];
+  users: User[] = [];
   modalForm!: FormGroup;
   isSubmitting = false;
   private modalRef!: NzModalRef;
   private editingId: number | null = null;
-
+  inviteModalRef!: NzModalRef;
+  inviteForm!: FormGroup;
   @ViewChild('modalFormTemplate', { static: true }) modalFormTemplate!: TemplateRef<any>;
-
+  @ViewChild('inviteModalTemplate', { static: true }) inviteModalTemplate!: TemplateRef<any>;
   constructor(
     private fb: FormBuilder,
     private sessionService: SessionService,
     private roomService: RoomService,
     private modal: NzModalService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private enrollmentService: EnrollmentService,
+    private userService: UserService,
   ) {}
-
+// 4. Ajoutez cette méthode pour charger les utilisateurs
+private loadUsers(): void {
+  this.userService.getUsers().subscribe({
+    next: data => {
+      this.users = data;
+      console.log('Loaded users:', this.users);
+    },
+    error: err => {
+      console.error('Error loading users:', err);
+      this.message.error('Échec du chargement des utilisateurs');
+    }
+  });
+}
+// 6. Méthode pour construire le formulaire d'invitation
+private buildInviteForm(): void {
+  this.inviteForm = this.fb.group({
+    selectedUsers: [[], [Validators.required]]
+  });
+}
   ngOnInit(): void {
     this.loadRooms();
     this.loadEvents();
+    this.loadUsers();
     this.buildForm();
+    this.buildInviteForm();
   }
 
   private buildForm(): void {
@@ -176,7 +203,6 @@ export class FormationconfigComponent implements OnInit {
       // For new event, just add an empty session
       this.addSession();
     }
-
     this.modalRef = this.modal.create({
       nzTitle: isEdit ? 'Modifier Formation' : 'Ajouter Formation',
       nzContent: this.modalFormTemplate,
@@ -187,6 +213,65 @@ export class FormationconfigComponent implements OnInit {
       nzOnCancel: () => this.modalForm.reset()
     });
   }
+
+  // 7. Implémentez la méthode openModalInvite existante
+  openModalInvite(isEdit = false, ev?: Event): void {
+    if (!ev) {
+      this.message.error('Aucune formation sélectionnée');
+      return;
+    }
+    
+    console.log('Inviting users to event:', ev);
+    
+    this.inviteForm.reset();
+    this.selectedUsers = [];
+    
+    this.inviteModalRef = this.modal.create({
+      nzTitle: `Inviter des utilisateurs à la formation: ${ev.title}`,
+      nzContent: this.inviteModalTemplate,  
+      nzWidth: '600px',
+      nzOnOk: () => this.submitInvitations(ev.id),
+      nzOkText: 'Inviter',
+      nzCancelText: 'Annuler'
+    });
+  }
+  // 8. Méthode pour soumettre les invitations
+submitInvitations(eventId: number): boolean | void {
+  if (this.inviteForm.invalid) {
+    Object.values(this.inviteForm.controls).forEach(control => {
+      control.markAsTouched();
+    });
+    return false;
+  }
+  
+  const selectedUsers = this.inviteForm.get('selectedUsers')?.value;
+  
+  if (!selectedUsers || selectedUsers.length === 0) {
+    this.message.warning('Veuillez sélectionner au moins un utilisateur');
+    return false;
+  }
+  
+  console.log('Inviting users to event:', eventId);
+  console.log('Selected users:', selectedUsers);
+  
+  
+ 
+  this.enrollmentService.inviteUsers(eventId, selectedUsers).subscribe({
+    next: () => {
+      this.message.success('Invitations envoyées avec succès');
+      this.inviteModalRef.close();
+    },
+    error: err => {
+      console.error('Error sending invitations:', err);
+      this.message.error(`Échec de l'envoi des invitations: ${err.error?.message || err.message || 'Erreur inconnue'}`);
+    }
+  });
+  
+  // Pour l'instant, on ferme simplement la modal et affiche un message
+  this.message.success('Liste des invitations affichée dans la console');
+  this.inviteModalRef.close();
+}
+  
   
   private patchFormWithEventData(ev: Event): void {
     // Convert string date to Date object for date picker

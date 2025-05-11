@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,6 +90,48 @@ public class EnrollmentService {
     public boolean isUserEnrolled(Long userId, Long trainingId) {
         return enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId).isPresent();
     }
+
+    /**
+     * Invite multiple users to a training event
+     * @param trainingId the ID of the training
+     * @param userIds list of user IDs to invite
+     * @return list of successfully invited user IDs
+     */
+    public List<Long> inviteUsers(Long trainingId, List<Long> userIds) {
+        // Find training
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Training not found"));
+
+        List<Long> successfulInvitations = new ArrayList<>();
+
+        for (Long userId : userIds) {
+            try {
+                // Check if user exists
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "User with ID " + userId + " not found"));
+
+                // Check if user is already enrolled
+                if (isUserEnrolled(userId, trainingId)) {
+                    continue; // Skip this user and proceed to the next one
+                }
+
+                // Enroll the user to the training
+                enrollUserToTraining(userId, trainingId);
+
+                // Add to successful invitations
+                successfulInvitations.add(userId);
+            } catch (Exception e) {
+                // Log the error but continue processing other users
+                System.err.println("Failed to invite user " + userId + ": " + e.getMessage());
+            }
+        }
+
+        return successfulInvitations;
+    }
+
+
+
 
     /**
      * Update the rating (stars) for a user's enrollment in a training
@@ -186,4 +225,9 @@ public class EnrollmentService {
             return trainingInfo;
         }).collect(Collectors.toList());
     }
+
+
+
+
+
 }

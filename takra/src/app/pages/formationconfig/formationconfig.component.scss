@@ -48,3 +48,29 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+
+
+.warning-button {
+  background-color: #faad14;
+  color: #fff;
+  border-color: #faad14;
+}
+
+.warning-button:hover {
+  background-color: #ffc53d;
+  border-color: #ffc53d;
+  color: #fff;
+}
+
+.danger-button {
+  background-color: #ff4d4f;
+  color: #fff;
+  border-color: #ff4d4f;
+}
+
+.danger-button:hover {
+  background-color: #ff7875;
+  border-color: #ff7875;
+  color: #fff;
+}
