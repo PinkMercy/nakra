@@ -18,11 +18,10 @@ import java.util.List;
 public class AuthenticationService {
 
     private final UserRepository repository;
-
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-
+    private final TokenService tokenService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -32,9 +31,13 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
-        repository.save(user);
 
-        var jwtToken =jwtService.generateToken(user);
+        User savedUser = repository.save(user);
+
+        var jwtToken = jwtService.generateToken(user);
+
+        // Save the token to database
+        tokenService.saveToken(jwtToken, savedUser);
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
@@ -44,6 +47,7 @@ public class AuthenticationService {
                 .role(user.getRole().name())
                 .build();
     }
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -51,9 +55,14 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
+
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
-        var jwtToken =jwtService.generateToken(user);
+
+        var jwtToken = jwtService.generateToken(user);
+
+        // Save the token to database
+        tokenService.saveToken(jwtToken, user);
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
@@ -63,9 +72,9 @@ public class AuthenticationService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
-
     }
-// --- New Methods for Admin Operations ---
+
+    // --- New Methods for Admin Operations ---
 
     // Retrieve all users from the repository
     public List<User> getAllUsers() {
@@ -126,10 +135,16 @@ public class AuthenticationService {
 
     // Delete a user by id
     public void deleteUser(Long id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Revoke all tokens for this user before deleting
+        tokenService.revokeAllUserTokens(user);
+
         repository.deleteById(id);
     }
 
-    //get user by id
+    // get user by id
     public User getUserById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));

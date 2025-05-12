@@ -1,5 +1,7 @@
 package com.example.demo.config;
 
+import com.example.demo.model.Token;
+import com.example.demo.controller.auth.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,12 +17,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(
@@ -37,12 +42,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
         jwt = authHeader.substring(7);
-        userEmail= jwtService.extractUsername(jwt);
+
+        // First check if token exists and is valid in our database
+        Optional<Token> tokenEntity = tokenService.findByToken(jwt);
+        if (tokenEntity.isEmpty() || !tokenEntity.get().isValid()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        userEmail = jwtService.extractUsername(jwt);
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            // Fix is here - changed from isTokenExpired to isTokenValid
-            if (jwtService.isTokenValid(jwt, userDetails)){
+
+            if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

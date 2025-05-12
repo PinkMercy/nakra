@@ -20,7 +20,7 @@ public class AuthenticationController {
     //@Autowired
     private final AuthenticationService service;
     private final PasswordResetService passwordResetService;
-
+    private final TokenService tokenService;
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
     return ResponseEntity.ok(service.register(request));
@@ -31,6 +31,17 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
 
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestBody LogoutRequest request) {
+        tokenService.findByToken(request.getToken())
+                .ifPresent(token -> {
+                    token.setExpired(true);
+                    token.setRevoked(true);
+                    tokenService.revokeAllUserTokens(token.getUser());
+                });
+
+        return ResponseEntity.ok("Logout successful");
     }
 
 
@@ -94,5 +105,11 @@ public class AuthenticationController {
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = service.getUserById(id);
         return ResponseEntity.ok(user);
+    }
+    // Validate token endpoint
+    @PostMapping("/validate-token")
+    public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
+        boolean isValid = tokenService.isTokenValid(token);
+        return ResponseEntity.ok(isValid);
     }
 }
