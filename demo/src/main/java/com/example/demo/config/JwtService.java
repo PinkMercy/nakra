@@ -18,7 +18,9 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String JWT_SECRET = "3add7e12460b7f2ec638a5a73942fc51ef230147269241dcd516e040a1f7a68a";
-    private static final long JWT_EXPIRATION = 1000 * 60 * 60 * 24; // 24 hours
+    //make jwt epriration time for 1 minute
+
+    private static final long JWT_EXPIRATION = 1000 * 60 ; // 24 hours
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

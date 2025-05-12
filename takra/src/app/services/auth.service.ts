@@ -93,7 +93,8 @@ export class AuthService {
     );
   }
 
-  private clearLocalStorage(): void {
+  // Made public so it can be called from components
+  clearLocalStorage(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);

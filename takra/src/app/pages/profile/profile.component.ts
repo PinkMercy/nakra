@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { EnrollmentService } from '../../services/enrollment.service';
 import { AuthService } from '../../services/auth.service';
+import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
 
 interface Training {
   trainingId: number;
@@ -14,7 +16,7 @@ interface Training {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NzNotificationModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -30,7 +32,6 @@ export class ProfileComponent implements OnInit {
     avatar: '../../../assets/img/user.png'
   };
   
-
   // Trainings
   trainings: Training[] = [];
   
@@ -43,24 +44,56 @@ export class ProfileComponent implements OnInit {
   currentFilter: string = 'all';
   filteredTrainings: Training[] = [];
 
-  constructor(private enrollmentService: EnrollmentService,private authService :AuthService) { }
+  constructor(
+    private enrollmentService: EnrollmentService,
+    private authService: AuthService,
+    private notification: NzNotificationService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    const me = this.authService.getUser();
-    if (me) {
-      this.user.firstName = me.firstname;
-      this.user.lastName  = me.lastname;
-      this.user.email     = me.email;
-      
-      // if you also have me.role or me.joinDate, you can set them here too
-    }
+    this.initUserData();
     // Charger les formations de l'utilisateur
     this.loadUserTrainings();
   }
 
+  initUserData(): void {
+    const me = this.authService.getUser();
+    if (me) {
+      this.user.firstName = me.firstname;
+      this.user.lastName = me.lastname;
+      this.user.email = me.email;
+      // if you also have me.role or me.joinDate, you can set them here too
+    }
+  }
+
   loadUserTrainings(): void {
-    // Utiliser l'ID 3 comme dans l'exemple de l'API
-    this.enrollmentService.getUserEnrollments(3).subscribe({
+    const token = this.authService.getToken();
+    const userId = this.authService.getUserId();
+    
+    if (!token || !userId) {
+      this.handleInvalidSession();
+      return;
+    }
+
+    // Validate token first
+    this.authService.validateToken(token).subscribe({
+      next: (isValid) => {
+        if (isValid) {
+          this.fetchUserTrainings(userId);
+        } else {
+          this.handleInvalidSession();
+        }
+      },
+      error: (error) => {
+        console.error('Error validating token:', error);
+        this.handleInvalidSession();
+      }
+    });
+  }
+  
+  private fetchUserTrainings(userId: number): void {
+    this.enrollmentService.getUserEnrollments(userId).subscribe({
       next: (data) => {
         this.trainings = data;
         
@@ -74,8 +107,27 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur lors du chargement des formations:', error);
+        // Check if the error is due to unauthorized access (401)
+        if (error.status === 401) {
+          this.handleInvalidSession();
+        }
       }
     });
+  }
+
+  private handleInvalidSession(): void {
+    // Clear authentication data
+    this.authService.clearLocalStorage();
+    
+    // Show notification
+    this.notification.error(
+      'Session terminée',
+      'Votre session a expiré. Veuillez vous reconnecter.',
+      { nzDuration: 5000, nzPlacement: 'bottomRight' }
+    );
+    
+    // Navigate to login page
+    this.router.navigate(['/login']);
   }
 
   // Appliquer un filtre aux formations
