@@ -28,12 +28,12 @@
             </div>
 
             <div class="form-group">
-              <label for="durationInHours">Duration (hours)*:</label>
+              <label for="durationInHours">Duratee (hours)*:</label>
               <input type="number" id="durationInHours" formControlName="durationInHours" class="form-control" min="0">
             </div>
 
             <div class="form-group">
-              <label for="formateurEmail">Trainer Email*:</label>
+              <label for="formateurEmail">Email formateur:</label>
               <input type="email" id="formateurEmail" formControlName="formateurEmail" class="form-control">
               <div class="error" *ngIf="eventForm.get('formateurEmail')?.invalid && eventForm.get('formateurEmail')?.touched">
                 Valid email is required
@@ -53,7 +53,7 @@
             </div>
 
             <div class="form-group">
-              <label for="roomId">Room*:</label>
+              <label for="roomId">Salle*:</label>
               <select id="roomId" formControlName="roomId" class="form-control">
                 <option [ngValue]="null">Select a room</option>
                 <option *ngFor="let room of rooms" [ngValue]="room.id">{{ room.name }}</option>
@@ -65,7 +65,7 @@
 
             <div class="form-row">
               <div class="form-group form-group-half">
-                <label for="timeStart">Start Time*:</label>
+                <label for="timeStart">Temps debut*:</label>
                 <input type="time" id="timeStart" formControlName="timeStart" class="form-control">
                 <div class="error" *ngIf="eventForm.get('timeStart')?.invalid && eventForm.get('timeStart')?.touched">
                   Start time is required
@@ -73,7 +73,7 @@
               </div>
 
               <div class="form-group form-group-half">
-                <label for="timeEnd">End Time*:</label>
+                <label for="timeEnd">Temps fin*:</label>
                 <input type="time" id="timeEnd" formControlName="timeEnd" class="form-control">
                 <div class="error" *ngIf="eventForm.get('timeEnd')?.invalid && eventForm.get('timeEnd')?.touched">
                   End time is required
@@ -82,7 +82,7 @@
             </div>
 
             <div class="form-group">
-              <label for="sessionType">Session Type:</label>
+              <label for="sessionType">Type session :</label>
               <select id="sessionType" formControlName="sessionType" class="form-control">
                 <option value="ONLINE">Online</option>
                 <option value="OFFLINE">Offline</option>
@@ -91,7 +91,7 @@
             </div>
 
             <div class="form-group" *ngIf="eventForm.get('sessionType')?.value !== 'OFFLINE'">
-              <label for="linkMeet">Meeting Link:</label>
+              <label for="linkMeet">Lien meet:</label>
               <input type="text" id="linkMeet" formControlName="linkMeet" class="form-control">
             </div>
           </div>
@@ -115,7 +115,7 @@
               </div>
 
               <div class="form-group">
-                <label>Room*:</label>
+                <label>Salle*:</label>
                 <select formControlName="roomId" class="form-control">
                   <option [ngValue]="null">Select a room</option>
                   <option *ngFor="let room of rooms" [ngValue]="room.id">{{ room.name }}</option>
@@ -124,12 +124,12 @@
 
               <div class="form-row">
                 <div class="form-group form-group-half">
-                  <label>Start Time*:</label>
+                  <label>Temps debut*:</label>
                   <input type="time" formControlName="timeStart" class="form-control">
                 </div>
 
                 <div class="form-group form-group-half">
-                  <label>End Time*:</label>
+                  <label>Temps fin*:</label>
                   <input type="time" formControlName="timeEnd" class="form-control">
                 </div>
               </div>
@@ -138,8 +138,7 @@
                 <label>Session Type:</label>
                 <select formControlName="type" class="form-control">
                   <option value="ONLINE">Online</option>
-                  <option value="OFFLINE">Offline</option>
-                  <option value="HYBRID">Hybrid</option>
+                  <option value="OFFLINE">Onsite</option>
                 </select>
               </div>
 
@@ -152,8 +151,8 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-            <button type="button" class="btn btn-danger" *ngIf="isEditing" (click)="onDelete()">Delete</button>
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+            <button type="button" class="btn btn-danger" *ngIf="isEditing" (click)="onDelete()">Supprimer</button>
             <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">
               {{ isEditing ? 'Update' : 'Create' }}
             </button>
