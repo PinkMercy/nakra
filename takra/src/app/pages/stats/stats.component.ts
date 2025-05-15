@@ -14,25 +14,28 @@ import { TrainingstatsComponent } from '../trainingstats/trainingstats.component
     HttpClientModule,
     NgxEchartsModule,
     TrainingstatsComponent,
-
   ],
   providers: [
     {
       provide: NGX_ECHARTS_CONFIG,
-      useFactory: () => ({ echarts })
-    }
+      useFactory: () => ({ echarts }),
+    },
   ],
   templateUrl: './stats.component.html',
-  styleUrls: ['./stats.component.scss']
+  styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
   chartOptions: echarts.EChartsOption = {};
   loading = true;
+  totalUsers: number = 0;
+  avgHourlyTraining: number = 0;
+  totalTrainings: number = 0;
 
   constructor(private statsService: StatsService) {}
 
   ngOnInit(): void {
     this.loadTrainingStats();
+    this.loadStaticStats();
   }
 
   loadTrainingStats(): void {
@@ -44,7 +47,21 @@ export class StatsComponent implements OnInit {
       error: (error) => {
         console.error('Erreur lors du chargement des statistiques:', error);
         this.loading = false;
-      }
+      },
+    });
+  }
+
+  loadStaticStats(): void {
+    // Assume StatsService provides these metrics
+    this.statsService.getTrainingsPerMonth().subscribe({
+      next: (data) => {
+        this.totalUsers = data.totalUsers;
+        this.avgHourlyTraining = data.avgHourlyTraining;
+        this.totalTrainings = data.totalTrainings;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des stats statiques:', error);
+      },
     });
   }
 
@@ -53,20 +70,20 @@ export class StatsComponent implements OnInit {
       tooltip: {
         trigger: 'axis',
         axisPointer: {
-          type: 'shadow'
-        }
+          type: 'shadow',
+        },
       },
       xAxis: {
         type: 'category',
         data: months,
         axisLabel: {
-          rotate: 45
-        }
+          rotate: 45,
+        },
       },
       yAxis: {
         type: 'value',
         name: 'Nombre de formations',
-        minInterval: 1
+        minInterval: 1,
       },
       series: [
         {
@@ -74,25 +91,25 @@ export class StatsComponent implements OnInit {
           data: counts,
           type: 'bar',
           itemStyle: {
-            color: '#1890ff'
+            color: '#1890ff',
           },
           emphasis: {
             itemStyle: {
-              color: '#40a9ff'
-            }
+              color: '#40a9ff',
+            },
           },
           label: {
             show: true,
-            position: 'top'
-          }
-        }
+            position: 'top',
+          },
+        },
       ],
       grid: {
         left: '3%',
         right: '4%',
         bottom: '15%',
-        containLabel: true
-      }
+        containLabel: true,
+      },
     };
   }
 }
