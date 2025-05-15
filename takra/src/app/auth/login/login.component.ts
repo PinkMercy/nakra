@@ -34,7 +34,14 @@ export class LoginComponent {
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response));
           this.notification.success('Success', 'Connecté avec succès!');
-          this.router.navigate(['/']); // Redirect after login
+          //if user admin redirect to stats page else redirect to user homage caled welcome
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          if (user.role === 'ADMIN') {
+            this.router.navigate(['/home/stats']);
+          } else {
+            this.router.navigate(['/home/welcome']);
+          }
+          
 
           
         },
