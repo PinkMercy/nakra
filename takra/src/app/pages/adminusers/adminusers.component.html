@@ -1,6 +1,6 @@
-<button nz-button (click)="fetchUsers()" nzType="primary">Refresh Users</button>
+<button nz-button (click)="fetchUsers()" nzType="primary">Actualisateur</button>
 <span style="margin: 0 8px;"></span>
-<button nz-button (click)="openAddModal()" nzType="primary">Add User</button>
+<button nz-button (click)="openAddModal()" nzType="primary">Ajouter un utilisateur</button>
 <br /><br />
 <nz-table #editRowTable nzBordered [nzData]="listOfData">
   <thead>
@@ -24,7 +24,7 @@
       <td>{{ data.email }}</td>
       <td>{{ data.role }}</td>
       <td>
-        <button nz-button nzDanger nzType="primary" nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteRow(data.id)">
+        <button nz-button nzDanger nzType="primary" nz-popconfirm nzPopconfirmTitle="Êtes-vous sûr de supprimer ?" (nzOnConfirm)="deleteRow(data.id)">
           Supprimer
         </button>
         <span style="margin: 0 8px;"></span>

@@ -1,66 +1,73 @@
 <nz-layout class="app-layout">
-  <!-- Sidebar -->
   <nz-sider class="menu-sidebar"
-    nzCollapsible
-    nzWidth="250px"
-    nzBreakpoint="md"
-    [(nzCollapsed)]="isCollapsed"
-    [nzTrigger]="null">
+            nzCollapsible
+            nzWidth="250px"
+            nzBreakpoint="md"
+            [(nzCollapsed)]="isCollapsed"
+            [nzTrigger]="null">
     <div class="sidebar-logo">
       <img src="../../../assets/img/sopraLogo (1).png" alt="logo">
       <h1 style="color:aliceblue">SopraFormation</h1>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
+      <li nz-submenu [nzOpen]="true" nzTitle="Dashboard">
+        <i nz-icon nzType="dashboard" nzTheme="outline"></i>
         <ul>
-          <!-- For USER role -->
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="home" nzTheme="outline"></i>
+            <a routerLink="stats">Page d’accueil</a>
+          </li>
+          <!-- Pour les USER -->
           <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="home" nzTheme="outline"></i>
             <a routerLink="/welcome">Welcome</a>
           </li>
           <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="calendar" nzTheme="outline"></i>
             <a routerLink="usercalendar">Calendrier</a>
           </li>
-          <li  nz-menu-item nzMatchRouter>
-            <a routerLink="profile">Profile</a>
-          </li>
+          
 
-          <!-- For ADMIN role -->
+          <!-- Pour les ADMIN -->
           <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
-            <a routerLink="AdminUsersControle">Gérer les utilisateur</a>
+            <i nz-icon nzType="team" nzTheme="outline"></i>
+            <a routerLink="AdminUsersControle">Gérer les utilisateurs</a>
           </li>
           <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="calendar" nzTheme="outline"></i>
             <a routerLink="calendar">Calendrier</a>
           </li>
           <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="book" nzTheme="outline"></i>
             <a routerLink="gformation">Gérer les formations</a>
           </li>
           <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="team" nzTheme="outline"></i>
             <a routerLink="adminsalle">Gérer les salles</a>
           </li>
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
-            <a routerLink="stats">page d'acceuil</a>
-          </li>
           
-    
-          <!-- Common to both roles -->
+          <li nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="user" nzTheme="outline"></i>
+            <a routerLink="profile">Profile</a>
+          </li>
+
+          <!-- Déconnexion -->
           <li *ngIf="role" nz-menu-item nzMatchRouter>
-            <a (click)="logout()">Deconnection</a>
+            <i nz-icon nzType="logout" nzTheme="outline"></i>
+            <a (click)="logout()">Déconnexion</a>
           </li>
         </ul>
       </li>
     </ul>
   </nz-sider>
- 
-  <!-- Main content area -->
+
   <nz-layout class="site-layout">
-    <!-- Header -->
     <nz-header class="app-header">
       <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
-        <nz-icon class="trigger" [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" />
+        <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
       </span>
     </nz-header>
-   
-    <!-- Content -->
+
     <nz-content class="site-content">
       <div class="content-container">
         <router-outlet></router-outlet>

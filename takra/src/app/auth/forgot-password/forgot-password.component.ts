@@ -1,15 +1,24 @@
+// src/app/forgot-password/forgot-password.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [CommonModule,ReactiveFormsModule,NzButtonModule, NzModalModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    NzButtonModule,
+    NzModalModule
+  ],
   templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.scss'
+  styleUrls: ['./forgot-password.component.scss']
 })
 export class ForgotPasswordComponent {
   forgotPasswordForm: FormGroup;
@@ -26,27 +35,32 @@ export class ForgotPasswordComponent {
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.forgotPasswordForm.invalid) {
+      this.error = 'Veuillez saisir une adresse e‑mail valide.';
       return;
     }
+
     const email = this.forgotPasswordForm.value.email;
-    // appUrl: This URL may be dynamically derived; here we hard-code or use environment settings.
-    const appUrl = 'http://localhost:4200';
-    this.passwordResetService.requestReset(email, appUrl)
-    .subscribe({
-      next: (res) => {
-        this.success();
-      },
-      error: (err) => {
-        this.success();
-      }
+    const appUrl = 'http://localhost:4200'; // ou depuis environment
+
+    this.passwordResetService.requestReset(email, appUrl).subscribe({
+      next: () => this.showSuccessModal(),
+      error: () => this.showErrorModal()
     });
   }
-  success(): void {
+
+  private showSuccessModal(): void {
     this.modal.success({
-      nzTitle: 'success ',
-      nzContent: 'verifier votre email pour le lien de réinitialisation du mot de passe',
+      nzTitle: 'Succès',
+      nzContent: 'Vérifiez votre e‑mail pour le lien de réinitialisation du mot de passe.'
+    });
+  }
+
+  private showErrorModal(): void {
+    this.modal.error({
+      nzTitle: 'Erreur',
+      nzContent: 'Une erreur est survenue. Veuillez réessayer plus tard.'
     });
   }
 }

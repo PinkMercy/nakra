@@ -21,8 +21,7 @@ export class SignupComponent implements OnInit {
       lastname: ['', Validators.required],
       email: ['', [
         Validators.required,
-        Validators.email,
-        Validators.pattern('.+@soprahr\\.com$')
+        Validators.email
       ]],
       password: ['', Validators.required],
       password_repeat: ['', Validators.required]

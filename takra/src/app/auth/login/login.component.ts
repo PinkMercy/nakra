@@ -24,7 +24,7 @@ export class LoginComponent {
     onSubmit() {
       // Simple client-side validation
       if (!this.email || !this.password) {
-        this.notification.error('Error', 'Please fill in all required fields.');
+        this.notification.error('Error', 'Veuillez remplir tous les champs obligatoires.');
         return;
       }
   
@@ -33,14 +33,14 @@ export class LoginComponent {
           // Save token and user info to localStorage
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response));
-          this.notification.success('Success', 'Logged in successfully!');
+          this.notification.success('Success', 'Connecté avec succès!');
           this.router.navigate(['/']); // Redirect after login
 
           
         },
         error: () => {
-          this.errorMessage = 'Invalid credentials. Please try again.';
-          this.notification.error('Error', 'Invalid credentials. Please try again.');
+          this.errorMessage = 'Identifiants invalides. Veuillez réessayer.';
+          this.notification.error('Error', 'Identifiants invalides. Veuillez réessayer.');
         }
       });
     }
