@@ -1,1 +1,164 @@
-<nz-calendar [(ngModel)]="date" [(nzMode)]="mode" (nzPanelChange)="panelChange($event)"></nz-calendar> 
+<div class="calendar-container">
+  <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+
+  <!-- Fixed Event Modal -->
+  <div class="modal" [class.show]="showModal" *ngIf="showModal">
+    <div class="modal-backdrop" (click)="onBackdropClick($event)"></div>
+    <div class="modal-content" (click)="stopPropagation($event)">
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Edit Training' : 'Add New Training' }}</h2>
+        <button type="button" class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+          <!-- Training Details -->
+          <div class="form-section">
+            <h3>Training Details</h3>
+            <div class="form-group">
+              <label for="title">Title*:</label>
+              <input type="text" id="title" formControlName="title" class="form-control">
+              <div class="error" *ngIf="eventForm.get('title')?.invalid && eventForm.get('title')?.touched">
+                Title is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea id="description" formControlName="description" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="durationInHours">Duratee (hours)*:</label>
+              <input type="number" id="durationInHours" formControlName="durationInHours" class="form-control" min="0">
+            </div>
+
+            <div class="form-group">
+              <label for="formateurEmail">Email formateur:</label>
+              <input type="email" id="formateurEmail" formControlName="formateurEmail" class="form-control">
+              <div class="error" *ngIf="eventForm.get('formateurEmail')?.invalid && eventForm.get('formateurEmail')?.touched">
+                Valid email is required
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Session Details -->
+          <div class="form-section">
+            <h3>Main Session</h3>
+            <div class="form-group">
+              <label for="date">Date*:</label>
+              <input type="date" id="date" formControlName="date" class="form-control">
+              <div class="error" *ngIf="eventForm.get('date')?.invalid && eventForm.get('date')?.touched">
+                Date is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="roomId">Salle*:</label>
+              <select id="roomId" formControlName="roomId" class="form-control">
+                <option [ngValue]="null">Select a room</option>
+                <option *ngFor="let room of rooms" [ngValue]="room.id">{{ room.name }}</option>
+              </select>
+              <div class="error" *ngIf="eventForm.get('roomId')?.invalid && eventForm.get('roomId')?.touched">
+                Room is required
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group form-group-half">
+                <label for="timeStart">Temps debut*:</label>
+                <input type="time" id="timeStart" formControlName="timeStart" class="form-control">
+                <div class="error" *ngIf="eventForm.get('timeStart')?.invalid && eventForm.get('timeStart')?.touched">
+                  Start time is required
+                </div>
+              </div>
+
+              <div class="form-group form-group-half">
+                <label for="timeEnd">Temps fin*:</label>
+                <input type="time" id="timeEnd" formControlName="timeEnd" class="form-control">
+                <div class="error" *ngIf="eventForm.get('timeEnd')?.invalid && eventForm.get('timeEnd')?.touched">
+                  End time is required
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sessionType">Type session :</label>
+              <select id="sessionType" formControlName="sessionType" class="form-control">
+                <option value="ONLINE">Online</option>
+                <option value="OFFLINE">Offline</option>
+                <option value="HYBRID">Hybrid</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="eventForm.get('sessionType')?.value !== 'OFFLINE'">
+              <label for="linkMeet">Lien meet:</label>
+              <input type="text" id="linkMeet" formControlName="linkMeet" class="form-control">
+            </div>
+          </div>
+
+          <!-- Additional Sessions -->
+          <div class="form-section" formArrayName="sessions">
+            <div class="section-header">
+              <h3>Additional Sessions</h3>
+              <button type="button" class="btn btn-add" (click)="addSession()">Add Session</button>
+            </div>
+
+            <div *ngFor="let session of sessions.controls; let i = index" [formGroupName]="i" class="additional-session">
+              <div class="session-header">
+                <h4>Session {{ i + 2 }}</h4>
+                <button type="button" class="btn btn-remove" (click)="removeSession(i)">Remove</button>
+              </div>
+
+              <div class="form-group">
+                <label>Date*:</label>
+                <input type="date" formControlName="date" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label>Salle*:</label>
+                <select formControlName="roomId" class="form-control">
+                  <option [ngValue]="null">Select a room</option>
+                  <option *ngFor="let room of rooms" [ngValue]="room.id">{{ room.name }}</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label>Temps debut*:</label>
+                  <input type="time" formControlName="timeStart" class="form-control">
+                </div>
+
+                <div class="form-group form-group-half">
+                  <label>Temps fin*:</label>
+                  <input type="time" formControlName="timeEnd" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Session Type:</label>
+                <select formControlName="type" class="form-control">
+                  <option value="ONLINE">Online</option>
+                  <option value="OFFLINE">Onsite</option>
+                </select>
+              </div>
+
+              <div class="form-group" *ngIf="session.get('type')?.value !== 'OFFLINE'">
+                <label>Meeting Link:</label>
+                <input type="text" formControlName="linkMeet" class="form-control">
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+            <button type="button" class="btn btn-danger" *ngIf="isEditing" (click)="onDelete()">Supprimer</button>
+            <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">
+              {{ isEditing ? 'Update' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

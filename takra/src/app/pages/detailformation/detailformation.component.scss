@@ -1,0 +1,621 @@
+// Variables
+$primary-color: #2563eb;
+$secondary-color: #0369a1;
+$success-color: #16a34a;
+$text-primary: #1e293b;
+$text-secondary: #475569;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$bg-light: #f8fafc;
+$bg-white: #ffffff;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+$radius-sm: 0.375rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.75rem;
+$transition-normal: all 0.2s ease-in-out;
+
+// Main layout
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: $text-primary;
+  background-color: $bg-light;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Header styles
+header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid $border-color;
+  
+  .header-content {
+    h1 {
+      margin: 0;
+      color: $text-primary;
+      font-size: 1.875rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    
+    .breadcrumb {
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: $text-muted;
+      
+      a {
+        color: $primary-color;
+        text-decoration: none;
+        font-weight: 500;
+        transition: $transition-normal;
+        
+        &:hover {
+          color: $secondary-color;
+          text-decoration: underline;
+        }
+      }
+      
+      span {
+        color: $text-muted;
+      }
+    }
+  }
+}
+
+// Loading and error states
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: $bg-white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  
+  .loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid rgba($primary-color, 0.3);
+    border-radius: 50%;
+    border-top-color: $primary-color;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: $text-secondary;
+    font-weight: 500;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-radius: $radius-md;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  
+  i {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Formation content main wrapper
+.formation-content {
+  flex: 1;
+}
+
+// Formation card styles
+.formation-card {
+  background-color: $bg-white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  
+  .formation-header {
+    margin-bottom: 1.5rem;
+    
+    .formation-title {
+      margin: 0;
+      color: $text-primary;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      position: relative;
+      padding-bottom: 0.75rem;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 3rem;
+        height: 0.25rem;
+        background-color: $primary-color;
+        border-radius: 1rem;
+      }
+    }
+  }
+  
+  .formation-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background-color: $bg-light;
+    border-radius: $radius-md;
+    
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: $text-secondary;
+      
+      i {
+        color: $primary-color;
+        font-size: 1.125rem;
+      }
+      
+      span {
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .formation-description {
+    margin-bottom: 2rem;
+    
+    h3 {
+      color: $text-primary;
+      margin: 0 0 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    p {
+      color: $text-secondary;
+      line-height: 1.6;
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+}
+
+// Formateur section styles
+.formateur-section {
+  margin-bottom: 2rem;
+  
+  h3 {
+    color: $text-primary;
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .formateur-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background-color: $bg-light;
+    border-radius: $radius-md;
+    border-left: 4px solid $primary-color;
+    
+    .formateur-avatar {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, $primary-color, $secondary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      box-shadow: $shadow-sm;
+    }
+    
+    .formateur-info {
+      flex: 1;
+      
+      h4 {
+        margin: 0 0 0.75rem;
+        color: $text-primary;
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+      
+      .formateur-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        color: $text-secondary;
+        font-size: 0.875rem;
+        
+        i {
+          color: $primary-color;
+          font-size: 1rem;
+        }
+        
+        a {
+          color: $primary-color;
+          text-decoration: none;
+          font-weight: 500;
+          transition: $transition-normal;
+          
+          &:hover {
+            color: $secondary-color;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Sessions section styles
+.sessions-section {
+  h3 {
+    color: $text-primary;
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .session-card {
+      border: 1px solid $border-color;
+      border-radius: $radius-md;
+      overflow: hidden;
+      background-color: $bg-white;
+      box-shadow: $shadow-sm;
+      transition: $transition-normal;
+      
+      &:hover {
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
+      }
+      
+      .session-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background-color: $bg-light;
+        border-bottom: 1px solid $border-color;
+        
+        .session-type {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.375rem 0.75rem;
+          border-radius: $radius-sm;
+          color: white;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          
+          &.online {
+            background-color: $success-color;
+            
+            &:before {
+              content: '•';
+              font-size: 1.5rem;
+              line-height: 0;
+              margin-right: 0.5rem;
+              position: relative;
+              top: 0.125rem;
+            }
+          }
+          
+          &.inperson {
+            background-color: $primary-color;
+            
+            &:before {
+              content: '•';
+              font-size: 1.5rem;
+              line-height: 0;
+              margin-right: 0.5rem;
+              position: relative;
+              top: 0.125rem;
+            }
+          }
+        }
+      }
+      
+      .session-details {
+        padding: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        border-bottom: 1px solid $border-color;
+        
+        .session-detail {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: $text-secondary;
+          font-size: 0.9375rem;
+          
+          i {
+            color: $primary-color;
+            font-size: 1rem;
+          }
+        }
+      }
+      
+      .session-actions {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        gap: 1rem;
+        
+        .btn-join, .btn-calendar {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.625rem 1.25rem;
+          border-radius: $radius-md;
+          color: white;
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          border: none;
+          text-decoration: none;
+          transition: $transition-normal;
+          box-shadow: $shadow-sm;
+          
+          i {
+            font-size: 1rem;
+          }
+        }
+        
+        .btn-join {
+          background-color: $primary-color;
+          
+          &:hover {
+            background-color: darken($primary-color, 5%);
+            box-shadow: $shadow-md;
+          }
+        }
+        
+        .btn-calendar {
+          background-color: $success-color;
+          
+          &:hover {
+            background-color: darken($success-color, 5%);
+            box-shadow: $shadow-md;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Footer styles
+footer {
+  margin-top: auto;
+  padding-top: 2rem;
+  border-top: 1px solid $border-color;
+  text-align: center;
+  color: $text-muted;
+  font-size: 0.875rem;
+  
+  p {
+    margin: 0;
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  header .header-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .formation-card {
+    padding: 1.5rem;
+  }
+  
+  .formation-details {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .formateur-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .session-actions {
+    flex-direction: column;
+  }
+  
+  .btn-join, .btn-calendar {
+    width: 100%;
+  }
+}
+/* Enrollment button styles */
+.enrollment-actions {
+  margin-left: 15px;
+}
+
+.btn-enroll, .btn-unenroll {
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-enroll {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-enroll:hover {
+  background-color: #27ae60;
+}
+
+.btn-unenroll {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-unenroll:hover {
+  background-color: #c0392b;
+}
+
+.btn-enroll i, .btn-unenroll i {
+  margin-right: 8px;
+}
+
+.btn-enroll:disabled, .btn-unenroll:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-enroll.disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+/* Training rating display */
+.training-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.rating-stars {
+  display: flex;
+  margin-right: 0.5rem;
+}
+
+.rating-stars .fas.fa-star {
+  color: #e0e0e0;
+  font-size: 1.2rem;
+  margin-right: 2px;
+}
+
+.rating-stars .fas.fa-star.filled {
+  color: #ffb400;
+}
+
+.rating-stars .fas.fa-star.half-filled {
+  position: relative;
+  color: #e0e0e0;
+}
+
+.rating-stars .fas.fa-star.half-filled:before {
+  content: '\f005';
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+  color: #ffb400;
+}
+
+.rating-text {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.rating-count {
+  font-weight: normal;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* User rating section */
+.user-rating-section {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #eaeaea;
+}
+
+.user-rating-section h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.user-rating-stars {
+  display: flex;
+  margin: 0.5rem 0;
+}
+
+.rating-star {
+  font-size: 1.5rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: color 0.2s ease;
+}
+
+.rating-star:hover,
+.rating-star.selected {
+  color: #ffb400;
+}
+
+.rating-star.disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.rating-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+@media (max-width: 768px) {
+  .formation-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .training-rating {
+    margin: 0.5rem 0;
+  }
+  
+  .enrollment-actions {
+    margin-top: 0.5rem;
+    align-self: flex-start;
+  }
+}

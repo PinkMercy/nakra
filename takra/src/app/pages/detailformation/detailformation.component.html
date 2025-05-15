@@ -1,0 +1,148 @@
+<div class="container">
+    <header>
+        <div class="header-content">
+            <h1>Formation Details</h1>
+            <div class="breadcrumb">
+                <a href="#">Home</a> / <a href="#">Formations</a> / <span>{{ formation?.title }}</span>
+            </div>
+        </div>
+    </header>
+
+    <main *ngIf="isLoading">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading formation details...</p>
+        </div>
+    </main>
+
+    <main *ngIf="error">
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>{{ error }}</p>
+        </div>
+    </main>
+
+    <main *ngIf="!isLoading && !error && formation" class="formation-content">
+        <section class="formation-card">
+            <div class="formation-header">
+                <h2 class="formation-title">{{ formation.title }}</h2>
+                
+                <!-- Training Rating Display -->
+                <div class="training-rating">
+                    <div class="rating-stars">
+                        <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                           [ngClass]="{'filled': trainingRating.averageRating >= star, 
+                                      'half-filled': trainingRating.averageRating > star - 0.5 && trainingRating.averageRating < star}"></i>
+                    </div>
+                    <div class="rating-text">
+                        {{ trainingRating.averageRating.toFixed(1) }}/5 
+                        <span class="rating-count">({{ trainingRating.ratingCount }} avis)</span>
+                    </div>
+                </div>
+                
+                <!-- Enrollment Button -->
+                <div class="enrollment-actions" *ngIf="userId">
+                    <button 
+                        [class]="isEnrolled ? 'btn-unenroll' : 'btn-enroll'" 
+                        (click)="toggleEnrollment()" 
+                        [disabled]="isEnrollmentLoading">
+                        <i class="fas" [ngClass]="isEnrolled ? 'fa-user-minus' : 'fa-user-plus'"></i>
+                        {{ isEnrollmentLoading ? 'En cours...' : (isEnrolled ? 'Se désabonner' : 'S\'abonner') }}
+                    </button>
+                </div>
+                <div class="enrollment-actions" *ngIf="!userId">
+                    <button class="btn-enroll disabled" disabled>
+                        <i class="fas fa-lock"></i> Connectez-vous pour vous abonner
+                    </button>
+                </div>
+            </div>
+            
+            <!-- User Rating Section (visible only when enrolled) -->
+            <div class="user-rating-section" *ngIf="isEnrolled">
+                <h3>Votre évaluation</h3>
+                <div class="user-rating-stars">
+                    <i class="fas fa-star rating-star" 
+                       *ngFor="let star of [1,2,3,4,5]" 
+                       [ngClass]="{'selected': userRating >= star}"
+                       [class.disabled]="isRatingLoading"
+                       (click)="rateTraining(star)"></i>
+                </div>
+                <p class="rating-hint" *ngIf="userRating === 0">Cliquez sur une étoile pour noter cette formation</p>
+                <p class="rating-hint" *ngIf="userRating > 0">Vous avez noté cette formation {{ userRating }}/5</p>
+            </div>
+            
+            <div class="formation-details">
+                <div class="detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Date: {{ formation.date }}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Duration: {{ formation.durationInHours ? formation.durationInHours + ' hours' : 'Not specified' }}</span>
+                </div>
+            </div>
+
+            <div class="formation-description">
+                <h3>Description</h3>
+                <p>{{ formation.description }}</p>
+            </div>
+
+            <div class="formateur-section">
+                <h3>Formateur</h3>
+                <div class="formateur-card">
+                    <div class="formateur-avatar">
+                        <span>{{ getFormatterInitials(formation.formateur) }}</span>
+                    </div>
+                    <div class="formateur-info">
+                        <h4>{{ formation.formateur.firstname }} {{ formation.formateur.lastname }}</h4>
+                        <div class="formateur-detail">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:{{ formation.formateur.email }}">{{ formation.formateur.email }}</a>
+                        </div>
+                        <div class="formateur-detail">
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sessions-section">
+                <h3>Sessions</h3>
+                <div class="sessions-list">
+                    <div class="session-card" *ngFor="let session of formation.sessions">
+                        <div class="session-header">
+                            <span class="session-type" [ngClass]="session.type.toLowerCase()">{{ session.type }}</span>
+                        </div>
+                        <div class="session-details">
+                            <div class="session-detail">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>{{ session.date }}</span>
+                            </div>
+                            <div class="session-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ formatTime(session.timeStart, session.timeEnd) }}</span>
+                            </div>
+                            <div class="session-detail">
+                                <i class="fas fa-door-open"></i>
+                                <span>Room: {{ session.room.name }}</span>
+                            </div>
+                        </div>
+                        <div class="session-actions">
+                            <a *ngIf="session.meetingLink" [href]="session.meetingLink" class="btn-join" target="_blank">
+                                <i class="fas fa-video"></i> Join Meeting
+                            </a>
+                            <button class="btn-calendar" (click)="addToCalendar(session)">
+                                <i class="fas fa-calendar-plus"></i> Add to Calendar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <app-comment-section *ngIf="formation" [trainingId]="formation.id"></app-comment-section>
+    </main>
+
+    <footer>
+        <p>&copy; {{ currentYear }} Formation Platform. All rights reserved.</p>
+    </footer>
+</div>

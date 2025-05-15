@@ -1,0 +1,80 @@
+<div class="room-admin-container">
+    <div class="header">
+      <h2>Administration des salles</h2>
+      <button 
+        nz-button 
+        nzType="primary" 
+        (click)="showAddModal()">
+        <span nz-icon nzType="plus"></span>
+        Ajouter une salle
+      </button>
+    </div>
+  
+    <nz-table
+      #roomTable
+      [nzData]="rooms"
+      [nzLoading]="isLoading"
+      nzShowSizeChanger
+      [nzPageSize]="10"
+      [nzScroll]="{ x: '800px' }">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Capacité</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let room of roomTable.data">
+          <td>{{ room.id }}</td>
+          <td>{{ room.name }}</td>
+          <td>{{ room.capacity }}</td>
+          <td>
+            <a 
+              nz-popconfirm
+              nzPopconfirmTitle="Êtes-vous sûr de vouloir supprimer cette salle?"
+              nzPopconfirmPlacement="left"
+              (nzOnConfirm)="deleteRoom(room.id)"
+              nz-button 
+              nzType="link" 
+              nzDanger>
+              <span nz-icon nzType="delete"></span> Supprimer
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  
+    <!-- Modal pour ajouter une salle -->
+    <nz-modal
+      [nzVisible]="isAddModalVisible"
+      nzTitle="Ajouter une nouvelle salle"
+      [nzOkText]="'Ajouter'"
+      nzCancelText="Annuler"
+      [nzOkLoading]="isLoading"
+      (nzOnCancel)="handleCancel()"
+      (nzOnOk)="submitForm()">
+      <ng-container *nzModalContent>
+        <form nz-form [formGroup]="roomForm">
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzRequired>Nom</nz-form-label>
+            <nz-form-control [nzSpan]="16" nzErrorTip="Veuillez entrer un nom de salle">
+              <input nz-input formControlName="name" placeholder="ROOM_XXX" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzRequired>Capacité</nz-form-label>
+            <nz-form-control [nzSpan]="16" nzErrorTip="Veuillez entrer une capacité valide">
+              <nz-input-number 
+                formControlName="capacity" 
+                [nzMin]="1" 
+                [nzStep]="1"
+                style="width: 100%">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </ng-container>
+    </nz-modal>
+  </div>

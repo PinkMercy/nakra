@@ -38,13 +38,20 @@
               }
             ],
             "styles": [
-              "src/assets/bootstrap/css/bootstrap.min.css",
+              "src/styles.scss",
               "src/theme.less",
-              "src/styles.scss"
-
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/assets/bootstrap/css/bootstrap.min.css"
             ],
-            "scripts": ["src/assets/bootstrap/js/bootstrap.min.js",
-            "src/assets/js/startup-modern.js"]
+            "scripts": [
+            "src/assets/js/startup-modern.js",
+            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+            "src/assets/bootstrap/js/bootstrap.min.js"
+          ],
+          "stylePreprocessorOptions": {
+            "includePaths": [
+              "node_modules"
+            ] }
           },
           "configurations": {
             "production": {
@@ -108,5 +115,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "d653627f-72ac-41a3-8fab-da24f9d89bf5"
   }
 }

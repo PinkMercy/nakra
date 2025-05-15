@@ -1,0 +1,84 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <img [src]="user.avatar" alt="Photo de profil" />
+    </div>
+    <div class="profile-info">
+      <h1>{{ user.firstName }} {{ user.lastName }}</h1>
+      <div class="profile-details">
+        <div class="detail-item">
+          <i class="fas fa-briefcase"></i>
+          <span>{{ user.position }}</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-building"></i>
+          <span>{{ user.department }}</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-envelope"></i>
+          <span>{{ user.email }}</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Date d'entrée: {{ user.joinDate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="training-stats">
+      <div class="stat-card">
+        <div class="stat-value">{{ completedTrainings.length }}</div>
+        <div class="stat-label">Formations terminées</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ inProgressTrainings.length }}</div>
+        <div class="stat-label">Formations en cours</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ plannedTrainings.length }}</div>
+        <div class="stat-label">Formations planifiées</div>
+      </div>
+    </div>
+
+    <div class="training-section">
+      <h2>Parcours de formation</h2>
+    
+      <div class="training-filters">
+        <button class="filter-btn" [class.active]="currentFilter === 'all'" (click)="applyFilter('all')">
+          Toutes
+        </button>
+        <button class="filter-btn" [class.active]="currentFilter === 'completed'" (click)="applyFilter('completed')">
+          Terminées
+        </button>
+        <button class="filter-btn" [class.active]="currentFilter === 'in-progress'" (click)="applyFilter('in-progress')">
+          En cours
+        </button>
+        <button class="filter-btn" [class.active]="currentFilter === 'planned'" (click)="applyFilter('planned')">
+          Planifiées
+        </button>
+      </div>
+    
+      <div class="training-list">
+        <div *ngFor="let training of filteredTrainings" class="training-card status-{{ getStatusClass(training.status) }}">
+          <div class="training-header">
+            <h3>{{ training.title }}</h3>
+            <span class="training-status status-{{ getStatusClass(training.status) }}">
+              {{ getStatusText(training.status) }}
+            </span>
+          </div>
+          <div class="training-details">
+            <div class="training-date">
+              <i class="fas fa-calendar"></i>
+              <span>{{ training.date | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="training-description">
+              <p>{{ training.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

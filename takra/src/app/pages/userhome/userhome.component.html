@@ -1,0 +1,28 @@
+<div class="dashboard-container">
+  <!-- Charts Section -->
+  <div class="charts-container">
+    <!-- Bar Chart: Trainings Per Month -->
+    <div class="chart-card">
+      <h2>Nombre de formations par mois</h2>
+      <div
+        echarts
+        [options]="chartOptions"  
+        class="chart"
+        [loading]="loading"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Section des formations du mois -->
+  <div class="formations-du-mois">
+    <h2>Formations du mois</h2>
+    <div class="formations-container">
+      <div *ngFor="let formation of formationsDuMois" class="formation-card">
+        <h3>{{ formation.nom }}</h3>
+        <p>{{ formation.description }}</p>
+        <p><strong>Date :</strong> {{ formation.date }}</p>
+        <button class="details-btn">Détails de la formation</button>
+      </div>
+    </div>
+  </div>
+</div>

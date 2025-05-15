@@ -1,61 +1,74 @@
 package com.example.demo.controller;
 
+import com.example.demo.controller.auth.AuthenticationService;
+import com.example.demo.model.Role;
 import com.example.demo.model.User;
-import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
+import com.example.demo.dto.UserDto;
 @RestController
 @RequestMapping("/admin/users")
 public class AdminUserController {
-
     @Autowired
-    private UserService userService;
+    private AuthenticationService authenticationService;
 
-    // Get all users
+    // Get all users using a new method in AuthenticationService
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = authenticationService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
-    // Get a user by ID
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // Create a new user (if separate from registration)
+    // Create a new user (Admin operation)
+    // Create a new user with selectable role
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.status(201).body(createdUser);
+    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
+        User createdUser = authenticationService.createUser(userDto);
+        return ResponseEntity.ok(createdUser);
     }
 
-    // Update a user by ID
+    // Update an existing user (Admin operation)
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         try {
-            User updatedUser = userService.updateUser(id, userDetails);
+            // Convert UserDto to User entity
+            User user = convertToEntity(userDto);
+            User updatedUser = authenticationService.updateUser(id, userDto);
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    // Delete a user by ID
+    // Delete a user by ID (Admin operation)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        authenticationService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    // Conversion helper method to map UserDto to User entity
+    private User convertToEntity(UserDto userDto) {
+        User user = new User();
+        // Set firstname and lastname from DTO
+        user.setFirstname(userDto.getFirstname());
+        user.setLastname(userDto.getLastname());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
+        if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
+            try {
+                // Convert the first role string to the Role enum. Note: Role enum values should be in uppercase.
+                user.setRole(Role.valueOf(userDto.getRoles().get(0).toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid role provided: " + userDto.getRoles().get(0));
+            }
+        }
+        return user;
     }
 }

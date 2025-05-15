@@ -1,0 +1,103 @@
+.container {
+    padding: 24px;
+  }
+  
+  .header-actions {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  nz-table {
+    margin-top: 16px;
+  }
+  
+  .session-block {
+    padding: 16px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  
+  .session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h4 {
+      margin-bottom: 0;
+    }
+  }
+  
+  .add-session-btn {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  // Form validation styles
+  .ant-form-item-has-error {
+    margin-bottom: 24px;
+  }
+  
+  // For the description truncation in the table
+  td {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+
+
+.warning-button {
+  background-color: #faad14;
+  color: #fff;
+  border-color: #faad14;
+}
+
+.warning-button:hover {
+  background-color: #ffc53d;
+  border-color: #ffc53d;
+  color: #fff;
+}
+
+.danger-button {
+  background-color: #ff4d4f;
+  color: #fff;
+  border-color: #ff4d4f;
+}
+
+.danger-button:hover {
+  background-color: #ff7875;
+  border-color: #ff7875;
+  color: #fff;
+}
+.enrolled-user {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  
+ 
+  
+  // Style du bouton
+  button {
+    visibility: hidden;
+    margin-left: 8px;
+  }
+  
+   button {
+    visibility: visible;
+  }
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+

@@ -1,8 +1,12 @@
 package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Data
@@ -13,21 +17,29 @@ public class TrainingSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Date start;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
-    private Date end;
+    @Column(nullable = false)
+    private LocalDate date;
 
-    // Many sessions belong to one training
+    @Column(name = "time_start", nullable = false)
+    private LocalTime timeStart;
+
+    @Column(name = "time_end", nullable = false)
+    private LocalTime timeEnd;
+
+    private String linkMeet;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private SessionType type;
+
     @JsonBackReference
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "training_id")
     private Training training;
-
-    // Constructors
-    public TrainingSession() {
-    }
-
-
 
 
 }

@@ -1,53 +1,77 @@
 <nz-layout class="app-layout">
-    <nz-sider class="menu-sidebar"
-      nzCollapsible
-      nzWidth="256px"
-      nzBreakpoint="md"
-      [(nzCollapsed)]="isCollapsed"
-      [nzTrigger]="null"
-    >
-      <div class="sidebar-logo">
-        <a href="https://ng.ant.design/" target="_blank">
-          <img src="../../../assets/img/sopraLogo (1).png" alt="logo">
-          <h1>SopraFormation</h1>
-        </a>
+  <nz-sider class="menu-sidebar"
+            nzCollapsible
+            nzWidth="250px"
+            nzBreakpoint="md"
+            [(nzCollapsed)]="isCollapsed"
+            [nzTrigger]="null">
+    <div class="sidebar-logo">
+      <img src="../../../assets/img/sopraLogo (1).png" alt="logo">
+      <h1 style="color:aliceblue">SopraFormation</h1>
+    </div>
+    <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li nz-submenu [nzOpen]="true" nzTitle="Dashboard">
+        <i nz-icon nzType="dashboard" nzTheme="outline"></i>
+        <ul>
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="home" nzTheme="outline"></i>
+            <a routerLink="stats">Page d’accueil</a>
+          </li>
+          <!-- Pour les USER -->
+          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="home" nzTheme="outline"></i>
+            <a routerLink="/home/welcome">Welcome</a>
+          </li>
+          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="calendar" nzTheme="outline"></i>
+            <a routerLink="usercalendar">Calendrier</a>
+          </li>
+          
+
+          <!-- Pour les ADMIN -->
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="team" nzTheme="outline"></i>
+            <a routerLink="AdminUsersControle">Gérer les utilisateurs</a>
+          </li>
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="calendar" nzTheme="outline"></i>
+            <a routerLink="calendar">Calendrier</a>
+          </li>
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="book" nzTheme="outline"></i>
+            <a routerLink="gformation">Gérer les formations</a>
+          </li>
+          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="team" nzTheme="outline"></i>
+            <a routerLink="adminsalle">Gérer les salles</a>
+          </li>
+          
+          <li nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="user" nzTheme="outline"></i>
+            <a routerLink="profile">Profile</a>
+          </li>
+
+          <!-- Déconnexion -->
+          <li *ngIf="role" nz-menu-item nzMatchRouter>
+            <i nz-icon nzType="logout" nzTheme="outline"></i>
+            <a (click)="logout()">Déconnexion</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nz-sider>
+
+  <nz-layout class="site-layout">
+    <nz-header class="app-header">
+      <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
+        <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+      </span>
+    </nz-header>
+
+    <nz-content class="site-content">
+      <div class="content-container">
+        <router-outlet></router-outlet>
       </div>
-      <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-        <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
-          <ul>
-            <li nz-menu-item nzMatchRouter>
-              <a routerLink="/welcome">Welcome</a>
-            </li>
-            <li nz-menu-item nzMatchRouter>
-              <a routerLink="/calendar">Calendrier</a>
-            </li>
-            <li nz-menu-item nzMatchRouter>
-              <a>Workplace</a>
-            </li>
-          </ul>
-        </li>
-        <li nz-submenu nzOpen nzTitle="Form" nzIcon="form">
-          <ul>
-            <li nz-menu-item nzMatchRouter>
-              <a>Basic Form</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </nz-sider>
-    <nz-layout>
-      <nz-header>
-        <div class="app-header">
-          <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
-            <nz-icon class="trigger" [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" />
-          </span>
-        </div>
-      </nz-header>
-      <nz-content>
-        <div class="inner-content">
-          <router-outlet></router-outlet>
-        </div>
-      </nz-content>
-    </nz-layout>
+    </nz-content>
   </nz-layout>
-  
+</nz-layout>

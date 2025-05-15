@@ -1,0 +1,71 @@
+/* Add this to your usercalender.component.scss file */
+
+::ng-deep {
+    // Make event blocks more prominent
+    .fc-event {
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-bottom: 2px;
+      
+      .fc-event-title {
+        font-weight: 500;
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+    
+    // Make the calendar fill its container
+    .fc {
+      height: 100%;
+      width: 100%;
+      
+      .fc-daygrid-day-events {
+        margin-top: 3px;
+        padding: 0 2px;
+      }
+      
+      // Improve the display of event dots in month view
+      .fc-daygrid-event-dot {
+        display: none;
+      }
+      
+      // Better styling for day cells
+      .fc-daygrid-day {
+        &:hover {
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
+      
+      // Improve header styling
+      .fc-toolbar-title {
+        font-size: 1.5em;
+        font-weight: 500;
+      }
+      
+      // Add animation for smooth hover
+      .fc-event {
+        transition: transform 0.1s ease-in-out;
+        
+        &:hover {
+          transform: scale(1.02);
+        }
+      }
+      
+      // Adjust dot styling when in list view
+      .fc-list-event-dot {
+        border-radius: 50%;
+        width: 10px;
+        height: 10px;
+      }
+    }
+    
+    .calendar-wrapper {
+      height: 80vh;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+  }

@@ -1,0 +1,109 @@
+<div class="comments-section">
+    <h3 class="section-title">Comments</h3>
+    
+    <!-- Comment form -->
+    <div class="comment-form-container" *ngIf="userId">
+      <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+        <nz-form-item>
+          <nz-form-control>
+            <textarea 
+              nz-input 
+              formControlName="content" 
+              rows="4" 
+              placeholder="Leave your comment here..."
+            ></textarea>
+            <div class="form-error" *ngIf="commentForm.get('content')?.errors?.['required'] && commentForm.get('content')?.touched">
+              Comment cannot be empty
+            </div>
+            <div class="form-error" *ngIf="commentForm.get('content')?.errors?.['maxlength']">
+              Comment cannot exceed 1000 characters
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <button 
+            nz-button 
+            nzType="primary" 
+            type="submit" 
+            [disabled]="commentForm.invalid || isSubmitting"
+            class="submit-button"
+          >
+            <i nz-icon nzType="comment" nzTheme="outline" *ngIf="!isSubmitting"></i>
+            <i nz-icon nzType="loading" nzTheme="outline" *ngIf="isSubmitting"></i>
+            Post Comment
+          </button>
+        </nz-form-item>
+      </form>
+    </div>
+    
+    <div class="not-logged-in" *ngIf="!userId">
+      <p>Please log in to comment on this training.</p>
+    </div>
+    
+    <!-- Loading indicator -->
+    <div class="loading-container" *ngIf="isLoading">
+      <nz-spin nzTip="Loading comments..."></nz-spin>
+    </div>
+    
+    <!-- Empty state -->
+    <nz-empty 
+      *ngIf="!isLoading && comments.length === 0" 
+      nzDescription="No comments yet. Be the first to comment!"
+    ></nz-empty>
+    
+    <!-- Comments list -->
+    <div class="comments-list" *ngIf="!isLoading && comments.length > 0">
+      <nz-comment
+        *ngFor="let comment of comments"
+        class="comment-item"
+      >
+        <nz-avatar
+          nz-comment-avatar
+          [nzText]="getInitials(comment.userFirstname, comment.userLastname)"
+        ></nz-avatar>
+        <nz-comment-content>
+          <span class="comment-author">{{ comment.userFirstname }} {{ comment.userLastname }}</span>
+          <p class="comment-text">{{ comment.content }}</p>
+        </nz-comment-content>
+        <nz-comment-action>
+          <span 
+            class="action-button" 
+            [class.active]="comment.likedByCurrentUser"
+            (click)="toggleLike(comment)"
+          >
+            <i nz-icon 
+              nzType="like" 
+              [nzTheme]="comment.likedByCurrentUser ? 'fill' : 'outline'"
+            ></i>
+            <span class="count">{{ comment.likesCount }}</span>
+          </span>
+        </nz-comment-action>
+        <nz-comment-action>
+          <span 
+            class="action-button" 
+            [class.active]="comment.dislikedByCurrentUser"
+            (click)="toggleDislike(comment)"
+          >
+            <i nz-icon 
+              nzType="dislike" 
+              [nzTheme]="comment.dislikedByCurrentUser ? 'fill' : 'outline'"
+            ></i>
+            <span class="count">{{ comment.dislikesCount }}</span>
+          </span>
+        </nz-comment-action>
+        <nz-comment-action *ngIf="canDeleteComment(comment)">
+          <span 
+            nz-popconfirm
+            nzPopconfirmTitle="Are you sure you want to delete this comment?"
+            nzPopconfirmPlacement="top"
+            (nzOnConfirm)="deleteComment(comment.id)"
+            class="delete-action"
+          >
+            <i nz-icon nzType="delete" nzTheme="outline"></i>
+          </span>
+        </nz-comment-action>
+        
+        <span class="comment-time">{{ formatDate(comment.createdAt) }}</span>
+      </nz-comment>
+    </div>
+  </div>
