@@ -15,6 +15,7 @@ import { DetailformationComponent } from './pages/detailformation/detailformatio
 import { ErrorpageComponent } from './pages/errorpage/errorpage.component';
 import { RoomadminComponent } from './pages/roomadmin/roomadmin.component';
 import { StatsComponent } from './pages/stats/stats.component';
+import { UserhomeComponent } from './pages/userhome/userhome.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent }, 
@@ -24,7 +25,7 @@ export const routes: Routes = [
 
   { path: 'home', component: SidebarComponent,canActivate: [authGuard], children: [
     { path: 'calendar', component: CalendarComponent , canActivate: [adminGuard]}, 
-    { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
+    { path: 'welcome', component:UserhomeComponent },
     {path: 'AdminUsersControle',component:AdminusersComponent, canActivate: [adminGuard],},
     {path: 'gformation',component:FormationconfigComponent, canActivate: [adminGuard],},
     {path: 'adminsalle',component:RoomadminComponent, canActivate: [adminGuard],},

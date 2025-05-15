@@ -14,7 +14,7 @@ export class StatsService {
   constructor(private http: HttpClient) {}
 private apiUrl = 'http://localhost:8080/api/stats';
   getTrainingsPerMonth(): Observable<any> {
-    return this.http.get<any>('http://localhost:8080/api/stats/trainings-per-month')
+    return this.http.get<any>('http://localhost:8080/api/stats/trainings-per-mont')
       .pipe(
         catchError(error => {
           console.error('Erreur lors de la récupération des stats:', error);

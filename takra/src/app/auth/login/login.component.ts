@@ -41,9 +41,8 @@ export class LoginComponent {
           } else {
             this.router.navigate(['/home/welcome']);
           }
-          
 
-          
+
         },
         error: () => {
           this.errorMessage = 'Identifiants invalides. Veuillez réessayer.';
