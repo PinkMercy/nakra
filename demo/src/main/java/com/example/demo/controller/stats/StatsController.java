@@ -44,5 +44,17 @@ public class StatsController {
         Map<String, Object> stats = statsService.getTrainingStatsByMonth();
         return ResponseEntity.ok(stats);
     }
+// i want to use getTotalTrainingsAndUsers() function
+    /**
+     * Endpoint to get total trainings and users
+     * @return JSON with total trainings and users
+     */
+    @GetMapping("/total-trainings-and-users")
+    public ResponseEntity<Map<String, Object>> getTotalTrainingsAndUsers() {
+        Map<String, Object> stats = statsService.getTotalTrainingsAndUsers();
+        return ResponseEntity.ok(stats);
+    }
+
+
 
 }

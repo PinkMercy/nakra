@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
+export interface StatsSummary {
+  totalUsers: number;
+  avgHourlyTraining: number;
+  totalTrainings: number;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -48,5 +52,8 @@ private apiUrl = 'http://localhost:8080/api/stats';
         { value: 8, name: 'Planifié' }
       ]
     };
+  }
+  getTotalTrainingsAndUsers(): Observable<StatsSummary> {
+    return this.http.get<StatsSummary>(`${this.apiUrl}/total-trainings-and-users`);
   }
 }

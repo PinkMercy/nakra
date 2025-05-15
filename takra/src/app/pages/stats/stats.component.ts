@@ -50,20 +50,18 @@ export class StatsComponent implements OnInit {
       },
     });
   }
-
+  
   loadStaticStats(): void {
-    // Assume StatsService provides these metrics
-    this.statsService.getTrainingsPerMonth().subscribe({
-      next: (data) => {
-        this.totalUsers = data.totalUsers;
-        this.avgHourlyTraining = data.avgHourlyTraining;
-        this.totalTrainings = data.totalTrainings;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des stats statiques:', error);
-      },
-    });
-  }
+  this.statsService.getTotalTrainingsAndUsers().subscribe({
+    next: stats => {
+      this.totalUsers = stats.totalUsers;
+      this.avgHourlyTraining = stats.avgHourlyTraining;
+      this.totalTrainings = stats.totalTrainings;
+    },
+    error: err => console.error('Erreur stats statiques:', err)
+  });
+}
+  
 
   updateChartOptions(months: string[], counts: number[]): void {
     this.chartOptions = {

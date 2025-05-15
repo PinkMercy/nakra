@@ -2,8 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.model.Enrollment;
 import com.example.demo.model.Training;
+import com.example.demo.model.User;
 import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.TrainingRepository;
+import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +24,15 @@ public class StatsService {
 
     private final TrainingRepository trainingRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final UserRepository userRepository;
 
 
     @Autowired
     public StatsService(TrainingRepository trainingRepository,
-                        EnrollmentRepository enrollmentRepository)  {
+                        EnrollmentRepository enrollmentRepository, UserRepository userRepository)  {
         this.trainingRepository = trainingRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -140,4 +144,28 @@ public class StatsService {
     }
 
 
+    //nombre totale des formation et nombre totale utilisateursdu table user et calculer avg hours of trainings
+    public Map<String, Object> getTotalTrainingsAndUsers() {
+        // Get all trainings
+        List<Training> allTrainings = trainingRepository.findAll();
+
+        // Get all users
+        List<User> allUsers = userRepository.findAll();
+
+        // Calculate total trainings and users
+        int totalTrainings = allTrainings.size();
+        int totalUsers = allUsers.size();
+
+        // Calculate average hours of trainings
+        double totalHours = allTrainings.stream().mapToInt(Training::getDurationInHours).sum();
+        double averageHours = totalHours / (totalTrainings == 0 ? 1 : totalTrainings);
+
+        // Create response map
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalTrainings", totalTrainings);
+        result.put("totalUsers", totalUsers);
+        result.put("averageHours", averageHours);
+
+        return result;
+    }
 }

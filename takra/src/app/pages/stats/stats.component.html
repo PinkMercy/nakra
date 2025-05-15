@@ -6,7 +6,7 @@
         <i class="fas fa-users"></i>
       </div>
       <div class="stat-content">
-        <h3>Total Users</h3>
+        <h3>Total utilisateur</h3>
         <p>{{ totalUsers | number }}</p>
       </div>
     </div>
@@ -15,7 +15,7 @@
         <i class="fas fa-clock"></i>
       </div>
       <div class="stat-content">
-        <h3>Average Hourly Training</h3>
+        <h3>Formation horaire moyenne</h3>
         <p>{{ avgHourlyTraining | number:'1.1-1' }} hours</p>
       </div>
     </div>
@@ -24,7 +24,7 @@
         <i class="fas fa-graduation-cap"></i>
       </div>
       <div class="stat-content">
-        <h3>Total Trainings</h3>
+        <h3>Total des formations</h3>
         <p>{{ totalTrainings | number }}</p>
       </div>
     </div>
@@ -37,7 +37,7 @@
       <h2>Nombre de formations par mois</h2>
       <div
         echarts
-        [options]="chartOptions"
+        [options]="chartOptions"  
         class="chart"
         [loading]="loading"
       ></div>
