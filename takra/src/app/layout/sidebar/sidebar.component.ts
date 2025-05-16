@@ -14,6 +14,8 @@ import {
 
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CommonModule } from '@angular/common';
@@ -28,11 +30,14 @@ import { CommonModule } from '@angular/common';
     NzIconModule,
     NzLayoutModule,
     NzMenuModule,
-    FullCalendarModule
+    FullCalendarModule,
+    NzDropDownModule, // Ajout pour le menu déroulant
+    NzAvatarModule    // Ajout pour l'avatar
   ],
   providers: [
-    // On fournit ici les icônes qu’on utilisera dans le template
-    { provide: NZ_ICONS, useValue: [
+    {
+      provide: NZ_ICONS,
+      useValue: [
         DashboardOutline,
         UserOutline,
         CalendarOutline,
@@ -40,7 +45,7 @@ import { CommonModule } from '@angular/common';
         BookOutline,
         HomeOutline,
         LogoutOutline
-      ] 
+      ]
     }
   ],
   templateUrl: './sidebar.component.html',
@@ -48,13 +53,21 @@ import { CommonModule } from '@angular/common';
 })
 export class SidebarComponent implements OnInit {
   isCollapsed = false;
-  role: string | null = null;
+  userRole: string | null = null;  // Rôle réel de l'utilisateur
+  activeRole: string | null = null; // Rôle actif choisi
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    this.role = user?.role || null;
+    this.userRole = user?.role || null;
+    this.activeRole = localStorage.getItem('activeRole') || this.userRole;
+  }
+
+  // Méthode pour changer le rôle actif
+  setActiveRole(role: string): void {
+    this.activeRole = role;
+    localStorage.setItem('activeRole', role);
   }
 
   logout(): void {
