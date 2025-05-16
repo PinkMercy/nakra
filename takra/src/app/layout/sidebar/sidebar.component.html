@@ -13,49 +13,46 @@
       <li nz-submenu [nzOpen]="true" nzTitle="Dashboard">
         <i nz-icon nzType="dashboard" nzTheme="outline"></i>
         <ul>
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="home" nzTheme="outline"></i>
             <a routerLink="stats">Page d’accueil</a>
           </li>
           <!-- Pour les USER -->
-          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'USER'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="home" nzTheme="outline"></i>
             <a routerLink="/home/welcome">Welcome</a>
           </li>
-          <li *ngIf="role === 'USER'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'USER'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="calendar" nzTheme="outline"></i>
             <a routerLink="usercalendar">Calendrier</a>
           </li>
-          
-
           <!-- Pour les ADMIN -->
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="team" nzTheme="outline"></i>
             <a routerLink="AdminUsersControle">Gérer les utilisateurs</a>
           </li>
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="calendar" nzTheme="outline"></i>
             <a routerLink="calendar">Calendrier</a>
           </li>
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="book" nzTheme="outline"></i>
             <a routerLink="gformation">Gérer les formations</a>
           </li>
-          <li *ngIf="role === 'ADMIN'" nz-menu-item nzMatchRouter>
+          <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="team" nzTheme="outline"></i>
             <a routerLink="adminsalle">Gérer les salles</a>
           </li>
-          
-          <li nz-menu-item nzMatchRouter>
+          <li nz-menu-item nzMatchRouter *ngIf="activeRole === 'USER'">
             <i nz-icon nzType="user" nzTheme="outline"></i>
             <a routerLink="profile">Profile</a>
           </li>
-
-          <!-- Déconnexion -->
-          <li *ngIf="role" nz-menu-item nzMatchRouter>
+           <!-- Déconnexion -->
+          <li *ngIf="activeRole === 'USER'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="logout" nzTheme="outline"></i>
             <a (click)="logout()">Déconnexion</a>
           </li>
+         
         </ul>
       </li>
     </ul>
@@ -66,6 +63,25 @@
       <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
         <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
       </span>
+      <!-- Ajout de l'avatar avec menu déroulant -->
+      <div *ngIf="userRole === 'ADMIN'" nz-dropdown [nzDropdownMenu]="roleMenu" style="margin-left: auto;">
+        <nz-avatar nzIcon="user"></nz-avatar>
+      </div>
+      <nz-dropdown-menu #roleMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="setActiveRole('ADMIN')">changer vers Administrateur</li>
+          <li nz-menu-item (click)="setActiveRole('USER')">changer vers Utilisateur </li>
+          <li nz-menu-item nzMatchRouter *ngIf="activeRole === 'ADMIN'">
+            
+            <a routerLink="profile">Profile</a>
+          </li>
+          <!-- Déconnexion -->
+          <li nz-menu-item nzMatchRouter>
+            
+            <a (click)="logout()">Déconnexion</a>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
     </nz-header>
 
     <nz-content class="site-content">
