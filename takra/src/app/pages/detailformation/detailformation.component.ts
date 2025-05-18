@@ -6,6 +6,7 @@ import { EnrollmentService } from '../../services/enrollment.service';
 import { AuthService } from '../../services/auth.service';
 import { CommentSectionComponent } from '../comment-section/comment-section.component';
 import { FormsModule } from '@angular/forms';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 interface Formation {
   id: number;
@@ -60,14 +61,13 @@ export class DetailformationComponent implements OnInit {
     private route: ActivatedRoute,
     private sessionService: SessionService,
     private enrollmentService: EnrollmentService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notification: NzNotificationService
   ) {}
 
   ngOnInit(): void {
-    // Get user ID
     this.userId = this.authService.getUserId();
     console.log('Checking enrollment status for user:', this.userId);
-    // Get the formation ID from the route parameters
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
       if (id) {
@@ -143,14 +143,13 @@ export class DetailformationComponent implements OnInit {
   
   toggleEnrollment(): void {
     if (!this.userId || !this.formation) {
-      alert('Vous devez être connecté pour vous inscrire à une formation');
+      this.notification.warning('Avertissement', 'Vous devez être connecté pour vous inscrire à une formation');
       return;
     }
 
     this.isEnrollmentLoading = true;
     
     if (this.isEnrolled) {
-      // Unenroll
       this.enrollmentService.unenrollUser(this.userId, this.formation.id).subscribe({
         next: () => {
           this.isEnrolled = false;
@@ -160,11 +159,30 @@ export class DetailformationComponent implements OnInit {
         error: (err) => {
           console.error('Error unenrolling', err);
           this.isEnrollmentLoading = false;
-          alert('Erreur lors de la désinscription');
+          this.notification.error('Erreur', 'Erreur lors de la désinscription');
         }
       });
     } else {
-      // Enroll
+      const formationDateStr = this.formation.date;
+      const formationDate = new Date(formationDateStr);
+      
+      if (isNaN(formationDate.getTime())) {
+        console.error('Invalid formation date:', formationDateStr);
+        this.notification.error('Erreur', 'Date de formation invalide');
+        this.isEnrollmentLoading = false;
+        return;
+      }
+      
+      const currentDate = new Date('2025-05-18T15:02:00+01:00');
+      const currentDateMidnight = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+      const formationDateMidnight = new Date(formationDate.getFullYear(), formationDate.getMonth(), formationDate.getDate());
+      
+      if (currentDateMidnight > formationDateMidnight) {
+        this.notification.warning('Avertissement', 'L\'inscription à cette formation est fermée');
+        this.isEnrollmentLoading = false;
+        return;
+      }
+      
       this.enrollmentService.enrollUser(this.userId, this.formation.id).subscribe({
         next: () => {
           this.isEnrolled = true;
@@ -174,7 +192,7 @@ export class DetailformationComponent implements OnInit {
         error: (err) => {
           console.error('Error enrolling', err);
           this.isEnrollmentLoading = false;
-          alert('Erreur lors de l\'inscription');
+          this.notification.error('Erreur', 'Erreur lors de l\'inscription');
         }
       });
     }
@@ -182,7 +200,7 @@ export class DetailformationComponent implements OnInit {
 
   rateTraining(stars: number): void {
     if (!this.userId || !this.formation || !this.isEnrolled) {
-      alert('Vous devez être abonné pour noter cette formation');
+      this.notification.warning('Avertissement', 'Vous devez être abonné pour noter cette formation');
       return;
     }
 
@@ -191,7 +209,6 @@ export class DetailformationComponent implements OnInit {
       next: () => {
         this.userRating = stars;
         this.isRatingLoading = false;
-        // Reload the training rating to update the average
         if (this.formation) {
           this.loadTrainingRating(this.formation.id);
         }
@@ -199,14 +216,13 @@ export class DetailformationComponent implements OnInit {
       error: (err) => {
         console.error('Error rating training', err);
         this.isRatingLoading = false;
-        alert('Erreur lors de la notation');
+        this.notification.error('Erreur', 'Erreur lors de la notation');
       }
     });
   }
 
   addToCalendar(session: Session): void {
-    // Implementation for adding to calendar
-    alert('Calendar event creation would be implemented here.');
+    this.notification.info('Info', 'Calendar event creation would be implemented here.');
   }
 
   formatTime(startTime: string, endTime: string): string {
