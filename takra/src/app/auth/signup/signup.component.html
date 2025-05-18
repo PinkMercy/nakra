@@ -8,7 +8,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navcol-1">
         <ul class="navbar-nav mx-auto"></ul>
-        <a class="btn btn-primary shadow" role="button" routerLink="/login" routerLinkActive="active">Login</a>
+        <a class="btn btn-primary shadow" role="button" routerLink="/login" routerLinkActive="active">Se connecter </a>
       </div>
     </div>
   </nav>
@@ -32,7 +32,7 @@
                 class="shadow-sm form-control"
                 type="text"
                 formControlName="firstname"
-                placeholder="First Name">
+                placeholder="Nom">
               <div *ngIf="isFieldInvalid('firstname')" class="text-danger small">
                 Le prénom est obligatoire.
               </div>
@@ -42,7 +42,7 @@
                 class="shadow-sm form-control"
                 type="text"
                 formControlName="lastname"
-                placeholder="Last Name">
+                placeholder="Prenom">
               <div *ngIf="isFieldInvalid('lastname')" class="text-danger small">
                 Le nom est obligatoire.
               </div>
@@ -64,7 +64,7 @@
                 class="shadow-sm form-control"
                 type="password"
                 formControlName="password"
-                placeholder="Password">
+                placeholder="Mot de passe">
               <div *ngIf="isFieldInvalid('password')" class="text-danger small">
                 Le mot de passe est obligatoire.
               </div>
@@ -74,7 +74,7 @@
                 class="shadow-sm form-control"
                 type="password"
                 formControlName="password_repeat"
-                placeholder="Repeat Password">
+                placeholder="Mot de passe (confirmation)">
               <div *ngIf="isFieldInvalid('password_repeat')" class="text-danger small">
                 La confirmation du mot de passe est obligatoire.
               </div>
@@ -86,7 +86,7 @@
           <p class="text-muted">
             Se connecter
             <a routerLink="/login" routerLinkActive="active">
-              Log in&nbsp;
+              Se connecter &nbsp;
               <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
                 class="icon icon-tabler icon-tabler-arrow-narrow-right">
