@@ -9,6 +9,8 @@ import com.example.demo.repository.TrainingRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,14 +24,17 @@ public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
     private final TrainingRepository trainingRepository;
-
+    private final JavaMailSender mailSender;  // Composant pour envoyer des emails
     @Autowired
     public EnrollmentService(EnrollmentRepository enrollmentRepository,
                              UserRepository userRepository,
-                             TrainingRepository trainingRepository) {
+                             TrainingRepository trainingRepository,
+                             JavaMailSender mailSender) {
         this.enrollmentRepository = enrollmentRepository;
         this.userRepository = userRepository;
         this.trainingRepository = trainingRepository;
+        this.mailSender = mailSender;  // Injection du bean JavaMailSender
+
     }
 
     // Convert Enrollment entity to DTO
@@ -92,43 +97,81 @@ public class EnrollmentService {
     }
 
     /**
-     * Invite multiple users to a training event
-     * @param trainingId the ID of the training
-     * @param userIds list of user IDs to invite
-     * @return list of successfully invited user IDs
+     * Envoie un email d'invitation à un utilisateur pour une formation donnée.
+     * @param user   l'utilisateur à inviter
+     * @param training la formation à laquelle on invite
+     */
+    private void sendInvitationEmail(User user, Training training) {
+        // Création d'un message simple
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());  // Destinataire : l'email de l'utilisateur
+        message.setSubject("Invitation à la formation \"" + training.getTitle() + "\"");
+        // Corps du message en français
+        String text = String.format(
+                "Bonjour %s,\n\n" +
+                        "Vous êtes cordialement invité(e) à participer à la formation \"%s\" qui aura lieu le %s.\n" +
+                        "Pour vous inscrire, veuillez vous connecter à votre compte.\n\n" +
+                        "À bientôt,\n" +
+                        "L'équipe de formation",
+                user.getFirstname(),                  // Prénom de l'utilisateur
+                training.getTitle(),                  // Titre de la formation
+                training.getDate().toString()         // Date de la formation (LocalDate)
+        );
+        message.setText(text);
+        mailSender.send(message);  // Envoi de l'email via Mailtrap
+    }
+
+
+
+
+
+    /**
+     * Invite plusieurs utilisateurs à une formation
+     * @param trainingId ID de la formation
+     * @param userIds    liste des IDs d'utilisateurs à inviter
+     * @return liste des IDs des utilisateurs qui ont été invités avec succès
      */
     public List<Long> inviteUsers(Long trainingId, List<Long> userIds) {
-        // Find training
+        // Recherche de la formation, ou exception si non trouvée
         Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Training not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formation non trouvée"));
 
         List<Long> successfulInvitations = new ArrayList<>();
 
         for (Long userId : userIds) {
             try {
-                // Check if user exists
+                // Vérifie que l'utilisateur existe
                 User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                "User with ID " + userId + " not found"));
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND, "Utilisateur avec l'ID " + userId + " non trouvé"));
 
-                // Check if user is already enrolled
-                if (isUserEnrolled(userId, trainingId)) {
-                    continue; // Skip this user and proceed to the next one
+                // Si déjà inscrit, on passe au suivant
+                if (enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId).isPresent()) {
+                    continue;
                 }
 
-                // Enroll the user to the training
-                enrollUserToTraining(userId, trainingId);
+                // Inscription à la formation
+                Enrollment enrollment = new Enrollment();
+                enrollment.setUser(user);
+                enrollment.setTraining(training);
+                enrollment.setStars(0);
+                enrollmentRepository.save(enrollment);
 
-                // Add to successful invitations
+                // Envoi de l'email d'invitation
+                sendInvitationEmail(user, training);
+
+                // Ajout à la liste des invitations réussies
                 successfulInvitations.add(userId);
+
             } catch (Exception e) {
-                // Log the error but continue processing other users
-                System.err.println("Failed to invite user " + userId + ": " + e.getMessage());
+                // En cas d'erreur (inscription ou email), on log et on continue
+                System.err.println("Échec de l'invitation pour l'utilisateur " + userId + " : " + e.getMessage());
             }
         }
-
         return successfulInvitations;
     }
+
+
 
 
 
