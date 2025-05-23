@@ -6,19 +6,19 @@
     <div class="modal-backdrop" (click)="onBackdropClick($event)"></div>
     <div class="modal-content" (click)="stopPropagation($event)">
       <div class="modal-header">
-        <h2>{{ isEditing ? 'Edit Training' : 'Add New Training' }}</h2>
+        <h2>{{ isEditing ? 'Modifier une formation' : 'Ajouter une formation' }}</h2>
         <button type="button" class="close-btn" (click)="closeModal()">&times;</button>
       </div>
       <div class="modal-body">
         <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
           <!-- Training Details -->
           <div class="form-section">
-            <h3>Training Details</h3>
+            <h3> Details formation</h3>
             <div class="form-group">
               <label for="title">Title*:</label>
               <input type="text" id="title" formControlName="title" class="form-control">
               <div class="error" *ngIf="eventForm.get('title')?.invalid && eventForm.get('title')?.touched">
-                Title is required
+                Le titre est requis
               </div>
             </div>
 
@@ -28,7 +28,7 @@
             </div>
 
             <div class="form-group">
-              <label for="durationInHours">Durée (hours)*:</label>
+              <label for="durationInHours">Durée (heures)*:</label>
               <input type="number" id="durationInHours" formControlName="durationInHours" class="form-control" min="0">
             </div>
 
@@ -36,19 +36,19 @@
               <label for="formateurEmail">Email formateur:</label>
               <input type="email" id="formateurEmail" formControlName="formateurEmail" class="form-control">
               <div class="error" *ngIf="eventForm.get('formateurEmail')?.invalid && eventForm.get('formateurEmail')?.touched">
-                Valid email is required
+                Une adresse e-mail valide est requise
               </div>
             </div>
           </div>
 
           <!-- Main Session Details -->
           <div class="form-section">
-            <h3>Main Session</h3>
+            <h3>Séance principale</h3>
             <div class="form-group">
               <label for="date">Date*:</label>
               <input type="date" id="date" formControlName="date" class="form-control">
               <div class="error" *ngIf="eventForm.get('date')?.invalid && eventForm.get('date')?.touched">
-                Date is required
+                La date est requise
               </div>
             </div>
 
@@ -59,7 +59,8 @@
                 <option *ngFor="let room of rooms" [ngValue]="room.id">{{ room.name }}</option>
               </select>
               <div class="error" *ngIf="eventForm.get('roomId')?.invalid && eventForm.get('roomId')?.touched">
-                Room is required
+                La salle requise
+
               </div>
             </div>
 
@@ -68,7 +69,7 @@
                 <label for="timeStart">Temps debut*:</label>
                 <input type="time" id="timeStart" formControlName="timeStart" class="form-control">
                 <div class="error" *ngIf="eventForm.get('timeStart')?.invalid && eventForm.get('timeStart')?.touched">
-                  Start time is required
+                  L'heure de début est requise
                 </div>
               </div>
 
@@ -76,7 +77,7 @@
                 <label for="timeEnd">Temps fin*:</label>
                 <input type="time" id="timeEnd" formControlName="timeEnd" class="form-control">
                 <div class="error" *ngIf="eventForm.get('timeEnd')?.invalid && eventForm.get('timeEnd')?.touched">
-                  End time is required
+                  L'heure de fin est requise
                 </div>
               </div>
             </div>
@@ -86,7 +87,6 @@
               <select id="sessionType" formControlName="sessionType" class="form-control">
                 <option value="ONLINE">Online</option>
                 <option value="OFFLINE">Offline</option>
-                <option value="HYBRID">Hybrid</option>
               </select>
             </div>
 
@@ -99,14 +99,14 @@
           <!-- Additional Sessions -->
           <div class="form-section" formArrayName="sessions">
             <div class="section-header">
-              <h3>Additional Sessions</h3>
-              <button type="button" class="btn btn-add" (click)="addSession()">Add Session</button>
+              <h3> Sessions</h3>
+              <button type="button" class="btn btn-add" (click)="addSession()">Ajouter une Session</button>
             </div>
 
             <div *ngFor="let session of sessions.controls; let i = index" [formGroupName]="i" class="additional-session">
               <div class="session-header">
                 <h4>Session {{ i + 2 }}</h4>
-                <button type="button" class="btn btn-remove" (click)="removeSession(i)">Remove</button>
+                <button type="button" class="btn btn-remove" (click)="removeSession(i)">Supprimer</button>
               </div>
 
               <div class="form-group">
@@ -154,7 +154,7 @@
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
             <button type="button" class="btn btn-danger" *ngIf="isEditing" (click)="onDelete()">Supprimer</button>
             <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">
-              {{ isEditing ? 'Update' : 'Create' }}
+              {{ isEditing ? 'Modifier' : 'créer' }}
             </button>
           </div>
         </form>

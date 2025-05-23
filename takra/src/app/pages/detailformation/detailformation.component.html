@@ -47,7 +47,7 @@
                         (click)="toggleEnrollment()" 
                         [disabled]="isEnrollmentLoading">
                         <i class="fas" [ngClass]="isEnrolled ? 'fa-user-minus' : 'fa-user-plus'"></i>
-                        {{ isEnrollmentLoading ? 'En cours...' : (isEnrolled ? 'Se désabonner' : 'S\'abonner') }}
+                        {{ isEnrollmentLoading ? 'En cours...' : (isEnrolled ? 'Se désinscrire' : 'S\'inscrire') }}
                     </button>
                 </div>
                 <div class="enrollment-actions" *ngIf="!userId">
