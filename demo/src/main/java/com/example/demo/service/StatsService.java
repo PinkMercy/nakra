@@ -168,4 +168,66 @@ public class StatsService {
 
         return result;
     }
+    /**
+     * Displays trainings enrolled by a user, sorted by stars in descending order
+     * @param userId the ID of the user
+     * @return a list of maps containing training ID, title, description, and stars
+     */
+    public List<Map<String, Object>> userEnrollmentDisplay(Long userId) {
+        return enrollmentRepository.findByUserId(userId)
+                .stream()
+                .sorted(Comparator.comparingInt(Enrollment::getStars).reversed())
+                .map(enrollment -> {
+                    Training training = enrollment.getTraining();
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("trainingId", training.getId());
+                    map.put("title", training.getTitle());
+                    map.put("description", training.getDescription());
+                    map.put("stars", enrollment.getStars());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+    /**
+     * Get top trainings sorted by average stars (descending order)
+     * @return a list of maps containing training details with average stars
+     */
+    public List<Map<String, Object>> getTopTrainingsByStars() {
+        // Get all trainings
+        List<Training> allTrainings = trainingRepository.findAll();
+
+        // Calculate average stars for each training
+        List<Map<String, Object>> trainingStats = new ArrayList<>();
+
+        for (Training training : allTrainings) {
+            // Get all enrollments for this training
+            List<Enrollment> enrollments = enrollmentRepository.findByTrainingId(training.getId());
+
+            // Calculate average stars for this training
+            double averageStars = 0.0;
+            if (!enrollments.isEmpty()) {
+                int totalStars = enrollments.stream()
+                        .mapToInt(Enrollment::getStars)
+                        .sum();
+                averageStars = (double) totalStars / enrollments.size();
+            }
+
+            // Create training data map
+            Map<String, Object> trainingData = new HashMap<>();
+            trainingData.put("trainingId", training.getId());
+            trainingData.put("title", training.getTitle());
+            trainingData.put("description", training.getDescription());
+            trainingData.put("averageStars", Math.round(averageStars * 100.0) / 100.0); // Round to 2 decimal places
+            trainingData.put("enrollmentCount", enrollments.size());
+
+            trainingStats.add(trainingData);
+        }
+
+        // Sort by average stars (descending order)
+        trainingStats.sort((a, b) ->
+                Double.compare((Double) b.get("averageStars"), (Double) a.get("averageStars"))
+        );
+
+        return trainingStats;
+    }
 }

@@ -4,7 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 import * as echarts from 'echarts';
 import { StatsService } from '../../services/stats.service';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
-
+interface TrainingStats {
+  trainingId: number;
+  title: string;
+  description: string;
+  averageStars: number;
+  enrollmentCount: number;
+}
 @Component({
   selector: 'app-userhome',
   imports: [CommonModule, HttpClientModule, NgxEchartsModule],
@@ -23,28 +29,55 @@ export class UserhomeComponent {
   totalUsers: number = 0;
   avgHourlyTraining: number = 0;
   totalTrainings: number = 0;
-
-  // Ajout des formations statiques pour le mois en cours
-  formationsDuMois = [
-    {
-      nom: 'Formation Angular Avancé',
-      description: 'Approfondissez vos connaissances en Angular avec des concepts avancés.',
-      date: '2025-05-20'
-    },
-    {
-      nom: 'Atelier NgZorro',
-      description: 'Découvrez comment utiliser NgZorro pour améliorer l\'UI de vos applications.',
-      date: '2025-05-25'
-    }
-  ];
+  topTrainings: TrainingStats[] = [];
+  currentPage = 0;
+  itemsPerPage = 3;
 
   constructor(private statsService: StatsService) {}
 
   ngOnInit(): void {
     this.loadTrainingStats();
-    this.loadStaticStats();
+    this.loadTopTrainings();
+  }
+loadTopTrainings(): void {
+  console.log('🔍 Chargement des formations...');
+  this.statsService.getTopTrainingsByStars().subscribe({
+    next: (data: TrainingStats[]) => {
+      console.log('📊 Données reçues:', data);
+      this.topTrainings = data;
+      this.loading = false;
+    },
+    error: (error) => {
+      console.error('❌ Erreur:', error);
+      this.loading = false;
+    }
+  });
+}
+  getCurrentPageTrainings(): TrainingStats[] {
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.topTrainings.slice(startIndex, endIndex);
   }
 
+  getTotalPages(): number {
+    return Math.ceil(this.topTrainings.length / this.itemsPerPage);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.getTotalPages() - 1) {
+      this.currentPage++;
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+    }
+  }
+
+  getRank(training: TrainingStats): number {
+    return this.topTrainings.indexOf(training) + 1;
+  }
   loadTrainingStats(): void {
     this.statsService.getTrainingsPerMonth().subscribe({
       next: (data) => {

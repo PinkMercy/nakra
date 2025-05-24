@@ -56,4 +56,10 @@ private apiUrl = 'http://localhost:8080/api/stats';
   getTotalTrainingsAndUsers(): Observable<StatsSummary> {
     return this.http.get<StatsSummary>(`${this.apiUrl}/total-trainings-and-users`);
   }
+  /**
+   * Get top trainings sorted by average stars
+   */
+  getTopTrainingsByStars(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/top-trainings`);
+  }
 }
