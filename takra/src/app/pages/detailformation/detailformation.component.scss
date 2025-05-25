@@ -275,147 +275,59 @@ header {
   }
 }
 
-// Sessions section styles
-.sessions-section {
-  h3 {
-    color: $text-primary;
-    margin: 0 0 1rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  .sessions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    
-    .session-card {
-      border: 1px solid $border-color;
-      border-radius: $radius-md;
-      overflow: hidden;
-      background-color: $bg-white;
-      box-shadow: $shadow-sm;
-      transition: $transition-normal;
-      
-      &:hover {
-        box-shadow: $shadow-md;
-        transform: translateY(-2px);
-      }
-      
-      .session-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 1.5rem;
-        background-color: $bg-light;
-        border-bottom: 1px solid $border-color;
-        
-        .session-type {
-          display: inline-flex;
-          align-items: center;
-          padding: 0.375rem 0.75rem;
-          border-radius: $radius-sm;
-          color: white;
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          
-          &.online {
-            background-color: $success-color;
-            
-            &:before {
-              content: '•';
-              font-size: 1.5rem;
-              line-height: 0;
-              margin-right: 0.5rem;
-              position: relative;
-              top: 0.125rem;
-            }
-          }
-          
-          &.inperson {
-            background-color: $primary-color;
-            
-            &:before {
-              content: '•';
-              font-size: 1.5rem;
-              line-height: 0;
-              margin-right: 0.5rem;
-              position: relative;
-              top: 0.125rem;
-            }
-          }
-        }
-      }
-      
-      .session-details {
-        padding: 1.5rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.25rem;
-        border-bottom: 1px solid $border-color;
-        
-        .session-detail {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          color: $text-secondary;
-          font-size: 0.9375rem;
-          
-          i {
-            color: $primary-color;
-            font-size: 1rem;
-          }
-        }
-      }
-      
-      .session-actions {
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        gap: 1rem;
-        
-        .btn-join, .btn-calendar {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.625rem 1.25rem;
-          border-radius: $radius-md;
-          color: white;
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          border: none;
-          text-decoration: none;
-          transition: $transition-normal;
-          box-shadow: $shadow-sm;
-          
-          i {
-            font-size: 1rem;
-          }
-        }
-        
-        .btn-join {
-          background-color: $primary-color;
-          
-          &:hover {
-            background-color: darken($primary-color, 5%);
-            box-shadow: $shadow-md;
-          }
-        }
-        
-        .btn-calendar {
-          background-color: $success-color;
-          
-          &:hover {
-            background-color: darken($success-color, 5%);
-            box-shadow: $shadow-md;
-          }
-        }
-      }
-    }
-  }
+/* Styles pour améliorer l'apparence des sessions */
+.session-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.session-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.session-type {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.session-type.online {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.session-type.inperson {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.session-details {
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.session-detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 14px;
+}
+
+.session-detail i {
+  color: #1890ff;
+  width: 16px;
 }
 
 // Footer styles
@@ -618,4 +530,64 @@ footer {
     margin-top: 0.5rem;
     align-self: flex-start;
   }
+}
+
+/* Styles pour le nouveau bouton "Rejoindre le meet" */
+.session-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.btn-join-meeting {
+  background: linear-gradient(135deg, #1890ff, #52c41a);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-join-meeting:hover {
+  background: linear-gradient(135deg, #40a9ff, #73d13d);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.btn-join-meeting:active {
+  transform: translateY(0);
+}
+
+.btn-join-meeting i {
+  font-size: 14px;
+}
+
+/* Lien direct optionnel */
+.btn-join-direct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-join-direct:hover {
+  background-color: #1890ff;
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-join-direct i {
+  font-size: 12px;
 }

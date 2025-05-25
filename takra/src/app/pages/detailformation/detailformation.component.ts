@@ -7,6 +7,10 @@ import { AuthService } from '../../services/auth.service';
 import { CommentSectionComponent } from '../comment-section/comment-section.component';
 import { FormsModule } from '@angular/forms';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 interface Formation {
   id: number;
@@ -30,7 +34,7 @@ interface Session {
   timeEnd: string;
   type: 'ONLINE' | 'INPERSON';
   room: any;
-  meetingLink?: string;
+  linkMeet?: string;  // Changé de meetingLink à linkMeet
 }
 
 interface TrainingRating {
@@ -41,7 +45,14 @@ interface TrainingRating {
 @Component({
   selector: 'app-detailformation',
   standalone: true,
-  imports: [CommonModule, CommentSectionComponent, FormsModule],
+  imports: [
+    CommonModule, 
+    CommentSectionComponent, 
+    FormsModule,
+    NzButtonModule,
+    NzModalModule,
+    NzIconModule
+  ],
   templateUrl: './detailformation.component.html',
   styleUrl: './detailformation.component.scss'
 })
@@ -62,7 +73,8 @@ export class DetailformationComponent implements OnInit {
     private sessionService: SessionService,
     private enrollmentService: EnrollmentService,
     private authService: AuthService,
-    private notification: NzNotificationService
+    private notification: NzNotificationService,
+    private modal: NzModalService
   ) {}
 
   ngOnInit(): void {
@@ -221,8 +233,95 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
-  addToCalendar(session: Session): void {
-    this.notification.info('Info', 'Calendar event creation would be implemented here.');
+  // Nouvelle méthode pour rejoindre la réunion avec modal Ng-Zorro
+  joinMeeting(session: Session): void {
+    // Afficher les détails de la session dans la console
+    console.log('Session details:', {
+      id: session.id,
+      date: session.date,
+      timeStart: session.timeStart,
+      timeEnd: session.timeEnd,
+      type: session.type,
+      room: session.room,
+      linkMeet: session.linkMeet  // Changé de meetingLink à linkMeet
+    });
+
+    const currentDate = new Date();
+    const sessionDate = new Date(session.date);
+    const formationDate = this.formation ? new Date(this.formation.date) : null;
+    
+    // Vérifier si l'utilisateur est inscrit et si la date système < date de formation
+    const canJoinMeeting = this.isEnrolled && 
+                          formationDate && 
+                          currentDate < formationDate;
+
+    // Créer le contenu de la modal
+    let modalContent = `
+      <div style="padding: 20px;">
+        <h3 style="margin-bottom: 16px; color: #1890ff;">Détails de la session</h3>
+        
+        <div style="margin-bottom: 12px;">
+          <strong>📅 Date:</strong> ${session.date}
+        </div>
+        
+        <div style="margin-bottom: 12px;">
+          <strong>⏰ Horaire:</strong> ${this.formatTime(session.timeStart, session.timeEnd)}
+        </div>
+        
+        <div style="margin-bottom: 12px;">
+          <strong>📍 Type:</strong> ${session.type === 'ONLINE' ? 'En ligne' : 'Présentiel'}
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <strong>🏢 Salle:</strong> ${session.room?.name || 'Non spécifiée'}
+        </div>
+    `;
+
+    if (canJoinMeeting && session.linkMeet) {  // Changé de meetingLink à linkMeet
+      modalContent += `
+        <div style="padding: 16px; background-color: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; margin-bottom: 16px;">
+          <p style="margin: 0 0 12px 0; color: #52c41a; font-weight: 500;">
+            ✅ Vous pouvez rejoindre cette session
+          </p>
+          <div style="margin-top: 12px;">
+            <a href="${session.linkMeet}" 
+               target="_blank" 
+               style="display: inline-block; padding: 8px 16px; background-color: #52c41a; color: white; text-decoration: none; border-radius: 6px; font-weight: 500;">
+              🎥 Rejoindre la réunion
+            </a>
+          </div>
+        </div>
+      `;
+    } else {
+      let reasonMessage = '';
+      
+      if (!this.isEnrolled) {
+        reasonMessage = 'Vous devez être inscrit à cette formation pour rejoindre la session.';
+      } else if (formationDate && currentDate >= formationDate) {
+        reasonMessage = 'Cette session n\'est plus accessible (date dépassée).';
+      } else if (!session.linkMeet) {  // Changé de meetingLink à linkMeet
+        reasonMessage = 'Aucun lien de réunion n\'est disponible pour cette session.';
+      }
+      
+      modalContent += `
+        <div style="padding: 16px; background-color: #fff2e8; border: 1px solid #ffbb96; border-radius: 6px;">
+          <p style="margin: 0; color: #fa8c16; font-weight: 500;">
+            ⚠️ ${reasonMessage}
+          </p>
+        </div>
+      `;
+    }
+
+    modalContent += '</div>';
+
+    // Afficher la modal Ng-Zorro
+    this.modal.info({
+      nzTitle: 'Session de formation',
+      nzContent: modalContent,
+      nzWidth: 500,
+      nzOkText: 'Fermer',
+      nzCentered: true
+    });
   }
 
   formatTime(startTime: string, endTime: string): string {

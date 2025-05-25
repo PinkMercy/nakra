@@ -85,6 +85,7 @@
             <div class="formation-description">
                 <h3>Description</h3>
                 <p>{{ formation.description }}</p>
+                    
             </div>
 
             <div class="formateur-section">
@@ -94,13 +95,14 @@
                         <span>{{ getFormatterInitials(formation.formateur) }}</span>
                     </div>
                     <div class="formateur-info">
-                        <h4>{{ formation.formateur.firstname }} {{ formation.formateur.lastname }}</h4>
+                        
+                        <h4> <i class="fas fa-id-badge"></i>    {{ formation.formateur.firstname }} {{ formation.formateur.lastname }}</h4>
                         <div class="formateur-detail">
                             <i class="fas fa-envelope"></i>
                             <a href="mailto:{{ formation.formateur.email }}">{{ formation.formateur.email }}</a>
                         </div>
                         <div class="formateur-detail">
-                            <i class="fas fa-id-badge"></i>
+                            
                         </div>
                     </div>
                 </div>
@@ -117,6 +119,7 @@
                             <div class="session-detail">
                                 <i class="fas fa-calendar-day"></i>
                                 <span>{{ session.date }}</span>
+                                
                             </div>
                             <div class="session-detail">
                                 <i class="fas fa-clock"></i>
@@ -128,12 +131,25 @@
                             </div>
                         </div>
                         <div class="session-actions">
-                            <a *ngIf="session.meetingLink" [href]="session.meetingLink" class="btn-join" target="_blank">
-                                <i class="fas fa-video"></i> Join Meeting
-                            </a>
-                            <button class="btn-calendar" (click)="addToCalendar(session)">
-                                <i class="fas fa-calendar-plus"></i> Add to Calendar
+                            <!-- Nouveau bouton pour rejoindre le meet avec popup -->
+                            <button 
+                                nz-button 
+                                nzType="primary" 
+                                nzSize="default"
+                                class="btn-join-meeting" 
+                                (click)="joinMeeting(session)">
+                                <i nz-icon nzType="video-camera" nzTheme="outline"></i>
+                                Rejoindre le meet
                             </button>
+                            
+                            <!-- Garder le lien direct pour les sessions avec linkMeet (optionnel) -->
+                            <a *ngIf="session.linkMeet && isEnrolled" 
+                               [href]="session.linkMeet" 
+                               class="btn-join-direct" 
+                               target="_blank"
+                               title="Lien direct vers la réunion">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
