@@ -1,4 +1,4 @@
-<button nz-button (click)="fetchUsers()" nzType="primary">Actualiser</button>
+<!-- HTML Template - Updated role input to dropdown -->
 <span style="margin: 0 8px;"></span>
 <button nz-button (click)="openAddModal()" nzType="primary">Ajouter un utilisateur</button>
 <br /><br />
@@ -70,8 +70,19 @@
         Password is required.
       </div>
 
+      <!-- CHANGED: Role input replaced with dropdown with styling -->
       <label>Role:</label>
-      <input nz-input formControlName="role" />
+      <nz-select 
+        formControlName="role" 
+        nzPlaceHolder="Sélectionner un rôle"
+        style="width: 100%; margin-bottom: 16px;"
+        nzSize="default">
+        <nz-option 
+          *ngFor="let option of roleOptions" 
+          [nzLabel]="option.label" 
+          [nzValue]="option.value">
+        </nz-option>
+      </nz-select>
       <div *ngIf="userForm.get('role')?.touched && userForm.get('role')?.invalid" class="error">
         Role is required.
       </div>

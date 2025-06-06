@@ -18,24 +18,35 @@ import { StatsComponent } from './pages/stats/stats.component';
 import { UserhomeComponent } from './pages/userhome/userhome.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent }, 
-  {path: 'signup', component: SignupComponent},
+  // 1) Routes publiques
+  { path: 'login',           component: LoginComponent },
+  { path: 'signup',          component: SignupComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'reset-password',  component: ResetPasswordComponent },
 
-  { path: 'home', component: SidebarComponent,canActivate: [authGuard], children: [
-    { path: 'calendar', component: CalendarComponent , canActivate: [adminGuard]}, 
-    { path: 'welcome', component:UserhomeComponent },
-    {path: 'AdminUsersControle',component:AdminusersComponent, canActivate: [adminGuard],},
-    {path: 'gformation',component:FormationconfigComponent, canActivate: [adminGuard],},
-    {path: 'adminsalle',component:RoomadminComponent, canActivate: [adminGuard],},
-    {path: 'stats',component:StatsComponent, canActivate: [adminGuard],},
-    {path: 'usercalendar', component: UsercalenderComponent },
-    {path: 'profile', component:ProfileComponent },
-    {path: 'detailformation/:id', component: DetailformationComponent },
+  // 2) Redirection par défaut vers la page de login
+  { path: '', pathMatch: 'full', redirectTo: '/login' },
 
-  ]},
-  { path: '', pathMatch: 'full', redirectTo: '/home' },
-  { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
-  {path: 'errorpage',component:ErrorpageComponent} // Wildcard route for a 404 page
+  // 3) Routes protégées (accessible seulement une fois connecté)
+  {
+    path: 'home',
+    component: SidebarComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: 'calendar',      component: CalendarComponent,   canActivate: [adminGuard] },
+      { path: 'welcome',       component: UserhomeComponent },
+      { path: 'AdminUsersControle', component: AdminusersComponent, canActivate: [adminGuard] },
+      { path: 'gformation',    component: FormationconfigComponent, canActivate: [adminGuard] },
+      { path: 'adminsalle',    component: RoomadminComponent,    canActivate: [adminGuard] },
+      { path: 'stats',         component: StatsComponent,        canActivate: [adminGuard] },
+      { path: 'usercalendar',  component: UsercalenderComponent },
+      { path: 'profile',       component: ProfileComponent },
+      { path: 'detailformation/:id', component: DetailformationComponent },
+    ]
+  },
+
+  // 4) Route pour page d’erreur (404)
+  // les URL inconnues vers ErrorpageComponent :
+  { path: 'errorpage', component: ErrorpageComponent },
+  { path: '**', redirectTo: '/errorpage' }
 ];

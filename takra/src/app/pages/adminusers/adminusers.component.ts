@@ -10,6 +10,9 @@ import { User } from '../../models/user';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NzSelectModule } from 'ng-zorro-antd/select'; // ADDED: Import for dropdown
+import { NzNotificationService } from 'ng-zorro-antd/notification'; // ADDED: Import for notifications
+
 @Component({
   selector: 'app-adminusers',
   imports: [FormsModule,
@@ -20,7 +23,8 @@ import { ReactiveFormsModule } from '@angular/forms';
      CommonModule,
      NzModalModule,
      NzButtonModule,
-    ReactiveFormsModule],
+     ReactiveFormsModule,
+     NzSelectModule], // ADDED: Added NzSelectModule to imports
   templateUrl: './adminusers.component.html',
   styleUrl: './adminusers.component.scss'
 })
@@ -31,7 +35,13 @@ export class AdminusersComponent implements OnInit {
   isAddMode = false;
   userForm: FormGroup;
 
-  constructor(private userService: UserService, private fb: FormBuilder) {
+  // ADDED: Define role options for the dropdown
+  roleOptions = [
+    { label: 'USER', value: 'USER' },
+    { label: 'ADMIN', value: 'ADMIN' }
+  ];
+
+  constructor(private userService: UserService, private fb: FormBuilder, private notification: NzNotificationService) { // ADDED: Inject notification service
     // Create the form group with validators.
     this.userForm = this.fb.group({
       id: [null],
@@ -69,10 +79,16 @@ export class AdminusersComponent implements OnInit {
   deleteRow(id: number): void {
     this.userService.deleteUser(id).subscribe({
       next: () => {
+        this.fetchUsers();
         this.listOfData = this.listOfData.filter(user => user.id !== id);
+        // ADDED: Success notification for delete
+        this.notification.success('Succès', 'Utilisateur supprimé avec succès!', 
+          { nzPlacement: 'top' });
       },
       error: (err) => {
+        this.fetchUsers();
         console.error('Failed to delete user:', err);
+        
       }
     });
   }
@@ -115,8 +131,16 @@ export class AdminusersComponent implements OnInit {
         next: () => {
           this.fetchUsers();
           this.closeEditModal();
+          // ADDED: Success notification for add
+          this.notification.success('Succès', 'Utilisateur ajouté avec succès!', 
+            { nzPlacement: 'top' });
         },
-        error: (err) => console.error('Failed to add user:', err)
+        error: (err) => {
+          console.error('Failed to add user:', err);
+          // ADDED: Error notification for add
+          this.notification.error('Erreur', 'Échec de l\'ajout de l\'utilisateur!', 
+            { nzPlacement: 'top' });
+        }
       });
     } else {
       // For editing, we assume the user already has an ID.
@@ -132,10 +156,17 @@ export class AdminusersComponent implements OnInit {
         next: () => {
           this.fetchUsers();
           this.closeEditModal();
+          // ADDED: Success notification for update
+          this.notification.success('Succès', 'Utilisateur modifié avec succès!', 
+            { nzPlacement: 'top' });
         },
-        error: (err) => console.error('Failed to update user:', err)
+        error: (err) => {
+          console.error('Failed to update user:', err);
+          // ADDED: Error notification for update
+          this.notification.error('Erreur', 'Échec de la modification de l\'utilisateur!', 
+            { nzPlacement: 'top' });
+        }
       });
     }
   }
 }
-

@@ -52,11 +52,11 @@
                 class="shadow-sm form-control"
                 type="email"
                 formControlName="email"
-                placeholder="Email">
+                placeholder="Email (@soprahr.com)">
               <div *ngIf="isFieldInvalid('email')" class="text-danger small">
-                <!-- On peut détailler plusieurs types d'erreurs -->
-                <div *ngIf="signupForm.get('email')?.errors?.['required']">L'email est obligatoire.</div>
-                <div *ngIf="signupForm.get('email')?.errors?.['email']">Format d'email invalide.</div>
+                <div *ngIf="getFieldErrors('email')?.['required']">L'email est obligatoire.</div>
+                <div *ngIf="getFieldErrors('email')?.['email']">Format d'email invalide.</div>
+                <div *ngIf="getFieldErrors('email')?.['invalidDomain']">L'email doit se terminer par &#64;soprahr.com</div>
               </div>
             </div>
             <div class="mb-3">
@@ -66,7 +66,12 @@
                 formControlName="password"
                 placeholder="Mot de passe">
               <div *ngIf="isFieldInvalid('password')" class="text-danger small">
-                Le mot de passe est obligatoire.
+                <div *ngIf="getFieldErrors('password')?.['required']">Le mot de passe est obligatoire.</div>
+                <div *ngIf="getFieldErrors('password')?.['minLength']">Le mot de passe doit contenir au moins 8 caractères.</div>
+                <div *ngIf="getFieldErrors('password')?.['lowercase']">Le mot de passe doit contenir au moins une lettre minuscule.</div>
+                <div *ngIf="getFieldErrors('password')?.['uppercase']">Le mot de passe doit contenir au moins une lettre majuscule.</div>
+                <div *ngIf="getFieldErrors('password')?.['number']">Le mot de passe doit contenir au moins un chiffre.</div>
+                <div *ngIf="getFieldErrors('password')?.['specialChar']">Le mot de passe doit contenir au moins un caractère spécial (!&#64;#$%^&*...).</div>
               </div>
             </div>
             <div class="mb-3">
