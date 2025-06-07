@@ -149,7 +149,7 @@ export class CalendarComponent implements OnInit {
         title: training.title,
         description: training.description,
         durationInHours: training.durationInHours,
-        formateurEmail: training.formateurEmail || '',
+        formateurEmail: training.formateurEmail || training.formateur?.email || training.instructor?.email || '',
       });
 
       // Clear existing sessions

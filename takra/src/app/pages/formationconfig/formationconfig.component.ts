@@ -149,7 +149,7 @@ export class FormationconfigComponent implements OnInit {
       next: data => {
         this.events = (data as any[]).map(event => ({
           ...event,
-          formateurEmail: event.formateurEmail || ''
+           formateurEmail: event.formateurEmail || event.formateur?.email || ''
         })) as Event[];
         console.log('Formations chargées:', this.events);
         // Format dates for display
@@ -195,6 +195,10 @@ export class FormationconfigComponent implements OnInit {
       this.sessionService.getTrainingById(ev.id).subscribe({
         next: (updatedEvent) => {
           console.log('Formation récupérée pour modification:', updatedEvent);
+           if (!updatedEvent.formateurEmail && ev.formateurEmail) {
+          updatedEvent.formateurEmail = ev.formateurEmail;
+          console.log('Email du formateur préservé depuis les données locales:', ev.formateurEmail);
+        }
           this.patchFormWithEventData(updatedEvent);
         },
         error: (err) => {
