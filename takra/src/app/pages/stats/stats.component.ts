@@ -1,3 +1,10 @@
+export interface StatsResponse {
+  totalUsers: number;
+  averageHours: number;  // Changé de avgHourlyTraining à averageHours
+  totalTrainings: number;
+}
+
+// SOLUTION 2: Modifier le component pour utiliser le bon nom de propriété
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -28,7 +35,7 @@ export class StatsComponent implements OnInit {
   chartOptions: echarts.EChartsOption = {};
   loading = true;
   totalUsers: number = 0;
-  avgHourlyTraining: number = 0;
+  avgHourlyTraining: number = 0;  // Gardez cette propriété pour le template
   totalTrainings: number = 0;
 
   constructor(private statsService: StatsService) {}
@@ -52,16 +59,24 @@ export class StatsComponent implements OnInit {
   }
   
   loadStaticStats(): void {
-  this.statsService.getTotalTrainingsAndUsers().subscribe({
-    next: stats => {
-      this.totalUsers = stats.totalUsers;
-      this.avgHourlyTraining = stats.avgHourlyTraining;
-      this.totalTrainings = stats.totalTrainings;
-    },
-    error: err => console.error('Erreur stats statiques:', err)
-  });
-}
-  
+    this.statsService.getTotalTrainingsAndUsers().subscribe({
+      next: (stats: any) => {
+        console.log('Stats reçues:', stats);
+        
+        this.totalUsers = stats.totalUsers || 0;
+        this.avgHourlyTraining = stats.averageHours || 0;  // Utilisez averageHours au lieu de avgHourlyTraining
+        this.totalTrainings = stats.totalTrainings || 0;
+        
+        console.log('avgHourlyTraining assigné:', this.avgHourlyTraining);
+      },
+      error: err => {
+        console.error('Erreur stats statiques:', err);
+        this.totalUsers = 0;
+        this.avgHourlyTraining = 0;
+        this.totalTrainings = 0;
+      }
+    });
+  }
 
   updateChartOptions(months: string[], counts: number[]): void {
     this.chartOptions = {
