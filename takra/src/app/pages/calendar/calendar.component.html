@@ -135,15 +135,15 @@
               </div>
 
               <div class="form-group">
-                <label>Session Type:</label>
+                <label>Type de Session :</label>
                 <select formControlName="type" class="form-control">
-                  <option value="ONLINE">Online</option>
-                  <option value="OFFLINE">Onsite</option>
+                  <option value="ONLINE">en ligne</option>
+                  <option value="OFFLINE">sur site</option>
                 </select>
               </div>
 
               <div class="form-group" *ngIf="session.get('type')?.value !== 'OFFLINE'">
-                <label>Meeting Link:</label>
+                <label>lien du meet:</label>
                 <input type="text" formControlName="linkMeet" class="form-control">
               </div>
             </div>
