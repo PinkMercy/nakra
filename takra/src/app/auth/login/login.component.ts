@@ -49,7 +49,8 @@ export class LoginComponent {
         },
         error: () => {
           this.errorMessage = 'Identifiants invalides. Veuillez réessayer.';
-          this.notification.error('Error', 'Identifiants invalides. Veuillez réessayer.');
+          this.notification.error('Error', 'Identifiants invalides. Veuillez réessayer.',
+          { nzPlacement: 'bottomRight' });
         }
       });
     } 

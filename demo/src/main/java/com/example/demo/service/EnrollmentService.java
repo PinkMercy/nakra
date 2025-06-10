@@ -269,7 +269,7 @@ public class EnrollmentService {
             if (today.isBefore(trainingDate)) {
                 status = "planifier";
             } else if (today.isEqual(trainingDate)) {
-                status = "en cours";
+                status = "en_cours";
             } else {
                 status = "terminer";
             }
