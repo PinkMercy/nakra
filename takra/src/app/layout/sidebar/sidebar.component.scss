@@ -1,19 +1,20 @@
 /* Ensure the overall layout fills the viewport */
 .app-layout {
   min-height: 100vh;
-  overflow: hidden; // Prevent any unwanted scrolling on the overall layout
+  overflow: hidden;
 }
  
 /* Sidebar styling */
 .menu-sidebar {
-  background: #001529; // Dark background (adjust as needed)
+  background: #001529;
+  overflow: hidden;
 }
  
 /* Main layout area, using flex to stack header and content */
 .site-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;  // Ensure the content area fills the remaining height
+  height: 100vh;
 }
  
 /* Header styling */
@@ -27,20 +28,21 @@
  
 /* Content area styling */
 .site-content {
-  flex: 1;                // Take remaining vertical space
-  margin: 24px 16px;      // Outer margins for spacing from edges
-  overflow: auto;         // Allow internal scrolling if needed
+  flex: 1;
+  margin: 24px 16px;
+  overflow: auto;
   background: #fff;
 }
  
 /* Container to limit content width and center it */
 .content-container {
-  max-width: 1200px;  // Adjust maximum width as needed
+  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;     // Center horizontally
-  padding: 20px;      // Inner padding for content spacing
-  box-sizing: border-box; // Include padding in width calculations
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
+
 .header-trigger {
   cursor: pointer;
   display: inline-flex;
@@ -49,22 +51,83 @@
  
 /* Adjust the icon size */
 .header-trigger nz-icon.trigger {
-  font-size: 20px; /* Adjust this value as needed */
+  font-size: 20px;
   transition: font-size 0.3s;
 }
+
 .sidebar-logo {
-  display: flex;              // Use flex to align the items
-  align-items: center;        // Vertically center the logo and text
-  padding: 16px;              // Adjust padding as needed
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.3s ease;
 }
  
 .sidebar-logo img {
-  width: 40px;                // Set a fixed width for the logo image
-  height: auto;               // Maintain aspect ratio
-  margin-right: 8px;          // Adjust the space between the image and the text
+  width: 40px;
+  height: auto;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
  
 .sidebar-logo h1 {
-  font-size: 18px;            // Adjust the text size as needed
-  margin: 0;                  // Remove default margin
+  font-size: 18px;
+  margin: 0;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Quand le sidebar est collapsé, cache le texte */
+.menu-sidebar.ant-layout-sider-collapsed .sidebar-logo h1 {
+  display: none;
+}
+
+/* Espacement entre les icônes et les liens dans les menu items */
+.menu-sidebar ul[nz-menu] li[nz-menu-item] {
+  display: flex;
+  align-items: center;
+}
+
+.menu-sidebar ul[nz-menu] li[nz-menu-item] i[nz-icon] {
+  margin-right: 12px; /* Espacement entre l'icône et le texte */
+  font-size: 16px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0; /* Empêche l'icône de se rétrécir */
+}
+
+.menu-sidebar ul[nz-menu] li[nz-menu-item] a {
+  flex: 1; /* Le lien prend le reste de l'espace */
+  text-decoration: none;
+}
+
+/* Style pour les liens cliquables (déconnexion) */
+.menu-sidebar ul[nz-menu] li[nz-menu-item] a[ng-reflect-router-link] {
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.3s;
+}
+
+.menu-sidebar ul[nz-menu] li[nz-menu-item] a[ng-reflect-router-link]:hover {
+  color: #fff;
+}
+
+/* Assurer que le contenu du menu item est bien aligné */
+.menu-sidebar .ant-menu-item-selected {
+  background-color: #1890ff !important;
+}
+
+/* Style pour les sous-menus */
+.menu-sidebar .ant-menu-submenu > .ant-menu-submenu-title {
+  display: flex;
+  align-items: center;
+}
+
+.menu-sidebar .ant-menu-submenu > .ant-menu-submenu-title i[nz-icon] {
+  margin-right: 12px;
+  font-size: 16px;
+  width: 16px;
+  text-align: center;
 }

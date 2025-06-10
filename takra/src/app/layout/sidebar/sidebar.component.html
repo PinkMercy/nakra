@@ -7,20 +7,20 @@
             [nzTrigger]="null">
     <div class="sidebar-logo">
       <img src="../../../assets/img/sopraLogo (1).png" alt="logo">
-      <h1 style="color:aliceblue">SopraFormation</h1>
+      <h1 *ngIf="!isCollapsed" style="color:aliceblue">SopraFormation</h1>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
       <li nz-submenu [nzOpen]="true" nzTitle="Dashboard">
-        <i nz-icon nzType="dashboard" nzTheme="outline"></i>
+        
         <ul>
           <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="home" nzTheme="outline"></i>
-            <a routerLink="stats">Page d’accueil</a>
+            <a routerLink="stats">Page d'accueil</a>
           </li>
           <!-- Pour les USER -->
           <li *ngIf="activeRole === 'USER'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="home" nzTheme="outline"></i>
-            <a routerLink="/home/welcome">Page d’accueil</a>
+            <a routerLink="/home/welcome">Page d'accueil</a>
           </li>
           <li *ngIf="activeRole === 'USER'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="calendar" nzTheme="outline"></i>
@@ -52,7 +52,6 @@
             <i nz-icon nzType="logout" nzTheme="outline"></i>
             <a (click)="logout()">Déconnexion</a>
           </li>
-         
         </ul>
       </li>
     </ul>
@@ -72,12 +71,10 @@
           <li nz-menu-item (click)="setActiveRole('ADMIN')">changer vers Administrateur</li>
           <li nz-menu-item (click)="setActiveRole('USER')">changer vers Utilisateur </li>
           <li nz-menu-item nzMatchRouter *ngIf="activeRole === 'ADMIN'">
-            
             <a routerLink="profile">Profile</a>
           </li>
           <!-- Déconnexion -->
           <li nz-menu-item nzMatchRouter>
-            
             <a (click)="logout()">Déconnexion</a>
           </li>
         </ul>
