@@ -19,6 +19,7 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -56,7 +57,7 @@ export class SidebarComponent implements OnInit {
   userRole: string | null = null;  // Rôle réel de l'utilisateur
   activeRole: string | null = null; // Rôle actif choisi
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,private authService: AuthService,) {}
 
   ngOnInit(): void {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -71,7 +72,18 @@ export class SidebarComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login']);
-  }
+  this.authService.logout().subscribe({
+    next: (response) => {
+      console.log('Déconnexion réussie:', response);
+      // Rediriger vers la page de connexion
+      this.router.navigate(['/login']);
+    },
+    error: (error) => {
+      console.error('Erreur lors de la déconnexion:', error);
+      // Même si la déconnexion échoue côté serveur, on nettoie le localStorage
+      this.authService.clearLocalStorage();
+      // Rediriger quand même vers la page de connexion
+      this.router.navigate(['/login']);
+    }
+  });}
 }
