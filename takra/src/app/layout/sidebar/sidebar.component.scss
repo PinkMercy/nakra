@@ -80,41 +80,82 @@
   min-width: 0;
 }
 
-/* Quand le sidebar est collapsé, cache le texte */
+/* Quand le sidebar est collapsé, cache le texte du logo */
 .menu-sidebar.ant-layout-sider-collapsed .sidebar-logo h1 {
   display: none;
 }
 
-/* Espacement entre les icônes et les liens dans les menu items */
+/* Style pour les menu items normaux */
 .menu-sidebar ul[nz-menu] li[nz-menu-item] {
   display: flex;
   align-items: center;
+  padding: 0 24px;
+  height: 40px;
+  line-height: 40px;
 }
 
 .menu-sidebar ul[nz-menu] li[nz-menu-item] i[nz-icon] {
-  margin-right: 12px; /* Espacement entre l'icône et le texte */
+  margin-right: 12px;
   font-size: 16px;
   width: 16px;
   text-align: center;
-  flex-shrink: 0; /* Empêche l'icône de se rétrécir */
+  flex-shrink: 0;
 }
 
 .menu-sidebar ul[nz-menu] li[nz-menu-item] a {
-  flex: 1; /* Le lien prend le reste de l'espace */
+  flex: 1;
   text-decoration: none;
-}
-
-/* Style pour les liens cliquables (déconnexion) */
-.menu-sidebar ul[nz-menu] li[nz-menu-item] a[ng-reflect-router-link] {
   color: rgba(255, 255, 255, 0.65);
   transition: color 0.3s;
 }
 
-.menu-sidebar ul[nz-menu] li[nz-menu-item] a[ng-reflect-router-link]:hover {
+.menu-sidebar ul[nz-menu] li[nz-menu-item] a:hover {
   color: #fff;
 }
 
-/* Assurer que le contenu du menu item est bien aligné */
+/* NOUVEAU: Styles pour la sidebar collapsée */
+.menu-sidebar.ant-layout-sider-collapsed ul[nz-menu] li[nz-menu-item] {
+  padding: 0;
+  text-align: center;
+  justify-content: center;
+}
+
+.menu-sidebar.ant-layout-sider-collapsed ul[nz-menu] li[nz-menu-item] i[nz-icon] {
+  margin-right: 0;
+  font-size: 18px;
+}
+
+.menu-sidebar.ant-layout-sider-collapsed ul[nz-menu] li[nz-menu-item] a {
+  /* Garder le lien fonctionnel mais masquer le texte */
+  font-size: 0;
+  line-height: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Assurer que les icônes restent visibles et centrées */
+.menu-sidebar.ant-layout-sider-collapsed .ant-menu-item {
+  padding: 0 !important;
+  text-align: center;
+  position: relative;
+}
+
+.menu-sidebar.ant-layout-sider-collapsed .ant-menu-item > i[nz-icon] {
+  margin: 0 !important;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  pointer-events: none; /* L'icône ne bloque pas le clic sur le lien */
+}
+
+/* Style pour les éléments sélectionnés */
 .menu-sidebar .ant-menu-item-selected {
   background-color: #1890ff !important;
 }
@@ -129,5 +170,12 @@
   margin-right: 12px;
   font-size: 16px;
   width: 16px;
+  text-align: center;
+}
+
+/* Pour les sous-menus collapsés */
+.menu-sidebar.ant-layout-sider-collapsed .ant-menu-submenu > .ant-menu-submenu-title i[nz-icon] {
+  margin-right: 0;
+  width: 100%;
   text-align: center;
 }

@@ -10,9 +10,9 @@
       <h1 *ngIf="!isCollapsed" style="color:aliceblue">SopraFormation</h1>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-submenu [nzOpen]="true" nzTitle="Dashboard">
+      
         
-        <ul>
+        
           <li *ngIf="activeRole === 'ADMIN'" nz-menu-item nzMatchRouter>
             <i nz-icon nzType="home" nzTheme="outline"></i>
             <a routerLink="stats">Page d'accueil</a>
@@ -53,8 +53,8 @@
             <a (click)="logout()">Déconnexion</a>
           </li>
         </ul>
-      </li>
-    </ul>
+      
+    
   </nz-sider>
 
   <nz-layout class="site-layout">
