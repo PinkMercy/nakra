@@ -3,9 +3,12 @@ package com.example.demo.controller.auth;
 import com.example.demo.config.JwtService;
 import com.example.demo.dto.UserDto;
 import com.example.demo.model.Role;
+import com.example.demo.model.Training;
 import com.example.demo.model.User;
+import com.example.demo.repository.TrainingRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +25,8 @@ public class AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-
+    @Autowired
+    private TrainingRepository trainingRepository;
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
                 .firstname(request.getFirstname())
@@ -133,14 +137,23 @@ public class AuthenticationService {
         return repository.save(existingUser);
     }
 
-    // Delete a user by id
     public void deleteUser(Long id) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Revoke all tokens for this user before deleting
+        // 1. Trouver les formations créées par ce user
+        List<Training> createdTrainings = trainingRepository.findByCreatedBy(user);
+
+        // 2. Mettre createdBy à null
+        for (Training training : createdTrainings) {
+            training.setCreatedBy(null);
+        }
+        trainingRepository.saveAll(createdTrainings); // Mise à jour en base
+
+        // 3. Révoquer les tokens
         tokenService.revokeAllUserTokens(user);
 
+        // 4. Supprimer l'utilisateur
         repository.deleteById(id);
     }
 
