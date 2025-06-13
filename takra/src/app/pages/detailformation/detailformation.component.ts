@@ -16,7 +16,7 @@ interface Formation {
   id: number;
   title: string;
   description: string;
-  date: string;
+  date: string; // Format ISO ou YYYY-MM-DD
   durationInHours?: number;
   formateur: {
     id: number;
@@ -29,12 +29,12 @@ interface Formation {
 
 interface Session {
   id: number;
-  date: string;
+  date: string; // Format ISO ou YYYY-MM-DD
   timeStart: string;
   timeEnd: string;
   type: 'ONLINE' | 'INPERSON';
   room: any;
-  linkMeet?: string;  // Changé de meetingLink à linkMeet
+  linkMeet?: string;
 }
 
 interface TrainingRating {
@@ -46,15 +46,15 @@ interface TrainingRating {
   selector: 'app-detailformation',
   standalone: true,
   imports: [
-    CommonModule, 
-    CommentSectionComponent, 
+    CommonModule,
+    CommentSectionComponent,
     FormsModule,
     NzButtonModule,
     NzModalModule,
     NzIconModule
   ],
   templateUrl: './detailformation.component.html',
-  styleUrl: './detailformation.component.scss'
+  styleUrls: ['./detailformation.component.scss']
 })
 export class DetailformationComponent implements OnInit {
   formation: Formation | null = null;
@@ -67,7 +67,7 @@ export class DetailformationComponent implements OnInit {
   userRating = 0;
   trainingRating: TrainingRating = { averageRating: 0, ratingCount: 0 };
   isRatingLoading = false;
-  
+
   constructor(
     private route: ActivatedRoute,
     private sessionService: SessionService,
@@ -96,6 +96,9 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
+  /**
+   * Charge les détails de la formation via le service
+   */
   loadFormationDetails(id: number): void {
     this.isLoading = true;
     this.sessionService.getTrainingById(id).subscribe({
@@ -112,6 +115,9 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
+  /**
+   * Charge la note moyenne et le nombre d'avis pour la formation
+   */
   loadTrainingRating(trainingId: number): void {
     this.enrollmentService.getTrainingRating(trainingId).subscribe({
       next: (rating) => {
@@ -123,6 +129,9 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
+  /**
+   * Charge les inscriptions de l'utilisateur pour récupérer sa note (si déjà noté)
+   */
   loadUserEnrollment(userId: number, trainingId: number): void {
     this.enrollmentService.getUserEnrollments(userId).subscribe({
       next: (enrollments) => {
@@ -137,9 +146,11 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
+  /**
+   * Vérifie si l'utilisateur est inscrit
+   */
   checkEnrollmentStatus(formationId: number): void {
     if (!this.userId) return;
-    
     this.isEnrollmentLoading = true;
     this.enrollmentService.checkEnrollmentStatus(this.userId, formationId).subscribe({
       next: (enrolled) => {
@@ -152,7 +163,78 @@ export class DetailformationComponent implements OnInit {
       }
     });
   }
-  
+
+  /**
+   * Parse une date au format YYYY-MM-DD en Date locale à minuit
+   */
+  parseDateOnlyToLocalMidnight(dateStr: string): Date | null {
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return null;
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+    if ([year, month, day].some(x => isNaN(x))) return null;
+    return new Date(year, month - 1, day);
+  }
+
+  /**
+   * Retourne true si la date de formation est passée par rapport à aujourd'hui
+   * @param formationDateStr : date de la formation (ISO ou YYYY-MM-DD)
+   * @param considerSameDayAsPast : si true, considère la date du jour comme déjà passée (>=). Si false, permet inscription le jour même.
+   */
+  isFormationDatePast(formationDateStr: string, considerSameDayAsPast: boolean = false): boolean {
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    let formationMidnight: Date;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(formationDateStr)) {
+      const parsed = this.parseDateOnlyToLocalMidnight(formationDateStr);
+      if (!parsed) {
+        console.error('Impossible de parser date-only:', formationDateStr);
+        return true;
+      }
+      formationMidnight = parsed;
+    } else {
+      const fd = new Date(formationDateStr);
+      if (isNaN(fd.getTime())) {
+        console.error('Date de formation invalide:', formationDateStr);
+        return true;
+      }
+      formationMidnight = new Date(fd.getFullYear(), fd.getMonth(), fd.getDate());
+    }
+
+    if (considerSameDayAsPast) {
+      return todayMidnight >= formationMidnight;
+    } else {
+      return todayMidnight > formationMidnight;
+    }
+  }
+
+  /**
+   * Affiche-zones d'inscription si formation chargée
+   */
+  canShowEnrollButton(): boolean {
+    return !!this.formation;
+  }
+
+  /**
+   * Désactive le bouton d'inscription si la date est passée ou en cours de chargement
+   */
+  isEnrollButtonDisabled(): boolean {
+    if (!this.formation) return true;
+    // Autorise inscription jusqu'au jour même inclus => considerSameDayAsPast=false
+    if (this.isFormationDatePast(this.formation.date, false)) {
+      return true;
+    }
+    if (this.isEnrollmentLoading) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Toggle d'inscription/désinscription
+   */
   toggleEnrollment(): void {
     if (!this.userId || !this.formation) {
       this.notification.warning('Avertissement', 'Vous devez être connecté pour vous inscrire à une formation');
@@ -160,8 +242,9 @@ export class DetailformationComponent implements OnInit {
     }
 
     this.isEnrollmentLoading = true;
-    
+
     if (this.isEnrolled) {
+      // Désinscription
       this.enrollmentService.unenrollUser(this.userId, this.formation.id).subscribe({
         next: () => {
           this.isEnrolled = false;
@@ -175,26 +258,13 @@ export class DetailformationComponent implements OnInit {
         }
       });
     } else {
-      const formationDateStr = this.formation.date;
-      const formationDate = new Date(formationDateStr);
-      
-      if (isNaN(formationDate.getTime())) {
-        console.error('Invalid formation date:', formationDateStr);
-        this.notification.error('Erreur', 'Date de formation invalide');
+      // Inscription : vérification de la date
+      if (this.isFormationDatePast(this.formation.date, false)) {
+        this.notification.warning('Avertissement', 'L\'inscription à cette formation est fermée (date passée).');
         this.isEnrollmentLoading = false;
         return;
       }
-      
-      const currentDate = new Date('2025-05-18T15:02:00+01:00');
-      const currentDateMidnight = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-      const formationDateMidnight = new Date(formationDate.getFullYear(), formationDate.getMonth(), formationDate.getDate());
-      
-      if (currentDateMidnight > formationDateMidnight) {
-        this.notification.warning('Avertissement', 'L\'inscription à cette formation est fermée');
-        this.isEnrollmentLoading = false;
-        return;
-      }
-      
+      // Appel à l'API d'inscription
       this.enrollmentService.enrollUser(this.userId, this.formation.id).subscribe({
         next: () => {
           this.isEnrolled = true;
@@ -210,6 +280,9 @@ export class DetailformationComponent implements OnInit {
     }
   }
 
+  /**
+   * Notation de la formation par l'utilisateur
+   */
   rateTraining(stars: number): void {
     if (!this.userId || !this.formation || !this.isEnrolled) {
       this.notification.warning('Avertissement', 'Vous devez être abonné pour noter cette formation');
@@ -233,51 +306,48 @@ export class DetailformationComponent implements OnInit {
     });
   }
 
-  // Nouvelle méthode pour rejoindre la réunion avec modal Ng-Zorro
+  /**
+   * Ouvre une modal Ng-Zorro pour rejoindre la réunion
+   */
   joinMeeting(session: Session): void {
-    // Afficher les détails de la session dans la console
-    console.log('Session details:', {
-      id: session.id,
-      date: session.date,
-      timeStart: session.timeStart,
-      timeEnd: session.timeEnd,
-      type: session.type,
-      room: session.room,
-      linkMeet: session.linkMeet  // Changé de meetingLink à linkMeet
-    });
+    console.log('Session details:', session);
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let formationMidnight: Date | null = null;
+    if (this.formation) {
+      const dateStr = this.formation.date;
+      const parsed = this.parseDateOnlyToLocalMidnight(dateStr);
+      if (parsed) {
+        formationMidnight = parsed;
+      } else {
+        const fd = new Date(dateStr);
+        if (!isNaN(fd.getTime())) {
+          formationMidnight = new Date(fd.getFullYear(), fd.getMonth(), fd.getDate());
+        }
+      }
+    }
+    // Autorise jusqu'au jour même inclus
+    const canJoinMeeting = this.isEnrolled && formationMidnight && (todayMidnight <= formationMidnight);
 
-    const currentDate = new Date();
-    const sessionDate = new Date(session.date);
-    const formationDate = this.formation ? new Date(this.formation.date) : null;
-    
-    // Vérifier si l'utilisateur est inscrit et si la date système < date de formation
-    const canJoinMeeting = this.isEnrolled && 
-                          formationDate && 
-                          currentDate < formationDate;
-
-    // Créer le contenu de la modal
+    // Construction du contenu de la modal
     let modalContent = `
       <div style="padding: 20px;">
         <h3 style="margin-bottom: 16px; color: #1890ff;">Détails de la session</h3>
-        
         <div style="margin-bottom: 12px;">
           <strong>📅 Date:</strong> ${session.date}
         </div>
-        
         <div style="margin-bottom: 12px;">
           <strong>⏰ Horaire:</strong> ${this.formatTime(session.timeStart, session.timeEnd)}
         </div>
-        
         <div style="margin-bottom: 12px;">
           <strong>📍 Type:</strong> ${session.type === 'ONLINE' ? 'En ligne' : 'Présentiel'}
         </div>
-        
         <div style="margin-bottom: 16px;">
           <strong>🏢 Salle:</strong> ${session.room?.name || 'Non spécifiée'}
         </div>
     `;
 
-    if (canJoinMeeting && session.linkMeet) {  // Changé de meetingLink à linkMeet
+    if (canJoinMeeting && session.linkMeet) {
       modalContent += `
         <div style="padding: 16px; background-color: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; margin-bottom: 16px;">
           <p style="margin: 0 0 12px 0; color: #52c41a; font-weight: 500;">
@@ -294,15 +364,13 @@ export class DetailformationComponent implements OnInit {
       `;
     } else {
       let reasonMessage = '';
-      
       if (!this.isEnrolled) {
         reasonMessage = 'Vous devez être inscrit à cette formation pour rejoindre la session.';
-      } else if (formationDate && currentDate >= formationDate) {
+      } else if (formationMidnight && todayMidnight > formationMidnight) {
         reasonMessage = 'Cette session n\'est plus accessible (date dépassée).';
-      } else if (!session.linkMeet) {  // Changé de meetingLink à linkMeet
+      } else if (!session.linkMeet) {
         reasonMessage = 'Aucun lien de réunion n\'est disponible pour cette session.';
       }
-      
       modalContent += `
         <div style="padding: 16px; background-color: #fff2e8; border: 1px solid #ffbb96; border-radius: 6px;">
           <p style="margin: 0; color: #fa8c16; font-weight: 500;">
@@ -314,7 +382,7 @@ export class DetailformationComponent implements OnInit {
 
     modalContent += '</div>';
 
-    // Afficher la modal Ng-Zorro
+    // Affichage de la modal Ng-Zorro
     this.modal.info({
       nzTitle: 'Session de formation',
       nzContent: modalContent,
@@ -328,7 +396,7 @@ export class DetailformationComponent implements OnInit {
     return `${startTime} - ${endTime}`;
   }
 
-  getFormatterInitials(formateur: { firstname: string, lastname: string }): string {
+  getFormatterInitials(formateur: { firstname: string; lastname: string }): string {
     return `${formateur.firstname.charAt(0)}${formateur.lastname.charAt(0)}`;
   }
 }

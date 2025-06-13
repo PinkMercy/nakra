@@ -107,7 +107,7 @@ export class CommentSectionComponent implements OnInit {
           this.comments = [newComment, ...this.comments];
           this.commentForm.reset();
           this.isSubmitting = false;
-          this.message.success('Comment added successfully');
+          this.message.success('Commentaire ajouté avec succès');
         },
         error: (err) => {
           console.error('Error adding comment', err);
@@ -120,7 +120,7 @@ export class CommentSectionComponent implements OnInit {
   
   toggleLike(comment: Comment): void {
     if (!this.userId) {
-      this.message.warning('You must be logged in to like comments');
+      this.message.warning('Vous devez être connecté pour aimer les commentaires');
       return;
     }
     
@@ -134,14 +134,14 @@ export class CommentSectionComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error toggling like', err);
-        this.message.error('Failed to update like');
+        this.message.error('Échec de la mise à jour commentaire');
       }
     });
   }
   
   toggleDislike(comment: Comment): void {
     if (!this.userId) {
-      this.message.warning('You must be logged in to dislike comments');
+      this.message.warning('Vous devez être connecté pour ne pas aimer les commentaires');
       return;
     }
     
@@ -155,7 +155,7 @@ export class CommentSectionComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error toggling dislike', err);
-        this.message.error('Failed to update dislike');
+        this.message.error('Échec de la mise à jour de l aversion');
       }
     });
   }
@@ -166,11 +166,11 @@ export class CommentSectionComponent implements OnInit {
     this.commentService.deleteComment(commentId, this.userId).subscribe({
       next: () => {
         this.comments = this.comments.filter(c => c.id !== commentId);
-        this.message.success('Comment deleted successfully');
+        this.message.success('Commentaire supprimé avec succès');
       },
       error: (err) => {
         console.error('Error deleting comment', err);
-        this.message.error('Failed to delete comment');
+        this.message.error('Commentaire supprimé avec succès');
       }
     });
   }
