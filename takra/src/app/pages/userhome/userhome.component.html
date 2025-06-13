@@ -13,71 +13,81 @@
     </div>
   </div>
 
- <div class="top-trainings-container">
-      <div class="header">
-        <h2>🏆 Top Formations</h2>
-        <div class="navigation-buttons">
-          <button 
-            class="nav-btn prev-btn" 
-            (click)="previousPage()" 
-            [disabled]="currentPage === 0"
-            [class.disabled]="currentPage === 0">
-            ← Précédent
-          </button>
-          <span class="page-indicator">
-            {{ currentPage + 1 }} / {{ getTotalPages() }}
-          </span>
-          <button 
-            class="nav-btn next-btn" 
-            (click)="nextPage()" 
-            [disabled]="currentPage >= getTotalPages() - 1"
-            [class.disabled]="currentPage >= getTotalPages() - 1">
-            Suivant →
-          </button>
-        </div>
+  <div class="top-trainings-container">
+    <div class="header">
+      <h2>🏆 Top Formations</h2>
+      <div class="navigation-buttons">
+        <button 
+          class="nav-btn prev-btn" 
+          (click)="previousPage()" 
+          [disabled]="currentPage === 0"
+          [class.disabled]="currentPage === 0">
+          ← Précédent
+        </button>
+        <span class="page-indicator">
+          {{ currentPage + 1 }} / {{ getTotalPages() }}
+        </span>
+        <button 
+          class="nav-btn next-btn" 
+          (click)="nextPage()" 
+          [disabled]="currentPage >= getTotalPages() - 1"
+          [class.disabled]="currentPage >= getTotalPages() - 1">
+          Suivant →
+        </button>
       </div>
+    </div>
 
-      <div class="trainings-list" *ngIf="!loading; else loadingTemplate">
-        <div 
-          *ngFor="let training of getCurrentPageTrainings(); let i = index" 
-          class="training-card"
-          [class.rank-1]="getRank(training) === 1"
-          [class.rank-2]="getRank(training) === 2"
-          [class.rank-3]="getRank(training) === 3">
+    <div class="trainings-list" *ngIf="!loading; else loadingTemplate">
+      <div 
+        *ngFor="let training of getCurrentPageTrainings(); let i = index" 
+        class="training-card clickable-card"
+        [class.rank-1]="getRank(training) === 1"
+        [class.rank-2]="getRank(training) === 2"
+        [class.rank-3]="getRank(training) === 3"
+        (click)="onTrainingClick(training)"
+        tabindex="0"
+        (keydown.enter)="onTrainingClick(training)"
+        (keydown.space)="onTrainingClick(training)">
+        
+        <div class="rank-badge">
+          <span class="rank-number">#{{ getRank(training) }}</span>
+        </div>
+        
+        <div class="training-content">
+          <h3 class="training-title">{{ training.title }}</h3>
+          <p class="training-description">{{ training.description }}</p>
           
-          <div class="rank-badge">
-            <span class="rank-number">#{{ getRank(training) }}</span>
-          </div>
-          
-          <div class="training-content">
-            <h3 class="training-title">{{ training.title }}</h3>
-            <p class="training-description">{{ training.description }}</p>
+          <div class="training-stats">
+            <div class="stars-display">
+              <span class="stars-icon">⭐</span>
+              <span class="stars-count">{{ training.averageStars | number:'1.1-1' }}</span>
+              <span class="stars-text">moyenne</span>
+            </div>
             
-            <div class="training-stats">
-              <div class="stars-display">
-                <span class="stars-icon">⭐</span>
-                <span class="stars-count">{{ training.averageStars | number:'1.1-1' }}</span>
-                <span class="stars-text">moyenne</span>
-              </div>
-              
-              <div class="enrollment-count">
-                <span class="participants-icon">👥</span>
-                <span class="participants-count">{{ training.enrollmentCount }}</span>
-                <span class="participants-text">participants</span>
-              </div>
+            <div class="enrollment-count">
+              <span class="participants-icon">👥</span>
+              <span class="participants-count">{{ training.enrollmentCount }}</span>
+              <span class="participants-text">participants</span>
             </div>
           </div>
         </div>
 
-        <div *ngIf="topTrainings.length === 0" class="no-data">
-          <p>Aucune formation trouvée</p>
+        <!-- Optional: Add a visual indicator that the card is clickable -->
+        <div class="click-indicator">
+          <span class="arrow-icon">→</span>
         </div>
       </div>
 
-      <ng-template #loadingTemplate>
-        <div class="loading-container">
-          <div class="loading-spinner"></div>
-          <p>Chargement des formations...</p>
-        </div>
-      </ng-template>
+      <div *ngIf="topTrainings.length === 0" class="no-data">
+        <p>Aucune formation trouvée</p>
+      </div>
     </div>
+
+    <ng-template #loadingTemplate>
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Chargement des formations...</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

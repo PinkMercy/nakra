@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 import * as echarts from 'echarts';
 import { StatsService } from '../../services/stats.service';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
+
 interface TrainingStats {
   trainingId: number;
   title: string;
@@ -11,6 +13,7 @@ interface TrainingStats {
   averageStars: number;
   enrollmentCount: number;
 }
+
 @Component({
   selector: 'app-userhome',
   imports: [CommonModule, HttpClientModule, NgxEchartsModule],
@@ -33,26 +36,31 @@ export class UserhomeComponent {
   currentPage = 0;
   itemsPerPage = 3;
 
-  constructor(private statsService: StatsService) {}
+  constructor(
+    private statsService: StatsService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadTrainingStats();
     this.loadTopTrainings();
   }
-loadTopTrainings(): void {
-  console.log('🔍 Chargement des formations...');
-  this.statsService.getTopTrainingsByStars().subscribe({
-    next: (data: TrainingStats[]) => {
-      console.log('📊 Données reçues:', data);
-      this.topTrainings = data;
-      this.loading = false;
-    },
-    error: (error) => {
-      console.error('❌ Erreur:', error);
-      this.loading = false;
-    }
-  });
-}
+
+  loadTopTrainings(): void {
+    console.log('🔍 Chargement des formations...');
+    this.statsService.getTopTrainingsByStars().subscribe({
+      next: (data: TrainingStats[]) => {
+        console.log('📊 Données reçues:', data);
+        this.topTrainings = data;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('❌ Erreur:', error);
+        this.loading = false;
+      }
+    });
+  }
+
   getCurrentPageTrainings(): TrainingStats[] {
     const startIndex = this.currentPage * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -78,6 +86,12 @@ loadTopTrainings(): void {
   getRank(training: TrainingStats): number {
     return this.topTrainings.indexOf(training) + 1;
   }
+
+  // New method to handle training card click
+  onTrainingClick(training: TrainingStats): void {
+    this.router.navigate(['/home/detailformation', training.trainingId]);
+  }
+
   loadTrainingStats(): void {
     this.statsService.getTrainingsPerMonth().subscribe({
       next: (data) => {
