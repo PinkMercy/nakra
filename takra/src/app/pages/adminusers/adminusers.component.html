@@ -58,11 +58,14 @@
 </div>
 
       <label>Email:</label>
-      <input nz-input formControlName="email" />
-      <div *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid" class="error">
+      <input nz-input 
+       formControlName="email" 
+       [disabled]="!isAddMode"
+       [class.disabled-input]="!isAddMode" />
+      <div *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid && isAddMode" class="error">
         <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
         <div *ngIf="userForm.get('email')?.errors?.['email']">Invalid email format.</div>
-      </div>
+      </div>  
 
       <label>Mot de passe:</label>
       <input nz-input type="password" formControlName="password" />
