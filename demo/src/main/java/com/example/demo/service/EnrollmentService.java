@@ -24,7 +24,8 @@ public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
     private final TrainingRepository trainingRepository;
-    private final JavaMailSender mailSender;  // Composant pour envoyer des emails
+    private final JavaMailSender mailSender;
+
     @Autowired
     public EnrollmentService(EnrollmentRepository enrollmentRepository,
                              UserRepository userRepository,
@@ -33,8 +34,7 @@ public class EnrollmentService {
         this.enrollmentRepository = enrollmentRepository;
         this.userRepository = userRepository;
         this.trainingRepository = trainingRepository;
-        this.mailSender = mailSender;  // Injection du bean JavaMailSender
-
+        this.mailSender = mailSender;
     }
 
     // Convert Enrollment entity to DTO
@@ -88,8 +88,15 @@ public class EnrollmentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Enrollment not found for user " + userId + " and training " + trainingId));
 
+        // Get user and training objects for email
+        User user = enrollment.getUser();
+        Training training = enrollment.getTraining();
+
         // Delete the enrollment
         enrollmentRepository.delete(enrollment);
+
+        // Send unenrollment email
+        sendUnenrollmentEmail(user, training);
     }
 
     public boolean isUserEnrolled(Long userId, Long trainingId) {
@@ -102,28 +109,50 @@ public class EnrollmentService {
      * @param training la formation à laquelle on invite
      */
     private void sendInvitationEmail(User user, Training training) {
-        // Création d'un message simple
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(user.getEmail());  // Destinataire : l'email de l'utilisateur
+        message.setTo(user.getEmail());
         message.setSubject("Invitation à la formation \"" + training.getTitle() + "\"");
-        // Corps du message en français
         String text = String.format(
                 "Bonjour %s,\n\n" +
                         "Vous êtes cordialement invité(e) à participer à la formation \"%s\" qui aura lieu le %s.\n" +
                         "Pour vous inscrire, veuillez vous connecter à votre compte.\n\n" +
                         "À bientôt,\n" +
                         "L'équipe de formation",
-                user.getFirstname(),                  // Prénom de l'utilisateur
-                training.getTitle(),                  // Titre de la formation
-                training.getDate().toString()         // Date de la formation (LocalDate)
+                user.getFirstname(),
+                training.getTitle(),
+                training.getDate().toString()
         );
         message.setText(text);
-        mailSender.send(message);  // Envoi de l'email via Mailtrap
+        mailSender.send(message);
     }
 
-
-
-
+    /**
+     * Envoie un email de confirmation de désinscription à un utilisateur.
+     * @param user   l'utilisateur désinscrit
+     * @param training la formation de laquelle il a été désinscrit
+     */
+    private void sendUnenrollmentEmail(User user, Training training) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(user.getEmail());
+            message.setSubject("Désinscription de la formation \"" + training.getTitle() + "\"");
+            String text = String.format(
+                    "Bonjour %s,\n\n" +
+                            "Nous vous confirmons votre désinscription de la formation \"%s\" prévue le %s.\n" +
+                            "Si cette désinscription n'était pas intentionnelle, veuillez nous contacter.\n\n" +
+                            "Cordialement,\n" +
+                            "L'équipe de formation",
+                    user.getFirstname(),
+                    training.getTitle(),
+                    training.getDate().toString()
+            );
+            message.setText(text);
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'envoi de l'email de désinscription pour l'utilisateur " +
+                    user.getId() + " : " + e.getMessage());
+        }
+    }
 
     /**
      * Invite plusieurs utilisateurs à une formation
@@ -132,7 +161,6 @@ public class EnrollmentService {
      * @return liste des IDs des utilisateurs qui ont été invités avec succès
      */
     public List<Long> inviteUsers(Long trainingId, List<Long> userIds) {
-        // Recherche de la formation, ou exception si non trouvée
         Training training = trainingRepository.findById(trainingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formation non trouvée"));
 
@@ -140,41 +168,66 @@ public class EnrollmentService {
 
         for (Long userId : userIds) {
             try {
-                // Vérifie que l'utilisateur existe
                 User user = userRepository.findById(userId)
                         .orElseThrow(() -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND, "Utilisateur avec l'ID " + userId + " non trouvé"));
 
-                // Si déjà inscrit, on passe au suivant
                 if (enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId).isPresent()) {
                     continue;
                 }
 
-                // Inscription à la formation
                 Enrollment enrollment = new Enrollment();
                 enrollment.setUser(user);
                 enrollment.setTraining(training);
                 enrollment.setStars(0);
                 enrollmentRepository.save(enrollment);
 
-                // Envoi de l'email d'invitation
                 sendInvitationEmail(user, training);
-
-                // Ajout à la liste des invitations réussies
                 successfulInvitations.add(userId);
 
             } catch (Exception e) {
-                // En cas d'erreur (inscription ou email), on log et on continue
                 System.err.println("Échec de l'invitation pour l'utilisateur " + userId + " : " + e.getMessage());
             }
         }
         return successfulInvitations;
     }
 
+    /**
+     * Désinscrire plusieurs utilisateurs d'une formation
+     * @param trainingId ID de la formation
+     * @param userIds    liste des IDs d'utilisateurs à désinscrire
+     * @return liste des IDs des utilisateurs qui ont été désinscrit avec succès
+     */
+    public List<Long> unenrollUsers(Long trainingId, List<Long> userIds) {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formation non trouvée"));
 
+        List<Long> successfulUnenrollments = new ArrayList<>();
 
+        for (Long userId : userIds) {
+            try {
+                // Vérifier que l'inscription existe
+                Enrollment enrollment = enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Inscription non trouvée pour l'utilisateur " + userId + " et la formation " + trainingId));
 
+                User user = enrollment.getUser();
 
+                // Supprimer l'inscription
+                enrollmentRepository.delete(enrollment);
+
+                // Envoyer l'email de désinscription
+                sendUnenrollmentEmail(user, training);
+
+                // Ajouter à la liste des désinscriptions réussies
+                successfulUnenrollments.add(userId);
+
+            } catch (Exception e) {
+                System.err.println("Échec de la désinscription pour l'utilisateur " + userId + " : " + e.getMessage());
+            }
+        }
+        return successfulUnenrollments;
+    }
 
     /**
      * Update the rating (stars) for a user's enrollment in a training
@@ -188,12 +241,10 @@ public class EnrollmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating must be between 0 and 5");
         }
 
-        // Find the enrollment
         Enrollment enrollment = enrollmentRepository.findByUserIdAndTrainingId(userId, trainingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "User must be enrolled to rate this training"));
 
-        // Update the rating
         enrollment.setStars(stars);
         Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
         return convertToDTO(updatedEnrollment);
@@ -205,11 +256,9 @@ public class EnrollmentService {
      * @return the average rating and count of ratings
      */
     public Map<String, Object> getTrainingRating(Long trainingId) {
-        // Check if training exists
         trainingRepository.findById(trainingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Training not found"));
 
-        // Get all enrollments for this training with stars > 0 (only count actual ratings)
         List<Enrollment> enrollments = enrollmentRepository.findByTrainingIdAndStarsGreaterThan(trainingId, 0);
 
         Map<String, Object> result = new HashMap<>();
@@ -218,10 +267,8 @@ public class EnrollmentService {
             result.put("averageRating", 0.0);
             result.put("ratingCount", 0);
         } else {
-            // Calculate average
             double sum = enrollments.stream().mapToInt(Enrollment::getStars).sum();
             double average = sum / enrollments.size();
-            // Round to 1 decimal place
             double roundedAverage = Math.round(average * 10.0) / 10.0;
 
             result.put("averageRating", roundedAverage);
@@ -230,37 +277,30 @@ public class EnrollmentService {
 
         return result;
     }
+
     /**
      * Get all enrollments for a specific training
      * @param trainingId the ID of the training
      * @return list of enrollment DTOs
      */
     public List<EnrollmentDTO> getEnrollmentsByTraining(Long trainingId) {
-        // Verify if training exists
         Training training = trainingRepository.findById(trainingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Training not found"));
 
-        // Get all enrollments for this training
         List<Enrollment> enrollments = enrollmentRepository.findByTrainingId(trainingId);
 
-        // Convert to DTOs
         return enrollments.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public List<Map<String, Object>> getAllEnrollments(Long userId) {
-        // Vérifier si l'utilisateur existe
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // Récupérer toutes les inscriptions de l'utilisateur
         List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
-
-        // Date système actuelle
         LocalDate today = LocalDate.now();
 
-        // Préparer la réponse
         return enrollments.stream().map(enrollment -> {
             Training training = enrollment.getTraining();
             LocalDate trainingDate = training.getDate();
@@ -274,7 +314,6 @@ public class EnrollmentService {
                 status = "terminer";
             }
 
-            // Créer une map contenant les détails
             Map<String, Object> trainingInfo = new HashMap<>();
             trainingInfo.put("trainingId", training.getId());
             trainingInfo.put("title", training.getTitle());
@@ -286,9 +325,4 @@ public class EnrollmentService {
             return trainingInfo;
         }).collect(Collectors.toList());
     }
-
-
-
-
-
 }

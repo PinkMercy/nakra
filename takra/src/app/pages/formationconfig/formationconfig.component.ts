@@ -395,6 +395,8 @@ export class FormationconfigComponent implements OnInit {
   private loadEnrolledUsers(eventId: number): void {
     this.enrollmentService.getTrainingEnrollments(eventId).subscribe({
       next: enrollments => {
+        console.log('Inscriptions reçues:', enrollments);
+        
         // Extraire les IDs des utilisateurs inscrits
         const enrolledUserIds = enrollments.map(enrollment => enrollment.userId);
         
@@ -403,11 +405,14 @@ export class FormationconfigComponent implements OnInit {
           enrolledUserIds.includes(user.id)
         );
         
-        console.log('Utilisateurs inscrits:', this.enrolledUsers);
+        console.log('Utilisateurs inscrits mis à jour:', this.enrolledUsers);
+        console.log('Nombre d\'utilisateurs inscrits:', this.enrolledUsers.length);
       },
       error: err => {
         console.error('Erreur lors du chargement des inscriptions:', err);
         this.message.error('Échec du chargement des inscriptions');
+        // En cas d'erreur, vider la liste pour éviter l'affichage d'informations obsolètes
+        this.enrolledUsers = [];
       }
     });
   }
@@ -428,9 +433,14 @@ export class FormationconfigComponent implements OnInit {
       return;
     }
 
+    // Trouver l'utilisateur à supprimer pour afficher son nom dans la confirmation
+    const userToRemove = this.enrolledUsers.find(user => user.id === userId);
+    const userName = userToRemove ? `${userToRemove.firstname} ${userToRemove.lastname}` : 'cet utilisateur';
+
     // Demander confirmation avant de supprimer
     this.modal.confirm({
-      nzTitle: 'Êtes-vous sûr de vouloir supprimer cet utilisateur de la formation ?',
+      nzTitle: `Êtes-vous sûr de vouloir supprimer ${userName} de la formation ?`,
+      nzContent: 'Cette action enverra un email de notification à l\'utilisateur.',
       nzOkText: 'Oui',
       nzOkType: 'primary',
       nzOkDanger: true,
@@ -439,13 +449,20 @@ export class FormationconfigComponent implements OnInit {
         // Appeler le service pour désinscrire l'utilisateur
         this.enrollmentService.unenrollUserFromTraining(userId, this.eventForInvitation!.id).subscribe({
           next: () => {
-            this.message.success('Utilisateur supprimé de la formation avec succès');
-            // Mettre à jour la liste des utilisateurs inscrits
+            // Mise à jour immédiate de la liste locale avant de recharger
+            this.enrolledUsers = this.enrolledUsers.filter(user => user.id !== userId);
+            
+            // Afficher le message de succès
+            this.message.success(`${userName} a été supprimé de la formation avec succès`);
+            
+            // Recharger la liste complète pour s'assurer de la cohérence
             this.loadEnrolledUsers(this.eventForInvitation!.id);
           },
           error: err => {
             console.error('Erreur lors de la suppression de l\'utilisateur:', err);
-            this.message.error(`Échec de la suppression: ${err.error?.message || err.message || 'Erreur inconnue'}`);
+            // Message d'erreur plus détaillé
+            const errorMessage = err.error?.message || err.message || 'Erreur inconnue';
+            this.message.error(`Échec de la suppression de ${userName}: ${errorMessage}`);
           }
         });
       }
