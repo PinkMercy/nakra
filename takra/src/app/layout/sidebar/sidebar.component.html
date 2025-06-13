@@ -62,10 +62,26 @@
       <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
         <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
       </span>
-      <!-- Ajout de l'avatar avec menu déroulant -->
-      <div *ngIf="userRole === 'ADMIN'" nz-dropdown [nzDropdownMenu]="roleMenu" style="margin-left: auto;">
-        <nz-avatar nzIcon="user"></nz-avatar>
+      
+      <!-- Section utilisateur avec avatar et nom -->
+      <div class="user-section" *ngIf="userRole === 'ADMIN'">
+        <div class="user-info">
+          <span class="user-name">{{ userFullName }}</span>
+          <span class="user-role">{{ activeRole }}</span>
+        </div>
+        <div nz-dropdown [nzDropdownMenu]="roleMenu" class="user-avatar">
+          <nz-avatar nzIcon="user"></nz-avatar>
+        </div>
       </div>
+
+      <!-- Pour les utilisateurs normaux (USER seulement) -->
+      <div class="user-section" *ngIf="userRole === 'USER'">
+        <div class="user-info">
+          <span class="user-name">{{ userFullName }}</span>
+        </div>
+        <nz-avatar nzIcon="user" class="user-avatar-simple"></nz-avatar>
+      </div>
+
       <nz-dropdown-menu #roleMenu="nzDropdownMenu">
         <ul nz-menu>
           <li nz-menu-item (click)="setActiveRole('ADMIN')">changer vers Administrateur</li>

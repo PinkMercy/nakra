@@ -32,8 +32,8 @@ import { AuthService } from '../../services/auth.service';
     NzLayoutModule,
     NzMenuModule,
     FullCalendarModule,
-    NzDropDownModule, // Ajout pour le menu déroulant
-    NzAvatarModule    // Ajout pour l'avatar
+    NzDropDownModule,
+    NzAvatarModule
   ],
   providers: [
     {
@@ -54,15 +54,24 @@ import { AuthService } from '../../services/auth.service';
 })
 export class SidebarComponent implements OnInit {
   isCollapsed = false;
-  userRole: string | null = null;  // Rôle réel de l'utilisateur
-  activeRole: string | null = null; // Rôle actif choisi
+  userRole: string | null = null;
+  activeRole: string | null = null;
+  
+  userFirstname: string = '';
+  userLastname: string = '';
+  userFullName: string = '';
 
-  constructor(private router: Router,private authService: AuthService,) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userRole = user?.role || null;
     this.activeRole = localStorage.getItem('activeRole') || this.userRole;
+    
+    // Récupération des informations utilisateur
+    this.userFirstname = user?.firstname || '';
+    this.userLastname = user?.lastname || '';
+    this.userFullName = `${this.userFirstname} ${this.userLastname}`.trim();
   }
 
   // Méthode pour changer le rôle actif
@@ -72,18 +81,16 @@ export class SidebarComponent implements OnInit {
   }
 
   logout(): void {
-  this.authService.logout().subscribe({
-    next: (response) => {
-      console.log('Déconnexion réussie:', response);
-      // Rediriger vers la page de connexion
-      this.router.navigate(['/login']);
-    },
-    error: (error) => {
-      console.error('Erreur lors de la déconnexion:', error);
-      // Même si la déconnexion échoue côté serveur, on nettoie le localStorage
-      this.authService.clearLocalStorage();
-      // Rediriger quand même vers la page de connexion
-      this.router.navigate(['/login']);
-    }
-  });}
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('Déconnexion réussie:', response);
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la déconnexion:', error);
+        this.authService.clearLocalStorage();
+        this.router.navigate(['/login']);
+      }
+    });
+  }
 }
