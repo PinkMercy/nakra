@@ -2,9 +2,9 @@ package com.example.demo.controller.auth;
 
 import com.example.demo.config.JwtService;
 import com.example.demo.dto.UserDto;
-import com.example.demo.model.Role;
-import com.example.demo.model.Training;
-import com.example.demo.model.User;
+import com.example.demo.model.*;
+import com.example.demo.repository.CommentRepository;
+import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.repository.TrainingRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,10 @@ public class AuthenticationService {
     private final TokenService tokenService;
     @Autowired
     private TrainingRepository trainingRepository;
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
+    private CommentRepository commentRepository;
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
                 .firstname(request.getFirstname())
@@ -141,19 +145,27 @@ public class AuthenticationService {
         User user = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // 1. Trouver les formations créées par ce user
+        // 1. Détacher les formations créées
         List<Training> createdTrainings = trainingRepository.findByCreatedBy(user);
-
-        // 2. Mettre createdBy à null
         for (Training training : createdTrainings) {
             training.setCreatedBy(null);
         }
-        trainingRepository.saveAll(createdTrainings); // Mise à jour en base
+        trainingRepository.saveAll(createdTrainings);
 
-        // 3. Révoquer les tokens
+        // 2. Supprimer le token de réinitialisation s’il existe
+        PasswordResetToken token = passwordResetTokenRepository.findByUser(user);
+        if (token != null) {
+            passwordResetTokenRepository.delete(token);
+        }
+
+        // 3. Supprimer tous les commentaires de l'utilisateur
+        List<Comment> userComments = commentRepository.findByUser(user);
+        commentRepository.deleteAll(userComments);
+
+        // 4. Révoquer les tokens
         tokenService.revokeAllUserTokens(user);
 
-        // 4. Supprimer l'utilisateur
+        // 5. Supprimer l'utilisateur
         repository.deleteById(id);
     }
 
