@@ -204,10 +204,67 @@ export class CalendarComponent implements OnInit {
   removeSession(index: number): void {
     this.sessions.removeAt(index);
   }
+private calculateTotalDurationInHours(): number {
+  let totalMinutes = 0;
 
-  onSubmit(): void {
+  // Ajouter la session principale
+  const timeStartMain = this.eventForm.get('timeStart')?.value;
+  const timeEndMain = this.eventForm.get('timeEnd')?.value;
+
+  if (timeStartMain && timeEndMain) {
+    const mainDuration = this.calculateSessionDuration(timeStartMain, timeEndMain);
+    if (mainDuration < 0) return -1;
+    totalMinutes += mainDuration;
+  }
+
+  // Ajouter les sessions supplémentaires
+  for (let sessionGroup of this.sessions.controls) {
+    const start = sessionGroup.get('timeStart')?.value;
+    const end = sessionGroup.get('timeEnd')?.value;
+
+    if (start && end) {
+      const sessionDuration = this.calculateSessionDuration(start, end);
+      if (sessionDuration < 0) return -1;
+      totalMinutes += sessionDuration;
+    }
+  }
+
+  return totalMinutes / 60;
+}
+private calculateSessionDuration(start: string, end: string): number {
+  const [startH, startM] = start.split(':').map(Number);
+  const [endH, endM] = end.split(':').map(Number);
+  const startMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+
+  if (endMinutes <= startMinutes) {
+    this.message.error('L\'heure de fin doit être après l\'heure de début dans toutes les sessions.');
+    return -1;
+  }
+
+  return endMinutes - startMinutes;
+}
+onSubmit(): void {
   if (this.eventForm.valid) {
+    // ✅ Calcul de la durée totale des sessions
+    const totalDuration = this.calculateTotalDurationInHours();
+    const declaredDuration = this.eventForm.get('durationInHours')?.value;
+
+    if (totalDuration < 0) {
+      return; // Erreur déjà affichée dans calculateTotalDurationInHours
+    }
+
+    if (Math.abs(totalDuration - declaredDuration) > 0.01) {
+  this.notification.error(
+    'Durée invalide',
+    `La somme des durées des sessions est de ${totalDuration.toFixed(2)} h, ce qui ne correspond pas à la durée déclarée (${declaredDuration} h).`,
+    { nzPlacement: 'bottomRight' }
+  );
+  return;
+}
+
     const formValue = this.eventForm.value;
+
     const mainSession = {
       roomId: formValue.roomId,
       date: formValue.date,
@@ -216,7 +273,9 @@ export class CalendarComponent implements OnInit {
       linkMeet: formValue.linkMeet,
       type: formValue.sessionType,
     };
+
     const sessionsPayload = [mainSession, ...formValue.sessions];
+
     const payload = {
       title: formValue.title,
       description: formValue.description,
@@ -231,10 +290,7 @@ export class CalendarComponent implements OnInit {
         next: () => {
           this.fetchEventsAndUpdateCalendar();
           this.closeModal();
-          this.notification.success(
-            'Succès',
-            'Formation mise à jour avec succès'
-          );
+          this.notification.success('Succès', 'Formation mise à jour avec succès');
         },
         error: (err) => this.handleApiError(err)
       });
@@ -244,16 +300,12 @@ export class CalendarComponent implements OnInit {
           console.log('Event created:', response);
           this.fetchEventsAndUpdateCalendar();
           this.closeModal();
-          this.notification.success(
-            'Succès',
-            'Formation ajoutée avec succès'
-          );
+          this.notification.success('Succès', 'Formation ajoutée avec succès');
         },
         error: (err) => this.handleApiError(err)
       });
     }
   } else {
-    // Marquer tous les champs comme touchés pour afficher les erreurs
     this.markFormGroupTouched(this.eventForm);
   }
 }
@@ -280,9 +332,10 @@ private markFormGroupTouched(formGroup: FormGroup): void {
 // Méthode pour gérer les erreurs d'API
 private handleApiError(error: any): void {
   console.log("first error", error);
-    this.notification.error(
-      'Erreur',
-      error.error?.message || 'Une erreur est survenue lors de la création/modification de la formation.'
+      this.notification.error(
+    'Erreur',
+      error.error?.message || 'Une erreur est survenue lors de la création/modification de la formation.',
+      { nzPlacement: 'bottomRight' }
     );
   
 }
