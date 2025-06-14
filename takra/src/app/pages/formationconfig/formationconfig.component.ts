@@ -370,70 +370,101 @@ sort(sortName: string, value: string | null): void {
       this.addSession();
     }
   }
+  private calculateTotalDurationInHours(): number {
+  let totalMinutes = 0;
 
-  onSubmit(): boolean | void {
-    if (this.modalForm.invalid) {
-      this.markAllTouched(this.modalForm);
-      return false; // prevent modal from closing
-    }
+  for (let sessionGroup of this.sessions.controls) {
+    const start = sessionGroup.get('timeStart')?.value;
+    const end = sessionGroup.get('timeEnd')?.value;
 
-    if (this.sessions.length === 0) {
-      this.message.warning('Veuillez ajouter au moins une session');
-      return false;
-    }
+    if (start && end) {
+      const [startH, startM] = start.split(':').map(Number);
+      const [endH, endM] = end.split(':').map(Number);
+      const startMinutes = startH * 60 + startM;
+      const endMinutes = endH * 60 + endM;
 
-    this.isSubmitting = true;
-
-    // build payload with ISO dates
-    const raw = this.modalForm.getRawValue();
-    const firstSession = raw.sessions[0];
-    
-    console.log('Valeurs du formulaire avant soumission:', raw);
-    
-    const payload = {
-      title: raw.title,
-      description: raw.description,
-      type: raw.type,
-      // Use first session date as the event date
-      date: firstSession.date instanceof Date ? firstSession.date.toISOString().split('T')[0] : firstSession.date,
-      durationInHours: raw.durationInHours,
-      formateurEmail: raw.formateurEmail,
-      sessions: raw.sessions.map((s: any) => ({
-        roomId: Number(s.roomId),
-        date: s.date instanceof Date ? s.date.toISOString().split('T')[0] : s.date,
-        timeStart: s.timeStart,
-        timeEnd: s.timeEnd,
-        linkMeet: s.linkMeet || '',
-        type: s.type
-      }))
-    };
-    
-    console.log('Payload à envoyer:', payload);
-
-    const obs = this.editingId
-      ? this.sessionService.updateEvent(this.editingId, payload)
-      : this.sessionService.addEvent(payload);
-
-    obs.subscribe({
-      next: (response) => {
-        console.log('Réponse reçue:', response);
-        this.isSubmitting = false;
-        this.message.success(this.editingId ? 'Formation mise à jour avec succès!' : 'Formation créée avec succès!');
-        this.loadEvents(); // Recharger les événements
-        this.modalForm.reset();
-        this.modalRef.close();
-      },
-      error: err => {
-        this.isSubmitting = false;
-        console.error('Erreur lors de la sauvegarde:', err);
-        this.message.error(
-          this.editingId 
-            ? `Échec de la mise à jour: ${err.error?.message || err.message || 'Erreur inconnue'}` 
-            : `Échec de la création: ${err.error?.message || err.message || 'Erreur inconnue'}`
-        );
+      if (endMinutes > startMinutes) {
+        totalMinutes += (endMinutes - startMinutes);
+      } else {
+        // Erreur si heure fin < heure début
+        this.message.error('L\'heure de fin doit être après l\'heure de début pour chaque session.');
+        return -1;
       }
-    });
+    }
   }
+
+  return totalMinutes / 60; // convertir en heures
+}
+  onSubmit(): boolean | void {
+  if (this.modalForm.invalid) {
+    this.markAllTouched(this.modalForm);
+    return false; // Empêche la fermeture de la modal
+  }
+
+  if (this.sessions.length === 0) {
+    this.message.warning('Veuillez ajouter au moins une session');
+    return false;
+  }
+
+  // ✅ Calcul total des heures des sessions
+  const totalSessionDuration = this.calculateTotalDurationInHours();
+  const declaredDuration = this.modalForm.get('durationInHours')?.value;
+
+  if (totalSessionDuration < 0) {
+    return false; // Erreur déjà affichée
+  }
+
+  if (Math.abs(totalSessionDuration - declaredDuration) > 0.01) {
+    this.message.error(
+      `La somme des durées des sessions (${totalSessionDuration.toFixed(2)} h) ne correspond pas à la durée totale déclarée (${declaredDuration} h). Veuillez corriger les heures.`
+    );
+    return false;
+  }
+
+  this.isSubmitting = true;
+
+  const raw = this.modalForm.getRawValue();
+  const firstSession = raw.sessions[0];
+
+  const payload = {
+    title: raw.title,
+    description: raw.description,
+    type: raw.type,
+    date: firstSession.date instanceof Date ? firstSession.date.toISOString().split('T')[0] : firstSession.date,
+    durationInHours: raw.durationInHours,
+    formateurEmail: raw.formateurEmail,
+    sessions: raw.sessions.map((s: any) => ({
+      roomId: Number(s.roomId),
+      date: s.date instanceof Date ? s.date.toISOString().split('T')[0] : s.date,
+      timeStart: s.timeStart,
+      timeEnd: s.timeEnd,
+      linkMeet: s.linkMeet || '',
+      type: s.type
+    }))
+  };
+
+  const obs = this.editingId
+    ? this.sessionService.updateEvent(this.editingId, payload)
+    : this.sessionService.addEvent(payload);
+
+  obs.subscribe({
+    next: (response) => {
+      this.isSubmitting = false;
+      this.message.success(this.editingId ? 'Formation mise à jour avec succès!' : 'Formation créée avec succès!');
+      this.loadEvents();
+      this.modalForm.reset();
+      this.modalRef.close();
+    },
+    error: err => {
+      this.isSubmitting = false;
+      this.message.error(
+        this.editingId
+          ? `Échec de la mise à jour: ${err.error?.message || err.message || 'Erreur inconnue'}`
+          : `Échec de la création: ${err.error?.message || err.message || 'Erreur inconnue'}`
+      );
+    }
+  });
+}
 
   deleteEvent(eventId: number): void {
     this.modal.confirm({
