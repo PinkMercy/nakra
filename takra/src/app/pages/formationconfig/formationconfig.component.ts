@@ -32,6 +32,7 @@ export interface Event {
   title: string;
   description: string;
   date: string;
+  dateRaw?: Date; 
   durationInHours: number;
   formateurEmail: string;
   type: string;
@@ -77,6 +78,8 @@ export class FormationconfigComponent implements OnInit {
   inviteForm!: FormGroup;
   searchControl: FormControl = new FormControl('');
   filteredEvents: Event[] = [];
+  sortName: string | null = null;          // ex. 'date'
+  sortValue: 'ascend' | 'descend' | null = null;
 
   @ViewChild('modalFormTemplate', { static: true }) modalFormTemplate!: TemplateRef<any>;
   @ViewChild('inviteModalTemplate', { static: true }) inviteModalTemplate!: TemplateRef<any>;
@@ -124,16 +127,37 @@ export class FormationconfigComponent implements OnInit {
     });
   }
     private applyFilter(term: string | null): void {
-      if (!term) {
-        // Si la recherche est vide ou null, monter toutes les events
-        this.filteredEvents = [...this.events];
+  if (!term) {
+    this.filteredEvents = [...this.events];
+  } else {
+    const lower = term.trim().toLowerCase();
+    this.filteredEvents = this.events.filter(ev =>
+      ev.title?.toLowerCase().includes(lower)
+    );
+  }
+  // Une fois filtré, on applique le tri courant si défini
+  if (this.sortName && this.sortValue) {
+    this.applySort();
+  }
+}
+private applySort(): void {
+  if (!this.sortName || !this.sortValue) {
+    return;
+  }
+  // Pour l’instant on ne gère que le tri sur 'date'
+  if (this.sortName === 'date') {
+    this.filteredEvents = this.filteredEvents.sort((a, b) => {
+      const da = a.dateRaw ? a.dateRaw.getTime() : 0;
+      const db = b.dateRaw ? b.dateRaw.getTime() : 0;
+      if (this.sortValue === 'ascend') {
+        return da - db;
       } else {
-        const lower = term.trim().toLowerCase();
-        this.filteredEvents = this.events.filter(ev =>
-          ev.title?.toLowerCase().includes(lower)
-        );
+        return db - da;
       }
-    }
+    });
+  }
+  // Si d’autres colonnes à trier, ajouter ici (ex: titre, durée, etc.)
+}
   private buildForm(): void {
     this.modalForm = this.fb.group({
       title: [null, [Validators.required]],
@@ -165,21 +189,26 @@ export class FormationconfigComponent implements OnInit {
   private loadEvents(): void {
   this.sessionService.getEvents().subscribe({
     next: data => {
-      this.events = (data as any[]).map(event => ({
-        ...event,
-        formateurEmail: event.formateurEmail || event.formateur?.email || ''
-      })) as Event[];
+      this.events = (data as any[]).map(event => {
+        const rawDate = new Date(event.date);
+        return {
+          ...event,
+          formateurEmail: event.formateurEmail || event.formateur?.email || '',
+          dateRaw: rawDate,
+          date: rawDate.toLocaleDateString('fr-FR')
+        } as Event;
+      });
       console.log('Formations chargées:', this.events);
-      this.events = this.events.map(event => ({
-        ...event,
-        date: new Date(event.date).toLocaleDateString('fr-FR')
-      }));
-      // Initialisation
+      // Initialisation filteredEvents
       this.filteredEvents = [...this.events];
-      // Si recherche en cours, réappliquer
+      // Réappliquer recherche si nécessaire
       const currentSearch = this.searchControl.value;
       if (currentSearch) {
         this.applyFilter(currentSearch);
+      }
+      // Réappliquer tri si en cours
+      if (this.sortName && this.sortValue) {
+        this.applySort();
       }
     },
     error: err => {
@@ -188,6 +217,27 @@ export class FormationconfigComponent implements OnInit {
       this.filteredEvents = [];
     }
   });
+}
+
+sort(sortName: string, value: string | null): void {
+  // On normalise la valeur au type attendu
+  let sortValue: 'ascend' | 'descend' | null = null;
+  if (value === 'ascend' || value === 'descend') {
+    sortValue = value;
+  } else {
+    sortValue = null;
+  }
+
+  // Mettre à jour les propriétés du composant
+  if (sortValue === null) {
+    this.sortName = null;
+    this.sortValue = null;
+  } else {
+    this.sortName = sortName;
+    this.sortValue = sortValue;
+  }
+  // Re-filtrer puis re-trier
+  this.applyFilter(this.searchControl.value);
 }
 
   addSession(data?: Session): void {

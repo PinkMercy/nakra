@@ -22,7 +22,14 @@
     <thead>
       <tr>
         <th>Titre</th>
-        <th>Date</th>
+         <!-- Colonne Date triable -->
+      <th 
+        nzShowSort
+        [nzSortOrder]="sortName==='date'?sortValue:null"
+        (nzSortOrderChange)="sort('date', $event)"
+      >
+        Date
+      </th>
         <th>Durée</th>
         <th>Sessions</th>
         <th>Actions</th>
