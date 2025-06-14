@@ -8,7 +8,7 @@ import { NzModalModule, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule , FormControl} from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzSelectModule } from 'ng-zorro-antd/select';
@@ -17,7 +17,7 @@ import { RoomService } from '../../services/room.service';
 import { UserService } from '../../services/user/user.service';
 import { User } from '../../models/user';
 import { EnrollmentService } from '../../services/enrollment.service';
-
+import { debounceTime } from 'rxjs/operators';
 export interface Session {
   roomId: number;
   date: string;
@@ -75,7 +75,9 @@ export class FormationconfigComponent implements OnInit {
   eventForInvitation: Event | null = null;
   inviteModalRef!: NzModalRef;
   inviteForm!: FormGroup;
-  
+  searchControl: FormControl = new FormControl('');
+  filteredEvents: Event[] = [];
+
   @ViewChild('modalFormTemplate', { static: true }) modalFormTemplate!: TemplateRef<any>;
   @ViewChild('inviteModalTemplate', { static: true }) inviteModalTemplate!: TemplateRef<any>;
   
@@ -114,8 +116,24 @@ export class FormationconfigComponent implements OnInit {
     this.loadUsers();
     this.buildForm();
     this.buildInviteForm();
-  }
 
+    this.searchControl.valueChanges
+    .pipe(debounceTime(300))
+    .subscribe(value => {
+      this.applyFilter(value);
+    });
+  }
+    private applyFilter(term: string | null): void {
+      if (!term) {
+        // Si la recherche est vide ou null, monter toutes les events
+        this.filteredEvents = [...this.events];
+      } else {
+        const lower = term.trim().toLowerCase();
+        this.filteredEvents = this.events.filter(ev =>
+          ev.title?.toLowerCase().includes(lower)
+        );
+      }
+    }
   private buildForm(): void {
     this.modalForm = this.fb.group({
       title: [null, [Validators.required]],
@@ -145,25 +163,32 @@ export class FormationconfigComponent implements OnInit {
   }
 
   private loadEvents(): void {
-    this.sessionService.getEvents().subscribe({
-      next: data => {
-        this.events = (data as any[]).map(event => ({
-          ...event,
-           formateurEmail: event.formateurEmail || event.formateur?.email || ''
-        })) as Event[];
-        console.log('Formations chargées:', this.events);
-        // Format dates for display
-        this.events = this.events.map(event => ({
-          ...event,
-          date: new Date(event.date).toLocaleDateString('fr-FR')
-        }));
-      },
-      error: err => {
-        console.error('Erreur de chargement des formations:', err);
-        this.message.error('Échec du chargement des formations');
+  this.sessionService.getEvents().subscribe({
+    next: data => {
+      this.events = (data as any[]).map(event => ({
+        ...event,
+        formateurEmail: event.formateurEmail || event.formateur?.email || ''
+      })) as Event[];
+      console.log('Formations chargées:', this.events);
+      this.events = this.events.map(event => ({
+        ...event,
+        date: new Date(event.date).toLocaleDateString('fr-FR')
+      }));
+      // Initialisation
+      this.filteredEvents = [...this.events];
+      // Si recherche en cours, réappliquer
+      const currentSearch = this.searchControl.value;
+      if (currentSearch) {
+        this.applyFilter(currentSearch);
       }
-    });
-  }
+    },
+    error: err => {
+      console.error('Erreur de chargement des formations:', err);
+      this.message.error('Échec du chargement des formations');
+      this.filteredEvents = [];
+    }
+  });
+}
 
   addSession(data?: Session): void {
     this.sessions.push(
