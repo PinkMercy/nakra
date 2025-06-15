@@ -65,7 +65,7 @@ export class UsercalenderComponent implements OnInit {
       case 'ONLINE':
         return '#4285F4'; // Google blue
       case 'OFFLINE':
-        return '#34A853'; // Google green
+        return '#607D8B'; // Google green #34A853
       case 'HYBRID':
         return '#FBBC05'; // Google yellow
       case 'WEBINAR':

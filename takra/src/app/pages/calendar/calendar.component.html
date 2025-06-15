@@ -86,11 +86,11 @@
               <label for="sessionType">Type session :</label>
               <select id="sessionType" formControlName="sessionType" class="form-control">
                 <option value="ONLINE">Online</option>
-                <option value="OFFLINE">Offline</option>
+                <option value="ONSITE">Offline</option>
               </select>
             </div>
 
-            <div class="form-group" *ngIf="eventForm.get('sessionType')?.value !== 'OFFLINE'">
+            <div class="form-group" *ngIf="eventForm.get('sessionType')?.value !== 'ONSITE'">
               <label for="linkMeet">Lien meet:</label>
               <input type="text" id="linkMeet" formControlName="linkMeet" class="form-control">
             </div>
@@ -138,11 +138,11 @@
                 <label>Type de Session :</label>
                 <select formControlName="type" class="form-control">
                   <option value="ONLINE">en ligne</option>
-                  <option value="OFFLINE">sur site</option>
+                  <option value="ONSITE">sur site</option>
                 </select>
               </div>
 
-              <div class="form-group" *ngIf="session.get('type')?.value !== 'OFFLINE'">
+              <div class="form-group" *ngIf="session.get('type')?.value !== 'ONSITE'">
                 <label>lien du meet:</label>
                 <input type="text" formControlName="linkMeet" class="form-control">
               </div>
